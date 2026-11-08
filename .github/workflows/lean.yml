@@ -1,0 +1,29 @@
+name: Lean
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MATHLIB_NO_CACHE_ON_UPDATE: "1"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: leanprover/lean-action@c544e89643240c6b398f14a431bcdc6309e36b3e # v1.4.0
+        with:
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-mathlib-cache: false
+      - name: Get required mathlib cache
+        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Tactic.NormNum
+      - name: Build library and example
+        run: lake build
+      - name: Audit theorem axioms
+        run: python3 scripts/check_axioms.py

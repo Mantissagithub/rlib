@@ -1,0 +1,33 @@
+# rlib
+
+A Lean library for reinforcement learning mathematics, built on mathlib.
+The first milestone covers finite real expectation and the data of an MDP.
+
+`Rlib.Probability.Expectation` defines `expect` for mathlib's `PMF` on a finite type.
+It proves normalization, constant and zero expectation, linearity, monotonicity, and evaluation under a point mass.
+
+`Rlib.MDP.Basic` defines transitions, expected immediate rewards, and stationary randomized policies.
+All actions are available in every state. State and action types need finite instances only for the expectation operations.
+One-step values take an explicit real discount parameter. They do not yet require discount bounds.
+The one-state example checks a concrete discounted value.
+
+This milestone does not formalize trajectories, infinite returns, Bellman convergence, or an optimal policy theorem.
+See [ROADMAP.md](ROADMAP.md) for the proposed sequence.
+
+## Build and audit
+
+Install [elan](https://github.com/leanprover/elan), then run these commands in the repository.
+
+```sh
+MATHLIB_NO_CACHE_ON_UPDATE=1 lake update
+lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Tactic.NormNum
+lake build
+python3 scripts/check_axioms.py
+```
+
+`lean-toolchain` pins Lean 4.35.0. The Lake dependency pins mathlib v4.35.0.
+The axiom audit checks every public theorem in this milestone and rejects axioms outside `propext`, `Classical.choice`, and `Quot.sound`.
+It rejects `sorryAx` and custom axioms, including those inherited through dependencies.
+CI runs the build and audit.
+
+Import the library with `import Rlib`.
