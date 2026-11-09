@@ -9,5 +9,10 @@ import Rlib
 #print axioms Rlib.expect_mul
 #print axioms Rlib.expect_mono
 #print axioms Rlib.expect_pure
+#print axioms Rlib.norm_expect_sub_expect_le
 #print axioms Rlib.MDP.oneStepActionValue_zero
+#print axioms Rlib.MDP.oneStepActionValue_mono
+#print axioms Rlib.MDP.oneStepValue_mono
+#print axioms Rlib.MDP.norm_oneStepActionValue_sub_le
+#print axioms Rlib.MDP.norm_oneStepValue_sub_le
 #print axioms Rlib.Examples.oneState_value

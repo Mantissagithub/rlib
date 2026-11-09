@@ -29,7 +29,7 @@ jobs:
           tar --zstd -xf "$archive" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/lean-${version}-linux/bin" >> "$GITHUB_PATH"
       - name: Get required mathlib cache
-        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Tactic.NormNum
+        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Tactic.NormNum
       - name: Build library and example
         run: lake build
       - name: Audit theorem axioms

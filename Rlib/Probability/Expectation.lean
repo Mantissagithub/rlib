@@ -1,6 +1,8 @@
 module
 
 public import Mathlib.Probability.ProbabilityMassFunction.Monad
+public import Mathlib.Analysis.Normed.Group.Constructions
+public import Mathlib.Analysis.Normed.Field.Basic
 
 /-! # Real expectation on finite types -/
 
@@ -46,6 +48,20 @@ theorem expect_mul (p : PMF X) (c : ℝ) (f : X → ℝ) :
 theorem expect_mono (p : PMF X) {f g : X → ℝ} (h : ∀ x, f x ≤ g x) :
     expect p f ≤ expect p g := by
   exact Finset.sum_le_sum fun x _ => mul_le_mul_of_nonneg_left (h x) ENNReal.toReal_nonneg
+
+/-- Expectation does not increase the sup-norm distance between finite real functions. -/
+theorem norm_expect_sub_expect_le (p : PMF X) (f g : X → ℝ) :
+    ‖expect p f - expect p g‖ ≤ ‖f - g‖ := by
+  calc
+    ‖expect p f - expect p g‖ = ‖∑ x, (p x).toReal * (f x - g x)‖ := by
+      simp [expect, mul_sub, Finset.sum_sub_distrib]
+    _ ≤ ∑ x, ‖(p x).toReal * (f x - g x)‖ := norm_sum_le _ _
+    _ ≤ ∑ x, (p x).toReal * ‖f - g‖ := by
+      apply Finset.sum_le_sum
+      intro x _
+      rw [norm_mul, Real.norm_of_nonneg ENNReal.toReal_nonneg]
+      exact mul_le_mul_of_nonneg_left (norm_le_pi_norm (f - g) x) ENNReal.toReal_nonneg
+    _ = ‖f - g‖ := by rw [← Finset.sum_mul, probability_sum, one_mul]
 
 /-- Expectation under a point mass evaluates the function at that point. -/
 @[simp] theorem expect_pure (x : X) (f : X → ℝ) : expect (PMF.pure x) f = f x := by
