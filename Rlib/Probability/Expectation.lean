@@ -1,6 +1,6 @@
 module
 
-public import Mathlib.Probability.ProbabilityMassFunction.Monad
+public import Mathlib.Probability.ProbabilityMassFunction.Constructions
 public import Mathlib.Analysis.Normed.Group.Constructions
 public import Mathlib.Analysis.Normed.Field.Basic
 
@@ -67,5 +67,20 @@ theorem norm_expect_sub_expect_le (p : PMF X) (f g : X → ℝ) :
 @[simp] theorem expect_pure (x : X) (f : X → ℝ) : expect (PMF.pure x) f = f x := by
   classical
   simp [expect, PMF.pure_apply, apply_ite, ite_mul]
+
+/-- Expectation under sequential sampling is the corresponding iterated expectation. -/
+theorem expect_bind {Y : Type*} [Fintype Y] (p : PMF X) (q : X → PMF Y)
+    (f : Y → ℝ) : expect (p.bind q) f = expect p (fun x => expect (q x) f) := by
+  classical
+  simp only [expect, PMF.bind_apply, tsum_fintype (L := .unconditional X),
+    ENNReal.toReal_sum (fun x _ => ENNReal.mul_ne_top (p.apply_ne_top x)
+      ((q x).apply_ne_top _)), ENNReal.toReal_mul, Finset.sum_mul, Finset.mul_sum]
+  rw [Finset.sum_comm]
+  simp only [mul_assoc]
+
+/-- Mapping samples composes the function whose expectation is taken. -/
+theorem expect_map {Y : Type*} [Fintype Y] (p : PMF X) (g : X → Y) (f : Y → ℝ) :
+    expect (p.map g) f = expect p (fun x => f (g x)) := by
+  simp [PMF.map, expect_bind]
 
 end Rlib

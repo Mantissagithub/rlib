@@ -5,7 +5,7 @@ The first four milestones cover finite real expectation, the data of an MDP, one
 The algorithms milestone adds value iteration convergence, policy improvement, and finite policy iteration with terminal Bellman optimality.
 
 `Rlib.Probability.Expectation` defines `expect` for mathlib's `PMF` on a finite type.
-It proves normalization, constant and zero expectation, linearity, monotonicity, and evaluation under a point mass.
+It proves normalization, constant and zero expectation, linearity, monotonicity, evaluation under a point mass, and expectation laws for sequential sampling and mapped samples.
 The difference between two expectations is at most the sup-norm distance between their input functions.
 
 `Rlib.MDP.Basic` defines transitions, expected immediate rewards, and stationary randomized policies.
@@ -50,8 +50,15 @@ These definitions are noncomputable mathematical choices, with no ordering of ac
 The results use finite state and action types and a nonempty action type, without a nonempty state assumption.
 The compiled test in `RlibTest/PolicyIteration.lean` checks a change from reward `-2` to reward `-1` at discount `1 / 2`, values `-4` and `-2`, subsequent stability, and a tie case.
 
+`Rlib.MDP.FiniteHorizon` samples finite trajectories under a stationary randomized policy.
+A trajectory of length `n` records `n` action and successor-state pairs, with the initial state supplied separately. It contains `n` transitions and earns `n` rewards.
+`discountedReturn` sums the stored expected immediate reward `m.reward s a` along the sampled states and actions. It does not sample reward noise.
+`expectedReturn` takes this path return's expectation under `trajectoryLaw`. The proof identifies it with `n` applications of the fixed-policy Bellman operator to zero.
+The trajectory law and path return do not require finite types. Their expectation uses finite state and action types, with no discount bounds or nonempty-type assumptions.
+The compiled test in `RlibTest/FiniteHorizon.lean` checks a deterministic return of `3`, a stochastic return of `1 / 2`, and a two-step trajectory probability of `3 / 16`. A state-dependent transition test checks probability `1 / 4` for the same path.
+
 Policy iteration's terminal optimality and value iteration's convergence concern Bellman equations.
-The library does not yet formalize trajectories, infinite discounted returns, or optimality stated in terms of those returns.
+The library does not yet formalize infinite discounted returns, convergence of trajectory returns, or optimality stated in terms of those returns.
 See [ROADMAP.md](ROADMAP.md) for the proposed sequence.
 
 ## Build and audit
@@ -60,18 +67,19 @@ Install [elan](https://github.com/leanprover/elan), then run these commands in t
 
 ```sh
 MATHLIB_NO_CACHE_ON_UPDATE=1 lake update
-lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Data.Finset.Lattice.Fold Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Order.OrderClosed Mathlib.Data.Fintype.Pigeonhole
+lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Constructions Mathlib.Data.Fin.Tuple.Basic Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Data.Finset.Lattice.Fold Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Order.OrderClosed Mathlib.Data.Fintype.Pigeonhole
 lake build
 python3 scripts/check_axioms.py
 lake env lean -DwarningAsError=true RlibTest/Optimality.lean
 lake env lean -DwarningAsError=true RlibTest/ValueIteration.lean
 lake env lean -DwarningAsError=true RlibTest/PolicyImprovement.lean
 lake env lean -DwarningAsError=true RlibTest/PolicyIteration.lean
+lake env lean -DwarningAsError=true RlibTest/FiniteHorizon.lean
 ```
 
 `lean-toolchain` pins Lean 4.35.0. The Lake dependency pins mathlib v4.35.0.
 The axiom audit checks every public theorem in this milestone and rejects axioms outside `propext`, `Classical.choice`, and `Quot.sound`.
 It rejects `sorryAx` and custom axioms, including those inherited through dependencies.
-CI runs the build, axiom audit, and all four compiled examples.
+CI runs the build, axiom audit, and all five compiled examples.
 
 Import the library with `import Rlib`.
