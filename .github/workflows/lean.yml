@@ -29,8 +29,10 @@ jobs:
           tar --zstd -xf "$archive" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/lean-${version}-linux/bin" >> "$GITHUB_PATH"
       - name: Get required mathlib cache
-        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Tactic.NormNum
+        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Data.Finset.Lattice.Fold Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum
       - name: Build library and example
         run: lake build
       - name: Audit theorem axioms
         run: python3 scripts/check_axioms.py
+      - name: Check optimality example
+        run: lake env lean -DwarningAsError=true RlibTest/Optimality.lean

@@ -1,12 +1,12 @@
 # Roadmap
 
 Complete and verify one milestone before starting the next.
-The first three milestones are implemented and verified. Later items remain proposals.
+The first four milestones are implemented and verified. Later items remain proposals.
 
 1. Finite foundations, complete. Real expectation laws, MDP data, stationary randomized policies, and a checked one-state example.
 2. One-step operators, complete. Monotonicity for `0 ≤ γ` and sup-norm error bounds with factor `‖γ‖` for any real `γ`.
 3. Policy evaluation, complete. Contraction for a fixed policy with `0 ≤ γ < 1` and a unique solution of its Bellman equation on finite state and action types.
-4. Optimality. Define the finite-action Bellman optimality operator and prove its contraction and fixed-point theorem.
+4. Optimality, complete. The finite-action Bellman optimality operator is monotone for `0 ≤ γ`, has a sup-norm error bound for any real `γ`, and has a unique fixed point for `0 ≤ γ < 1`. State and action types are finite, and the action type is nonempty.
 5. Algorithms. Formalize value iteration and policy iteration with their precise convergence assumptions.
 6. Returns. Relate the operator definitions to finite trajectories, then justify infinite discounted returns.
 7. Learning from samples. Define empirical transitions and rewards, then prove concentration bounds under explicit sampling assumptions.
