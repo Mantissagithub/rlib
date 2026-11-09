@@ -26,4 +26,8 @@ import Rlib
 #print axioms Rlib.MDP.norm_valueIteration_sub_le
 #print axioms Rlib.MDP.tendsto_valueIteration
 #print axioms Rlib.MDP.existsUnique_valueIteration_limit
+#print axioms Rlib.MDP.oneStepValue_le_optimalityOperator
+#print axioms Rlib.MDP.exists_deterministic_greedy_policy
+#print axioms Rlib.MDP.policy_improvement
+#print axioms Rlib.MDP.exists_policy_improvement
 #print axioms Rlib.Examples.oneState_value
