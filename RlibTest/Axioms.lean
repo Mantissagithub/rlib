@@ -21,4 +21,9 @@ import Rlib
 #print axioms Rlib.MDP.norm_optimalityOperator_sub_le
 #print axioms Rlib.MDP.optimalityOperator_contractingWith
 #print axioms Rlib.MDP.existsUnique_optimalityOperator_fixedPoint
+#print axioms Rlib.MDP.valueIteration_zero
+#print axioms Rlib.MDP.valueIteration_succ
+#print axioms Rlib.MDP.norm_valueIteration_sub_le
+#print axioms Rlib.MDP.tendsto_valueIteration
+#print axioms Rlib.MDP.existsUnique_valueIteration_limit
 #print axioms Rlib.Examples.oneState_value

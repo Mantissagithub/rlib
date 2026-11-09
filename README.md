@@ -2,6 +2,7 @@
 
 A Lean library for reinforcement learning mathematics, built on mathlib.
 The first four milestones cover finite real expectation, the data of an MDP, one-step operator bounds, policy evaluation, and Bellman optimality.
+The algorithms milestone is partially complete with value iteration convergence.
 
 `Rlib.Probability.Expectation` defines `expect` for mathlib's `PMF` on a finite type.
 It proves normalization, constant and zero expectation, linearity, monotonicity, and evaluation under a point mass.
@@ -27,7 +28,14 @@ For `0 ≤ γ < 1`, it is a contraction with factor `γ` and has exactly one sol
 No nonempty state assumption is needed. This fixed-point result does not establish the existence of an optimal policy or identify the fixed point with infinite discounted returns.
 The compiled test in `RlibTest/Optimality.lean` checks that rewards `-2` and `-1` produce a maximum of `-1` when the discount is zero.
 
-The library does not yet formalize trajectories, infinite returns, Bellman convergence, or an optimal policy theorem.
+`Rlib.MDP.ValueIteration` repeatedly applies the Bellman optimality operator to an initial value function.
+For any real `γ`, the error after `n` steps to any supplied Bellman fixed point `v` is at most `‖γ‖ ^ n * ‖v₀ - v‖`.
+For `0 ≤ γ < 1`, every initial value function converges to the unique Bellman optimality fixed point.
+These results use finite state and action types and a nonempty action type, without a nonempty state assumption.
+The compiled test in `RlibTest/ValueIteration.lean` checks that two iterations from zero give value `3` in the one-state example with reward `2` and discount `1 / 2`.
+
+The library does not yet formalize policy iteration, trajectories, infinite returns, or an optimal policy theorem.
+Value iteration convergence concerns the Bellman fixed point only and does not identify it with infinite discounted returns.
 See [ROADMAP.md](ROADMAP.md) for the proposed sequence.
 
 ## Build and audit
@@ -40,11 +48,12 @@ lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Ana
 lake build
 python3 scripts/check_axioms.py
 lake env lean -DwarningAsError=true RlibTest/Optimality.lean
+lake env lean -DwarningAsError=true RlibTest/ValueIteration.lean
 ```
 
 `lean-toolchain` pins Lean 4.35.0. The Lake dependency pins mathlib v4.35.0.
 The axiom audit checks every public theorem in this milestone and rejects axioms outside `propext`, `Classical.choice`, and `Quot.sound`.
 It rejects `sorryAx` and custom axioms, including those inherited through dependencies.
-CI runs the build, axiom audit, and compiled optimality example.
+CI runs the build, axiom audit, and both compiled examples.
 
 Import the library with `import Rlib`.
