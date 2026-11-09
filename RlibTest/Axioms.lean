@@ -17,6 +17,8 @@ import Rlib
 #print axioms Rlib.MDP.norm_oneStepValue_sub_le
 #print axioms Rlib.MDP.oneStepValue_contractingWith
 #print axioms Rlib.MDP.existsUnique_oneStepValue_fixedPoint
+#print axioms Rlib.MDP.oneStepValue_policyValue
+#print axioms Rlib.MDP.eq_policyValue_of_fixedPoint
 #print axioms Rlib.MDP.optimalityOperator_mono
 #print axioms Rlib.MDP.norm_optimalityOperator_sub_le
 #print axioms Rlib.MDP.optimalityOperator_contractingWith
@@ -28,6 +30,14 @@ import Rlib
 #print axioms Rlib.MDP.existsUnique_valueIteration_limit
 #print axioms Rlib.MDP.oneStepValue_le_optimalityOperator
 #print axioms Rlib.MDP.exists_deterministic_greedy_policy
+#print axioms Rlib.MDP.oneStepValue_greedyPolicy
 #print axioms Rlib.MDP.policy_improvement
 #print axioms Rlib.MDP.exists_policy_improvement
+#print axioms Rlib.MDP.policyIteration_zero
+#print axioms Rlib.MDP.policyIteration_succ
+#print axioms Rlib.MDP.oneStepValue_policyIteration_succ
+#print axioms Rlib.MDP.policyValue_policyIteration_mono
+#print axioms Rlib.MDP.policyIteration_stable_of_value_eq
+#print axioms Rlib.MDP.optimalityOperator_policyValue_of_policyIteration_stable
+#print axioms Rlib.MDP.exists_policyIteration_stable_optimal
 #print axioms Rlib.Examples.oneState_value

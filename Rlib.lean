@@ -7,4 +7,5 @@ public import Rlib.MDP.PolicyEvaluation
 public import Rlib.MDP.Optimality
 public import Rlib.MDP.ValueIteration
 public import Rlib.MDP.PolicyImprovement
+public import Rlib.MDP.PolicyIteration
 public import Rlib.Examples.OneState

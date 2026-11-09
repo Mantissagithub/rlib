@@ -36,6 +36,16 @@ theorem exists_deterministic_greedy_policy (m : MDP S A) (γ : ℝ) (v : S → �
   refine ⟨a, funext fun s => ?_⟩
   simpa only [oneStepValue, expect_pure] using (ha s).symm
 
+/-- A fixed choice of deterministic greedy policy, depending only on the continuation value. -/
+noncomputable def greedyPolicy (m : MDP S A) (γ : ℝ) (v : S → ℝ) : S → A :=
+  Classical.choose (m.exists_deterministic_greedy_policy γ v)
+
+/-- The chosen greedy policy attains the Bellman optimality operator. -/
+theorem oneStepValue_greedyPolicy (m : MDP S A) (γ : ℝ) (v : S → ℝ) :
+    m.oneStepValue (fun s => PMF.pure (m.greedyPolicy γ v s)) γ v =
+      m.optimalityOperator γ v :=
+  Classical.choose_spec (m.exists_deterministic_greedy_policy γ v)
+
 /-- A policy greedy with respect to an old Bellman value has a nondecreasing Bellman value. -/
 theorem policy_improvement (m : MDP S A) (πold πnew : StationaryPolicy S A)
     {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (v w : S → ℝ)
