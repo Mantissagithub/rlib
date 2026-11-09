@@ -15,4 +15,6 @@ import Rlib
 #print axioms Rlib.MDP.oneStepValue_mono
 #print axioms Rlib.MDP.norm_oneStepActionValue_sub_le
 #print axioms Rlib.MDP.norm_oneStepValue_sub_le
+#print axioms Rlib.MDP.oneStepValue_contractingWith
+#print axioms Rlib.MDP.existsUnique_oneStepValue_fixedPoint
 #print axioms Rlib.Examples.oneState_value

@@ -1,7 +1,7 @@
 # rlib
 
 A Lean library for reinforcement learning mathematics, built on mathlib.
-The first two milestones cover finite real expectation, the data of an MDP, and one-step operator bounds.
+The first three milestones cover finite real expectation, the data of an MDP, one-step operator bounds, and policy evaluation.
 
 `Rlib.Probability.Expectation` defines `expect` for mathlib's `PMF` on a finite type.
 It proves normalization, constant and zero expectation, linearity, monotonicity, and evaluation under a point mass.
@@ -16,6 +16,11 @@ The one-state example checks a concrete discounted value.
 For any real `γ`, their error bounds use `‖γ‖ * ‖v - w‖`.
 The policy bound uses the sup norm over all states.
 
+`Rlib.MDP.PolicyEvaluation` fixes a stationary randomized policy on finite state and action types.
+For a real discount with `0 ≤ γ < 1`, the policy operator is a contraction with factor `γ` in the sup norm.
+There is exactly one function `v : S → ℝ` satisfying the Bellman equation `m.oneStepValue π γ v = v`.
+These results require no nonempty-type assumptions on the state or action types.
+
 The library does not yet formalize trajectories, infinite returns, Bellman convergence, or an optimal policy theorem.
 See [ROADMAP.md](ROADMAP.md) for the proposed sequence.
 
@@ -25,7 +30,7 @@ Install [elan](https://github.com/leanprover/elan), then run these commands in t
 
 ```sh
 MATHLIB_NO_CACHE_ON_UPDATE=1 lake update
-lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Tactic.NormNum
+lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Monad Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Tactic.NormNum
 lake build
 python3 scripts/check_axioms.py
 ```
