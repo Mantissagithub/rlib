@@ -1,7 +1,9 @@
 module
 
 public import Rlib.Probability.Expectation
+public import Rlib.Probability.Empirical
 public import Rlib.MDP.Basic
+public import Rlib.MDP.Empirical
 public import Rlib.MDP.FiniteHorizon
 public import Rlib.MDP.TrajectoryMeasure
 public import Rlib.MDP.InfiniteHorizon

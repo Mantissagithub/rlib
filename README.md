@@ -6,7 +6,7 @@ The goal is to give new RL proofs a shared starting point: definitions of enviro
 
 ## What is proved
 
-The current results cover finite state and action sets:
+The Bellman and return results cover finite state and action sets:
 
 - A fixed policy has exactly one solution to its Bellman equation.
 - Value iteration converges to the Bellman optimality solution from any starting estimate.
@@ -16,6 +16,9 @@ The current results cover finite state and action sets:
 - The infinite trajectory probability law has exactly the finite trajectory laws as its prefix distributions.
 - Infinite discounted returns are absolutely summable. Finite prefix returns converge to them, and both obey the geometric reward bound.
 - Infinite discounted returns are integrable under the trajectory law, and their expectations equal the policy's Bellman value.
+- Empirical MDPs store observed reward means and successor frequencies. Their one-step action values equal sample means of the observed one-step targets.
+
+Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These are deterministic estimation identities; concentration guarantees remain future work.
 
 The uniqueness, convergence, policy-improvement, summability, and return-bound results assume a discount factor `0 ≤ γ < 1`. The finite-horizon return identities allow any real discount. The trajectory law and its prefix distributions do not depend on a discount. Maximizing over actions requires at least one action.
 
@@ -34,7 +37,9 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | File | What it contains |
 | --- | --- |
 | [Probability/Expectation](Rlib/Probability/Expectation.lean) | Finite expectation, linearity, bounds, and sequential sampling |
+| [Probability/Empirical](Rlib/Probability/Empirical.lean) | Nonempty sample means, empirical distributions, frequencies, and expectation identities |
 | [MDP/Basic](Rlib/MDP/Basic.lean) | Environments, policies, and one-step values |
+| [MDP/Empirical](Rlib/MDP/Empirical.lean) | MDP estimates from paired observations and exact one-step sample identities |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
@@ -83,6 +88,7 @@ lake env lean -DwarningAsError=true RlibTest/FiniteHorizon.lean
 lake env lean -DwarningAsError=true RlibTest/InfiniteHorizon.lean
 lake env lean -DwarningAsError=true RlibTest/TrajectoryMeasure.lean
 lake env lean -DwarningAsError=true RlibTest/InfiniteExpectation.lean
+lake env lean -DwarningAsError=true RlibTest/Empirical.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, and tied actions.

@@ -50,3 +50,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/TrajectoryMeasure.lean
       - name: Check infinite expectation example
         run: lake env lean -DwarningAsError=true RlibTest/InfiniteExpectation.lean
+      - name: Check empirical estimation example
+        run: lake env lean -DwarningAsError=true RlibTest/Empirical.lean

@@ -13,6 +13,12 @@ import Rlib
 #print axioms Rlib.expect_bind
 #print axioms Rlib.expect_map
 #print axioms Rlib.norm_expect_sub_expect_le
+#print axioms Rlib.sampleMean_const
+#print axioms Rlib.sampleMean_add
+#print axioms Rlib.sampleMean_mul
+#print axioms Rlib.expect_empiricalPMF
+#print axioms Rlib.empiricalPMF_apply_toReal
+#print axioms Rlib.MDP.oneStepActionValue_ofSamples
 #print axioms Rlib.MDP.oneStepActionValue_zero
 #print axioms Rlib.MDP.isProbabilityMeasure_pathMeasure
 #print axioms Rlib.MDP.map_prefix_pathMeasure
