@@ -1,73 +1,68 @@
 # rlib
 
-A Lean library for reinforcement learning mathematics, built on mathlib.
-The first four milestones cover finite real expectation, the data of an MDP, one-step operator bounds, policy evaluation, and Bellman optimality.
-The algorithms milestone adds value iteration convergence, policy improvement, and finite policy iteration with terminal Bellman optimality.
+Reinforcement learning theory in Lean, built on [mathlib](https://github.com/leanprover-community/mathlib4).
 
-`Rlib.Probability.Expectation` defines `expect` for mathlib's `PMF` on a finite type.
-It proves normalization, constant and zero expectation, linearity, monotonicity, evaluation under a point mass, and expectation laws for sequential sampling and mapped samples.
-The difference between two expectations is at most the sup-norm distance between their input functions.
+The goal is to give new RL proofs a shared starting point: definitions of environments and policies, probability tools, and results that Lean has already checked.
 
-`Rlib.MDP.Basic` defines transitions, expected immediate rewards, and stationary randomized policies.
-All actions are available in every state. State and action types need finite instances only for the expectation operations.
-One-step values take an explicit real discount parameter. They do not yet require discount bounds.
-The one-state example checks a concrete discounted value.
+## What is proved
 
-`Rlib.MDP.OneStep` proves monotonicity of action and policy values for `0 ≤ γ`.
-For any real `γ`, their error bounds use `‖γ‖ * ‖v - w‖`.
-The policy bound uses the sup norm over all states.
+The current results cover finite state and action sets:
 
-`Rlib.MDP.PolicyEvaluation` fixes a stationary randomized policy on finite state and action types.
-For a real discount with `0 ≤ γ < 1`, the policy operator is a contraction with factor `γ` in the sup norm.
-There is exactly one function `v : S → ℝ` satisfying the Bellman equation `m.oneStepValue π γ v = v`.
-`policyValue` selects this function, with theorems for its Bellman equation and uniqueness.
-These results require no nonempty-type assumptions on the state or action types.
+- A fixed policy has exactly one solution to its Bellman equation.
+- Value iteration converges to the Bellman optimality solution from any starting estimate.
+- Choosing a greedy policy cannot lower the policy's Bellman value.
+- Policy iteration eventually stops changing, using a fixed rule for choosing between tied actions.
+- Expected rewards over a finite sampled trajectory equal repeated fixed-policy Bellman updates from zero.
 
-`Rlib.MDP.Optimality` takes the maximum one-step value over all actions on finite state and action types, with a nonempty action type.
-Its monotonicity requires `0 ≤ γ`, and its sup-norm error bound uses `‖γ‖ * ‖v - w‖` for any real `γ`.
-For `0 ≤ γ < 1`, it is a contraction with factor `γ` and has exactly one solution of `m.optimalityOperator γ v = v`.
-No nonempty state assumption is needed. This fixed-point result alone does not identify a policy attaining the fixed point or relate it to infinite discounted returns.
-The compiled test in `RlibTest/Optimality.lean` checks that rewards `-2` and `-1` produce a maximum of `-1` when the discount is zero.
+The uniqueness, convergence, and policy-improvement results assume a discount factor `0 ≤ γ < 1`. The finite-horizon return identities allow any real discount. Maximizing over actions requires at least one action.
 
-`Rlib.MDP.ValueIteration` repeatedly applies the Bellman optimality operator to an initial value function.
-For any real `γ`, the error after `n` steps to any supplied Bellman fixed point `v` is at most `‖γ‖ ^ n * ‖v₀ - v‖`.
-For `0 ≤ γ < 1`, every initial value function converges to the unique Bellman optimality fixed point.
-These results use finite state and action types and a nonempty action type, without a nonempty state assumption.
-The compiled test in `RlibTest/ValueIteration.lean` checks that two iterations from zero give value `3` in the one-state example with reward `2` and discount `1 / 2`.
+## The model and its scope
 
-`Rlib.MDP.PolicyImprovement` bounds every policy's one-step value by the Bellman optimality operator and proves that a deterministic greedy policy exists for any real discount.
-`greedyPolicy` fixes one such choice for each continuation value, and its specification proves that it attains the maximum.
-For `0 ≤ γ < 1`, a policy greedy with respect to an old policy's Bellman value has a nondecreasing Bellman value.
-Every policy Bellman value therefore admits a greedy policy and a new Bellman value at least as large at every state.
-These results use finite state and action types and a nonempty action type, without a nonempty state assumption.
-The compiled test in `RlibTest/PolicyImprovement.lean` applies policy improvement to a one-state model with rewards `-2` and `-1` and discount `1 / 2`, comparing the old Bellman value `-4` with the new Bellman value `-2`.
+An environment specifies transition probabilities and an expected immediate reward for each state and action. Every action is available in every state. Policies can choose actions randomly, based on the current state. Policy iteration uses deterministic policies.
 
-`Rlib.MDP.PolicyIteration` starts from a deterministic policy `S → A` and repeatedly evaluates it and chooses `greedyPolicy` for its value.
-For `0 ≤ γ < 1`, the Bellman values are nondecreasing, and the policies eventually stay at one policy whose value satisfies the Bellman optimality equation.
-The proof uses finiteness of the deterministic policies and a fixed greedy choice that depends only on the value function.
-A tied action may be replaced. Equal consecutive value functions guarantee that the following two policies are equal.
-These definitions are noncomputable mathematical choices, with no ordering of actions or executable action-selection procedure.
-The results use finite state and action types and a nonempty action type, without a nonempty state assumption.
-The compiled test in `RlibTest/PolicyIteration.lean` checks a change from reward `-2` to reward `-1` at discount `1 / 2`, values `-4` and `-2`, subsequent stability, and a tie case.
+Finite trajectories record the action and next state at each step. Their returns sum the model's stored expected rewards, rather than sampled reward noise.
 
-`Rlib.MDP.FiniteHorizon` samples finite trajectories under a stationary randomized policy.
-A trajectory of length `n` records `n` action and successor-state pairs, with the initial state supplied separately. It contains `n` transitions and earns `n` rewards.
-`discountedReturn` sums the stored expected immediate reward `m.reward s a` along the sampled states and actions. It does not sample reward noise.
-`expectedReturn` takes this path return's expectation under `trajectoryLaw`. The proof identifies it with `n` applications of the fixed-policy Bellman operator to zero.
-The trajectory law and path return do not require finite types. Their expectation uses finite state and action types, with no discount bounds or nonempty-type assumptions.
-The compiled test in `RlibTest/FiniteHorizon.lean` checks a deterministic return of `3`, a stochastic return of `1 / 2`, and a two-step trajectory probability of `3 / 16`. A state-dependent transition test checks probability `1 / 4` for the same path.
+The current policy values are defined by Bellman equations. Connecting them to **infinite discounted returns** is the next step. The definitions use exact real numbers.
 
-Policy iteration's terminal optimality and value iteration's convergence concern Bellman equations.
-The library does not yet formalize infinite discounted returns, convergence of trajectory returns, or optimality stated in terms of those returns.
-See [ROADMAP.md](ROADMAP.md) for the proposed sequence.
+See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 
-## Build and audit
+## Find the code
 
-Install [elan](https://github.com/leanprover/elan), then run these commands in the repository.
+| File | What it contains |
+| --- | --- |
+| [Probability/Expectation](Rlib/Probability/Expectation.lean) | Finite expectation, linearity, bounds, and sequential sampling |
+| [MDP/Basic](Rlib/MDP/Basic.lean) | Environments, policies, and one-step values |
+| [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
+| [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
+| [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
+| [MDP/ValueIteration](Rlib/MDP/ValueIteration.lean) | Repeated value updates, convergence, and error bounds |
+| [MDP/PolicyImprovement](Rlib/MDP/PolicyImprovement.lean) | Greedy policy existence and improvement |
+| [MDP/PolicyIteration](Rlib/MDP/PolicyIteration.lean) | Policy updates, stabilization, and terminal Bellman optimality |
+| [MDP/FiniteHorizon](Rlib/MDP/FiniteHorizon.lean) | Sampled trajectories and expected finite returns |
+
+Import the library with:
+
+```lean
+import Rlib
+```
+
+## Build and check
+
+Install [elan](https://github.com/leanprover/elan), then run these commands in the repository. Lean and mathlib are pinned to version `4.35.0`.
 
 ```sh
 MATHLIB_NO_CACHE_ON_UPDATE=1 lake update
-lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Constructions Mathlib.Data.Fin.Tuple.Basic Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Data.Finset.Lattice.Fold Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Order.OrderClosed Mathlib.Data.Fintype.Pigeonhole
+lake exe cache get \
+  Mathlib.Probability.ProbabilityMassFunction.Constructions \
+  Mathlib.Data.Fin.Tuple.Basic \
+  Mathlib.Analysis.Normed.Group.Constructions \
+  Mathlib.Analysis.Normed.Field.Basic \
+  Mathlib.Topology.MetricSpace.Contracting \
+  Mathlib.Data.Finset.Lattice.Fold \
+  Mathlib.Tactic.Linarith \
+  Mathlib.Tactic.NormNum \
+  Mathlib.Topology.Order.OrderClosed \
+  Mathlib.Data.Fintype.Pigeonhole
 lake build
 python3 scripts/check_axioms.py
 lake env lean -DwarningAsError=true RlibTest/Optimality.lean
@@ -77,9 +72,6 @@ lake env lean -DwarningAsError=true RlibTest/PolicyIteration.lean
 lake env lean -DwarningAsError=true RlibTest/FiniteHorizon.lean
 ```
 
-`lean-toolchain` pins Lean 4.35.0. The Lake dependency pins mathlib v4.35.0.
-The axiom audit checks every public theorem in this milestone and rejects axioms outside `propext`, `Classical.choice`, and `Quot.sound`.
-It rejects `sorryAx` and custom axioms, including those inherited through dependencies.
-CI runs the build, axiom audit, and all five compiled examples.
+CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, and tied actions.
 
-Import the library with `import Rlib`.
+The [axiom audit](scripts/check_axioms.py) rejects unfinished proofs and unexpected axioms. It allows only `propext`, `Classical.choice`, and `Quot.sound`.
