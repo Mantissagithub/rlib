@@ -1,6 +1,7 @@
 module
 
 public import Mathlib.Probability.ProbabilityMassFunction.Constructions
+public import Mathlib.Probability.ProbabilityMassFunction.Integrals
 public import Mathlib.Analysis.Normed.Group.Constructions
 public import Mathlib.Analysis.Normed.Field.Basic
 
@@ -24,6 +25,11 @@ theorem probability_sum (p : PMF X) : ∑ x, (p x).toReal = 1 := by
 /-- The expectation of a real function under a finite probability mass function. -/
 def expect (p : PMF X) (f : X → ℝ) : ℝ :=
   ∑ x, (p x).toReal * f x
+
+/-- Integrating a real function against a finite PMF agrees with its finite expectation. -/
+theorem integral_toMeasure_eq_expect [MeasurableSpace X] [MeasurableSingletonClass X]
+    (p : PMF X) (f : X → ℝ) : (∫ x, f x ∂p.toMeasure) = expect p f := by
+  simpa only [expect, smul_eq_mul] using PMF.integral_eq_sum p f
 
 /-- A constant has its constant value as expectation. -/
 @[simp] theorem expect_const (p : PMF X) (c : ℝ) : expect p (fun _ => c) = c := by

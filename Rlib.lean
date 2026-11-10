@@ -5,6 +5,7 @@ public import Rlib.MDP.Basic
 public import Rlib.MDP.FiniteHorizon
 public import Rlib.MDP.TrajectoryMeasure
 public import Rlib.MDP.InfiniteHorizon
+public import Rlib.MDP.InfiniteExpectation
 public import Rlib.MDP.OneStep
 public import Rlib.MDP.PolicyEvaluation
 public import Rlib.MDP.Optimality

@@ -3,6 +3,7 @@ module
 import Rlib
 
 #print axioms Rlib.probability_sum
+#print axioms Rlib.integral_toMeasure_eq_expect
 #print axioms Rlib.expect_const
 #print axioms Rlib.expect_zero
 #print axioms Rlib.expect_add
@@ -24,6 +25,8 @@ import Rlib
 #print axioms Rlib.MDP.norm_discountedReturn_le
 #print axioms Rlib.MDP.norm_infiniteReturn_le
 #print axioms Rlib.MDP.tendsto_expectedReturn
+#print axioms Rlib.MDP.integrable_infiniteReturn
+#print axioms Rlib.MDP.integral_infiniteReturn_eq_policyValue
 #print axioms Rlib.MDP.oneStepActionValue_mono
 #print axioms Rlib.MDP.oneStepValue_mono
 #print axioms Rlib.MDP.norm_oneStepActionValue_sub_le
