@@ -29,7 +29,7 @@ jobs:
           tar --zstd -xf "$archive" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/lean-${version}-linux/bin" >> "$GITHUB_PATH"
       - name: Get required mathlib cache
-        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Constructions Mathlib.Probability.ProbabilityMassFunction.Integrals Mathlib.Data.Fin.Tuple.Basic Mathlib.Probability.Kernel.IonescuTulcea.Traj Mathlib.Analysis.SpecificLimits.Normed Mathlib.MeasureTheory.Integral.DominatedConvergence Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Data.Finset.Lattice.Fold Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Order.OrderClosed Mathlib.Data.Fintype.Pigeonhole
+        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Constructions Mathlib.Probability.ProbabilityMassFunction.Integrals Mathlib.Data.Fin.Tuple.Basic Mathlib.Probability.Kernel.IonescuTulcea.Traj Mathlib.Analysis.SpecificLimits.Normed Mathlib.MeasureTheory.Integral.DominatedConvergence Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Data.Finset.Lattice.Fold Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Order.OrderClosed Mathlib.Data.Fintype.Pigeonhole Mathlib.Probability.Moments.SubGaussian
       - name: Build library and example
         run: lake build
       - name: Audit theorem axioms
@@ -52,3 +52,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/InfiniteExpectation.lean
       - name: Check empirical estimation example
         run: lake env lean -DwarningAsError=true RlibTest/Empirical.lean
+      - name: Check empirical concentration example
+        run: lake env lean -DwarningAsError=true RlibTest/Concentration.lean

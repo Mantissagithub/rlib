@@ -63,3 +63,7 @@ import Rlib
 #print axioms Rlib.MDP.optimalityOperator_policyValue_of_policyIteration_stable
 #print axioms Rlib.MDP.exists_policyIteration_stable_optimal
 #print axioms Rlib.Examples.oneState_value
+
+#print axioms Rlib.measure_abs_sampleMean_sub_le
+#print axioms Rlib.MDP.measure_abs_ofSamples_reward_sub_le
+#print axioms Rlib.MDP.measure_abs_ofSamples_transition_sub_le

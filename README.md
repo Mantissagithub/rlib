@@ -17,8 +17,11 @@ The Bellman and return results cover finite state and action sets:
 - Infinite discounted returns are absolutely summable. Finite prefix returns converge to them, and both obey the geometric reward bound.
 - Infinite discounted returns are integrable under the trajectory law, and their expectations equal the policy's Bellman value.
 - Empirical MDPs store observed reward means and successor frequencies. Their one-step action values equal sample means of the observed one-step targets.
+- Empirical reward means and individual transition probabilities satisfy two-sided Hoeffding bounds under explicit independent-sampling assumptions.
 
-Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These are deterministic estimation identities; concentration guarantees remain future work.
+Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
+
+The concentration bounds apply at a fixed state and action, and at a fixed successor for transition probabilities. With `N ≥ 1` observations and `ε ≥ 0`, the probability of absolute error at least `ε` is at most `2 * exp(-2 * N * ε²)`. Reward observations must be independent, measurable, in `[0,1]` almost surely, and have the model reward as their common expectation. Successor observations must be independent, measurable, and have the model transition law, and the state type must have measurable singletons. These bounds require no finite state or action type and no discount assumptions. Rewards and successors within each observed pair may depend on each other. The results do not give simultaneous bounds across rows or justify independence for a dependent policy trajectory.
 
 The uniqueness, convergence, policy-improvement, summability, and return-bound results assume a discount factor `0 ≤ γ < 1`. The finite-horizon return identities allow any real discount. The trajectory law and its prefix distributions do not depend on a discount. Maximizing over actions requires at least one action.
 
@@ -38,8 +41,10 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | --- | --- |
 | [Probability/Expectation](Rlib/Probability/Expectation.lean) | Finite expectation, linearity, bounds, and sequential sampling |
 | [Probability/Empirical](Rlib/Probability/Empirical.lean) | Nonempty sample means, empirical distributions, frequencies, and expectation identities |
+| [Probability/Concentration](Rlib/Probability/Concentration.lean) | Two-sided Hoeffding bound for independent bounded observations with a common mean |
 | [MDP/Basic](Rlib/MDP/Basic.lean) | Environments, policies, and one-step values |
 | [MDP/Empirical](Rlib/MDP/Empirical.lean) | MDP estimates from paired observations and exact one-step sample identities |
+| [MDP/Concentration](Rlib/MDP/Concentration.lean) | Pointwise empirical reward and transition probability bounds |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
@@ -77,7 +82,8 @@ lake exe cache get \
   Mathlib.Tactic.Linarith \
   Mathlib.Tactic.NormNum \
   Mathlib.Topology.Order.OrderClosed \
-  Mathlib.Data.Fintype.Pigeonhole
+  Mathlib.Data.Fintype.Pigeonhole \
+  Mathlib.Probability.Moments.SubGaussian
 lake build
 python3 scripts/check_axioms.py
 lake env lean -DwarningAsError=true RlibTest/Optimality.lean
@@ -89,8 +95,9 @@ lake env lean -DwarningAsError=true RlibTest/InfiniteHorizon.lean
 lake env lean -DwarningAsError=true RlibTest/TrajectoryMeasure.lean
 lake env lean -DwarningAsError=true RlibTest/InfiniteExpectation.lean
 lake env lean -DwarningAsError=true RlibTest/Empirical.lean
+lake env lean -DwarningAsError=true RlibTest/Concentration.lean
 ```
 
-CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, and tied actions.
+CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
 
 The [axiom audit](scripts/check_axioms.py) rejects unfinished proofs and unexpected axioms. It allows only `propext`, `Classical.choice`, and `Quot.sound`.
