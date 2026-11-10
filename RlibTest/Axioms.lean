@@ -16,6 +16,12 @@ import Rlib
 #print axioms Rlib.MDP.expectedReturn_zero
 #print axioms Rlib.MDP.expectedReturn_succ
 #print axioms Rlib.MDP.expectedReturn_eq_iterate
+#print axioms Rlib.MDP.discountedReturn_prefix_eq_sum
+#print axioms Rlib.MDP.summable_norm_discountedReward
+#print axioms Rlib.MDP.tendsto_discountedReturn
+#print axioms Rlib.MDP.norm_discountedReturn_le
+#print axioms Rlib.MDP.norm_infiniteReturn_le
+#print axioms Rlib.MDP.tendsto_expectedReturn
 #print axioms Rlib.MDP.oneStepActionValue_mono
 #print axioms Rlib.MDP.oneStepValue_mono
 #print axioms Rlib.MDP.norm_oneStepActionValue_sub_le

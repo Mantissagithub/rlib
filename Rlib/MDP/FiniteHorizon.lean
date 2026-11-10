@@ -14,6 +14,24 @@ namespace Rlib
 /-- Each step records its action and successor state; the initial state is supplied separately. -/
 abbrev FiniteTrajectory (S A : Type*) (n : ℕ) := Fin n → A × S
 
+/-- An infinite sequence of actions and successor states, with a separate initial state. -/
+abbrev InfiniteTrajectory (S A : Type*) := ℕ → A × S
+
+namespace InfiniteTrajectory
+
+variable {S A : Type*}
+
+/-- The first `n` steps of an infinite trajectory. -/
+def «prefix» (n : ℕ) (ω : InfiniteTrajectory S A) : FiniteTrajectory S A n :=
+  fun i => ω i
+
+/-- The state where step `n` takes its action. -/
+def stateBefore (s : S) (ω : InfiniteTrajectory S A) : ℕ → S
+  | 0 => s
+  | n + 1 => (ω n).2
+
+end InfiniteTrajectory
+
 namespace MDP
 
 variable {S A : Type*}

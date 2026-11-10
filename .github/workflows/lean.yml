@@ -29,7 +29,7 @@ jobs:
           tar --zstd -xf "$archive" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/lean-${version}-linux/bin" >> "$GITHUB_PATH"
       - name: Get required mathlib cache
-        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Constructions Mathlib.Data.Fin.Tuple.Basic Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Data.Finset.Lattice.Fold Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Order.OrderClosed Mathlib.Data.Fintype.Pigeonhole
+        run: lake exe cache get Mathlib.Probability.ProbabilityMassFunction.Constructions Mathlib.Data.Fin.Tuple.Basic Mathlib.Analysis.SpecificLimits.Normed Mathlib.Analysis.Normed.Group.Constructions Mathlib.Analysis.Normed.Field.Basic Mathlib.Topology.MetricSpace.Contracting Mathlib.Data.Finset.Lattice.Fold Mathlib.Tactic.Linarith Mathlib.Tactic.NormNum Mathlib.Topology.Order.OrderClosed Mathlib.Data.Fintype.Pigeonhole
       - name: Build library and example
         run: lake build
       - name: Audit theorem axioms
@@ -44,3 +44,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/PolicyIteration.lean
       - name: Check finite horizon example
         run: lake env lean -DwarningAsError=true RlibTest/FiniteHorizon.lean
+      - name: Check infinite horizon example
+        run: lake env lean -DwarningAsError=true RlibTest/InfiniteHorizon.lean
