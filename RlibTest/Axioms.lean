@@ -13,6 +13,8 @@ import Rlib
 #print axioms Rlib.expect_map
 #print axioms Rlib.norm_expect_sub_expect_le
 #print axioms Rlib.MDP.oneStepActionValue_zero
+#print axioms Rlib.MDP.isProbabilityMeasure_pathMeasure
+#print axioms Rlib.MDP.map_prefix_pathMeasure
 #print axioms Rlib.MDP.expectedReturn_zero
 #print axioms Rlib.MDP.expectedReturn_succ
 #print axioms Rlib.MDP.expectedReturn_eq_iterate

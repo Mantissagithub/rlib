@@ -13,9 +13,10 @@ The current results cover finite state and action sets:
 - Choosing a greedy policy cannot lower the policy's Bellman value.
 - Policy iteration eventually stops changing, using a fixed rule for choosing between tied actions.
 - Expected rewards over a finite sampled trajectory equal repeated fixed-policy Bellman updates from zero and converge to the policy value.
+- The infinite trajectory probability law has exactly the finite trajectory laws as its prefix distributions.
 - Infinite discounted returns are absolutely summable. Finite prefix returns converge to them, and both obey the geometric reward bound.
 
-The uniqueness, convergence, policy-improvement, summability, and return-bound results assume a discount factor `0 ≤ γ < 1`. The finite-horizon return identities allow any real discount. Maximizing over actions requires at least one action.
+The uniqueness, convergence, policy-improvement, summability, and return-bound results assume a discount factor `0 ≤ γ < 1`. The finite-horizon return identities allow any real discount. The trajectory law and its prefix distributions do not depend on a discount. Maximizing over actions requires at least one action.
 
 ## The model and its scope
 
@@ -23,7 +24,7 @@ An environment specifies transition probabilities and an expected immediate rewa
 
 Trajectories record the action and next state at each step. Their returns sum the model's stored expected rewards, rather than sampled reward noise.
 
-Policy values are defined by Bellman equations and equal the limits of expected finite returns. Identifying them with expected infinite returns under an infinite trajectory probability law remains future work. The definitions use exact real numbers.
+Policy values are defined by Bellman equations and equal the limits of expected finite returns. The infinite trajectory law is constructed, but proving integrability and identifying expected infinite returns with policy values remains future work. The definitions use exact real numbers.
 
 See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 
@@ -40,6 +41,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/PolicyImprovement](Rlib/MDP/PolicyImprovement.lean) | Greedy policy existence and improvement |
 | [MDP/PolicyIteration](Rlib/MDP/PolicyIteration.lean) | Policy updates, stabilization, and terminal Bellman optimality |
 | [MDP/FiniteHorizon](Rlib/MDP/FiniteHorizon.lean) | Sampled trajectories and expected finite returns |
+| [MDP/TrajectoryMeasure](Rlib/MDP/TrajectoryMeasure.lean) | Infinite trajectory probability law and exact finite-prefix distributions |
 | [MDP/InfiniteHorizon](Rlib/MDP/InfiniteHorizon.lean) | Infinite returns, geometric bounds, and limits of finite returns |
 
 Import the library with:
@@ -57,6 +59,7 @@ MATHLIB_NO_CACHE_ON_UPDATE=1 lake update
 lake exe cache get \
   Mathlib.Probability.ProbabilityMassFunction.Constructions \
   Mathlib.Data.Fin.Tuple.Basic \
+  Mathlib.Probability.Kernel.IonescuTulcea.Traj \
   Mathlib.Analysis.SpecificLimits.Normed \
   Mathlib.Analysis.Normed.Group.Constructions \
   Mathlib.Analysis.Normed.Field.Basic \
@@ -74,6 +77,7 @@ lake env lean -DwarningAsError=true RlibTest/PolicyImprovement.lean
 lake env lean -DwarningAsError=true RlibTest/PolicyIteration.lean
 lake env lean -DwarningAsError=true RlibTest/FiniteHorizon.lean
 lake env lean -DwarningAsError=true RlibTest/InfiniteHorizon.lean
+lake env lean -DwarningAsError=true RlibTest/TrajectoryMeasure.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, and tied actions.
