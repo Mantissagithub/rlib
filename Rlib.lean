@@ -13,6 +13,7 @@ public import Rlib.MDP.InfiniteExpectation
 public import Rlib.MDP.OneStep
 public import Rlib.MDP.PolicyEvaluation
 public import Rlib.MDP.Optimality
+public import Rlib.MDP.QLearning
 public import Rlib.MDP.ValueIteration
 public import Rlib.MDP.PolicyImprovement
 public import Rlib.MDP.PolicyIteration

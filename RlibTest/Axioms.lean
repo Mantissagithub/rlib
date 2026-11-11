@@ -67,3 +67,13 @@ import Rlib
 #print axioms Rlib.measure_abs_sampleMean_sub_le
 #print axioms Rlib.MDP.measure_abs_ofSamples_reward_sub_le
 #print axioms Rlib.MDP.measure_abs_ofSamples_transition_sub_le
+
+#print axioms Rlib.qLearningUpdate_apply_same
+#print axioms Rlib.qLearningUpdate_apply_ne
+#print axioms Rlib.norm_qMax_sub_le
+#print axioms Rlib.MDP.expect_qLearningTarget
+#print axioms Rlib.MDP.qBellmanOperator_ofSamples
+#print axioms Rlib.MDP.qMax_qBellmanOperator
+#print axioms Rlib.MDP.norm_qBellmanOperator_sub_le
+#print axioms Rlib.MDP.qBellmanOperator_contractingWith
+#print axioms Rlib.MDP.existsUnique_qBellmanOperator_fixedPoint
