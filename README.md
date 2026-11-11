@@ -19,6 +19,7 @@ The Bellman and return results cover finite state and action sets:
 - Empirical MDPs store observed reward means and successor frequencies. Their one-step action values equal sample means of the observed one-step targets.
 - Empirical reward means and individual transition probabilities satisfy two-sided Hoeffding bounds under explicit independent-sampling assumptions.
 - A tabular Q-learning update changes one state and action. The Bellman Q operator averages the target over a successor sampled with the stored mean reward and has a unique fixed point for `0 ≤ γ < 1`.
+- With exact Bellman Q targets, a discount in `[0, 1)`, and a constant step size in `(0, 1]`, the error decreases geometrically after completed sweeps that each visit every state-action pair.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -50,6 +51,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
 | [MDP/QLearning](Rlib/MDP/QLearning.lean) | Sampled Q updates, expected and empirical targets, and Bellman Q contraction |
+| [MDP/QBellmanSweep](Rlib/MDP/QBellmanSweep.lean) | Ordered Bellman Q updates and convergence of complete sweeps |
 | [MDP/ValueIteration](Rlib/MDP/ValueIteration.lean) | Repeated value updates, convergence, and error bounds |
 | [MDP/PolicyImprovement](Rlib/MDP/PolicyImprovement.lean) | Greedy policy existence and improvement |
 | [MDP/PolicyIteration](Rlib/MDP/PolicyIteration.lean) | Policy updates, stabilization, and terminal Bellman optimality |
@@ -99,6 +101,7 @@ lake env lean -DwarningAsError=true RlibTest/InfiniteExpectation.lean
 lake env lean -DwarningAsError=true RlibTest/Empirical.lean
 lake env lean -DwarningAsError=true RlibTest/Concentration.lean
 lake env lean -DwarningAsError=true RlibTest/QLearning.lean
+lake env lean -DwarningAsError=true RlibTest/QBellmanSweep.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

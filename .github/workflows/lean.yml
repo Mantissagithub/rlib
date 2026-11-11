@@ -56,3 +56,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/Concentration.lean
       - name: Check Q-learning update example
         run: lake env lean -DwarningAsError=true RlibTest/QLearning.lean
+      - name: Check ordered Bellman Q sweep example
+        run: lake env lean -DwarningAsError=true RlibTest/QBellmanSweep.lean

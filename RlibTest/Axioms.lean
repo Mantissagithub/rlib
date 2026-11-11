@@ -77,3 +77,7 @@ import Rlib
 #print axioms Rlib.MDP.norm_qBellmanOperator_sub_le
 #print axioms Rlib.MDP.qBellmanOperator_contractingWith
 #print axioms Rlib.MDP.existsUnique_qBellmanOperator_fixedPoint
+
+#print axioms Rlib.MDP.norm_qBellmanSweep_sub_le
+#print axioms Rlib.MDP.norm_qBellmanSweepIteration_sub_le
+#print axioms Rlib.MDP.tendsto_qBellmanSweepIteration
