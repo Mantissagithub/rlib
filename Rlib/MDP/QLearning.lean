@@ -22,7 +22,7 @@ def qLearningTarget [Fintype A] [Nonempty A] (γ : ℝ) (q : S → A → ℝ)
     (observation : ℝ × S) : ℝ :=
   observation.1 + γ * qMax q observation.2
 
-/-- Update the visited state and action by a step toward the sampled target. -/
+/-- Add the step size times the sampled target error to the visited entry. -/
 def qLearningUpdate [Fintype A] [Nonempty A] [DecidableEq S] [DecidableEq A]
     (α γ : ℝ) (q : S → A → ℝ) (s : S) (a : A) (observation : ℝ × S) : S → A → ℝ :=
   fun t b => Function.update (Function.uncurry q) (s, a)
@@ -51,9 +51,10 @@ theorem norm_qMax_sub_le [Fintype S] [Fintype A] [Nonempty A]
     intro a ha
     have hd := (norm_le_pi_norm ((q - p) s) a).trans (norm_le_pi_norm (q - p) s)
     change ‖q s a - p s a‖ ≤ ‖q - p‖ at hd
-    have hp : p s a ≤ qMax p s := Finset.le_sup' _ ha
-    have hd' := (abs_le.mp (Real.norm_eq_abs _ ▸ hd)).2
-    linarith
+    rw [Real.norm_eq_abs] at hd
+    calc
+      q s a ≤ p s a + ‖q - p‖ := sub_le_iff_le_add'.mp (le_trans (le_abs_self _) hd)
+      _ ≤ qMax p s + ‖q - p‖ := add_le_add_left (Finset.le_sup' (p s) ha) _
   apply (pi_norm_le_iff_of_nonneg (norm_nonneg (q - p))).2
   intro s
   change ‖qMax q s - qMax p s‖ ≤ ‖q - p‖
