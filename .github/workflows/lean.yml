@@ -84,3 +84,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QSimulation.lean
       - name: Check empirical Bellman concentration example
         run: lake env lean -DwarningAsError=true RlibTest/QConcentration.lean
+      - name: Check sample complexity example
+        run: lake env lean -DwarningAsError=true RlibTest/QSampleComplexity.lean
