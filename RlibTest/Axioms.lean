@@ -67,6 +67,7 @@ import Rlib
 #print axioms Rlib.measure_abs_sampleMean_sub_le
 #print axioms Rlib.MDP.measure_abs_ofSamples_reward_sub_le
 #print axioms Rlib.MDP.measure_abs_ofSamples_transition_sub_le
+#print axioms Rlib.ae_tendsto_sum_mul_of_condExp_eq_zero
 
 #print axioms Rlib.qLearningUpdate_apply_same
 #print axioms Rlib.qLearningUpdate_apply_ne

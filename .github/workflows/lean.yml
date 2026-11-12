@@ -66,3 +66,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/DecayingRecursion.lean
       - name: Check synchronous Q-learning example
         run: lake env lean -DwarningAsError=true RlibTest/QSynchronous.lean
+      - name: Check martingale series example
+        run: lake env lean -DwarningAsError=true RlibTest/MartingaleSeries.lean
