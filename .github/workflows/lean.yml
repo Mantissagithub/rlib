@@ -60,3 +60,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QBellmanSweep.lean
       - name: Check sampled Q update example
         run: lake env lean -DwarningAsError=true RlibTest/QSampling.lean
+      - name: Check perturbed Bellman Q sweep example
+        run: lake env lean -DwarningAsError=true RlibTest/QPerturbedSweep.lean

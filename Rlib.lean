@@ -16,6 +16,7 @@ public import Rlib.MDP.Optimality
 public import Rlib.MDP.QLearning
 public import Rlib.MDP.QBellmanSweep
 public import Rlib.MDP.QSampling
+public import Rlib.MDP.QPerturbedSweep
 public import Rlib.MDP.ValueIteration
 public import Rlib.MDP.PolicyImprovement
 public import Rlib.MDP.PolicyIteration

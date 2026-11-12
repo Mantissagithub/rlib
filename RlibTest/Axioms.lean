@@ -85,3 +85,7 @@ import Rlib
 #print axioms Rlib.MDP.qLearningUpdate_sub_qBellmanUpdate
 #print axioms Rlib.MDP.norm_qLearningUpdate_sub_qBellmanUpdate
 #print axioms Rlib.MDP.expect_qLearningUpdate_apply_same
+
+#print axioms Rlib.MDP.qLearningUpdate_eq_qPerturbedUpdate
+#print axioms Rlib.MDP.norm_qPerturbedSweep_sub_le
+#print axioms Rlib.MDP.norm_qPerturbedSweepIteration_sub_le
