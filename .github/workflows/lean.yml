@@ -70,3 +70,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/MartingaleSeries.lean
       - name: Check averaged Q noise example
         run: lake env lean -DwarningAsError=true RlibTest/QNoiseAveraging.lean
+      - name: Check almost sure Q-learning convergence example
+        run: lake env lean -DwarningAsError=true RlibTest/QLearningConvergence.lean

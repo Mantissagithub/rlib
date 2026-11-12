@@ -102,3 +102,6 @@ import Rlib
 #print axioms Rlib.MDP.tendsto_qSyncIteration
 #print axioms Rlib.MDP.tendsto_qLearningSync
 #print axioms Rlib.MDP.tendsto_qSyncIteration_of_tendsto_sum
+
+#print axioms Rlib.MDP.abs_qLearningSyncError_le
+#print axioms Rlib.MDP.ae_tendsto_qLearningSync

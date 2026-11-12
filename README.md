@@ -27,6 +27,7 @@ The Bellman and return results cover finite state and action sets:
 - Synchronous Q-learning, which updates every state-action pair at each step, converges to the Bellman Q fixed point when its step sizes lie in `[0, 1]` and are not summable, `0 ≤ γ < 1`, and its realized target errors tend to zero.
 - The same iterations converge when target errors do not vanish but their step-weighted partial sums converge for every entry.
 - With observed rewards bounded by `R`, synchronous Q-learning tables stay within `max ‖q₀‖ (R / (1 - γ))`.
+- Sampled synchronous Q-learning converges almost surely to the Bellman Q fixed point when rewards are bounded, step sizes in `[0, 1]` are not summable but have summable squares, `0 ≤ γ < 1`, and each realized target error is known at the next time with zero conditional mean given the current time.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -64,6 +65,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/QSampling](Rlib/MDP/QSampling.lean) | Error and expectation of a sampled update against the exact Bellman update |
 | [MDP/QPerturbedSweep](Rlib/MDP/QPerturbedSweep.lean) | Sweeps with bounded target errors and their geometric error floor |
 | [MDP/QSynchronous](Rlib/MDP/QSynchronous.lean) | Synchronous Q-learning with decaying step sizes and vanishing target errors |
+| [MDP/QLearningConvergence](Rlib/MDP/QLearningConvergence.lean) | Almost sure convergence of sampled synchronous Q-learning |
 | [MDP/ValueIteration](Rlib/MDP/ValueIteration.lean) | Repeated value updates, convergence, and error bounds |
 | [MDP/PolicyImprovement](Rlib/MDP/PolicyImprovement.lean) | Greedy policy existence and improvement |
 | [MDP/PolicyIteration](Rlib/MDP/PolicyIteration.lean) | Policy updates, stabilization, and terminal Bellman optimality |
@@ -120,6 +122,7 @@ lake env lean -DwarningAsError=true RlibTest/DecayingRecursion.lean
 lake env lean -DwarningAsError=true RlibTest/QSynchronous.lean
 lake env lean -DwarningAsError=true RlibTest/MartingaleSeries.lean
 lake env lean -DwarningAsError=true RlibTest/QNoiseAveraging.lean
+lake env lean -DwarningAsError=true RlibTest/QLearningConvergence.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
