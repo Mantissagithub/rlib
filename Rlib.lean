@@ -1,5 +1,6 @@
 module
 
+public import Rlib.Analysis.DecayingRecursion
 public import Rlib.Probability.Expectation
 public import Rlib.Probability.Empirical
 public import Rlib.Probability.Concentration

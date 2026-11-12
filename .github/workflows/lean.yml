@@ -62,3 +62,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QSampling.lean
       - name: Check perturbed Bellman Q sweep example
         run: lake env lean -DwarningAsError=true RlibTest/QPerturbedSweep.lean
+      - name: Check decaying recursion example
+        run: lake env lean -DwarningAsError=true RlibTest/DecayingRecursion.lean

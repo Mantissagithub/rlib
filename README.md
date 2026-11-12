@@ -22,6 +22,7 @@ The Bellman and return results cover finite state and action sets:
 - With exact Bellman Q targets, a discount in `[0, 1)`, and a constant step size in `(0, 1]`, the error decreases geometrically after completed sweeps that each visit every state-action pair.
 - A sampled Q-learning update differs from the exact Bellman update only at the visited entry, by the step size times the target gap. With a successor drawn from the model and the stored mean reward, the visited entry matches the exact update in expectation.
 - Complete sweeps whose targets miss the exact Bellman target by at most `ε` approach the Bellman Q fixed point geometrically, up to an error floor of `ε / (1 - γ)`.
+- A nonnegative sequence that moves a fraction `a n ∈ [0, 1]` of the way toward targets tending to zero converges to zero when the fractions are not summable. This is the deterministic step behind decaying step sizes.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -43,6 +44,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 
 | File | What it contains |
 | --- | --- |
+| [Analysis/DecayingRecursion](Rlib/Analysis/DecayingRecursion.lean) | Recursions with non-summable step sizes toward vanishing targets |
 | [Probability/Expectation](Rlib/Probability/Expectation.lean) | Finite expectation, linearity, bounds, and sequential sampling |
 | [Probability/Empirical](Rlib/Probability/Empirical.lean) | Nonempty sample means, empirical distributions, frequencies, and expectation identities |
 | [Probability/Concentration](Rlib/Probability/Concentration.lean) | Two-sided Hoeffding bound for independent bounded observations with a common mean |
@@ -108,6 +110,7 @@ lake env lean -DwarningAsError=true RlibTest/QLearning.lean
 lake env lean -DwarningAsError=true RlibTest/QBellmanSweep.lean
 lake env lean -DwarningAsError=true RlibTest/QSampling.lean
 lake env lean -DwarningAsError=true RlibTest/QPerturbedSweep.lean
+lake env lean -DwarningAsError=true RlibTest/DecayingRecursion.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

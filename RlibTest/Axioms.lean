@@ -89,3 +89,6 @@ import Rlib
 #print axioms Rlib.MDP.qLearningUpdate_eq_qPerturbedUpdate
 #print axioms Rlib.MDP.norm_qPerturbedSweep_sub_le
 #print axioms Rlib.MDP.norm_qPerturbedSweepIteration_sub_le
+
+#print axioms Rlib.eventually_le_of_le_one_sub_mul_add
+#print axioms Rlib.tendsto_zero_of_le_one_sub_mul_add
