@@ -112,3 +112,9 @@ import Rlib
 
 #print axioms Rlib.MDP.norm_qAsyncIteration_sub_le
 #print axioms Rlib.MDP.tendsto_qAsyncIteration
+
+#print axioms Rlib.visitStep_nonneg
+#print axioms Rlib.visitStep_le_one
+#print axioms Rlib.norm_qLearningAsync_le
+#print axioms Rlib.MDP.qLearningAsync_eq_qAsyncIteration
+#print axioms Rlib.MDP.tendsto_qLearningAsync

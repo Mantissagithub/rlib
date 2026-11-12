@@ -76,3 +76,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QLearningSampling.lean
       - name: Check per-entry step size example
         run: lake env lean -DwarningAsError=true RlibTest/QAsynchronous.lean
+      - name: Check asynchronous Q-learning example
+        run: lake env lean -DwarningAsError=true RlibTest/QLearningAsync.lean
