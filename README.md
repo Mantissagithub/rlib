@@ -25,6 +25,7 @@ The Bellman and return results cover finite state and action sets:
 - A nonnegative sequence that moves a fraction `a n ∈ [0, 1]` of the way toward targets tending to zero converges to zero when the fractions are not summable. This is the deterministic step behind decaying step sizes. A sequence that averages inputs with such fractions tends to zero when the partial sums of the weighted inputs converge, even conditionally.
 - Bounded noise with zero conditional mean given the past, weighted by square-summable coefficients, has almost surely convergent partial sums.
 - Synchronous Q-learning, which updates every state-action pair at each step, converges to the Bellman Q fixed point when its step sizes lie in `[0, 1]` and are not summable, `0 ≤ γ < 1`, and its realized target errors tend to zero.
+- The same iterations converge when target errors do not vanish but their step-weighted partial sums converge for every entry.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -117,6 +118,7 @@ lake env lean -DwarningAsError=true RlibTest/QPerturbedSweep.lean
 lake env lean -DwarningAsError=true RlibTest/DecayingRecursion.lean
 lake env lean -DwarningAsError=true RlibTest/QSynchronous.lean
 lake env lean -DwarningAsError=true RlibTest/MartingaleSeries.lean
+lake env lean -DwarningAsError=true RlibTest/QNoiseAveraging.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

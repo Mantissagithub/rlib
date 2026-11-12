@@ -99,3 +99,4 @@ import Rlib
 #print axioms Rlib.MDP.norm_qSyncIteration_succ_sub_le
 #print axioms Rlib.MDP.tendsto_qSyncIteration
 #print axioms Rlib.MDP.tendsto_qLearningSync
+#print axioms Rlib.MDP.tendsto_qSyncIteration_of_tendsto_sum

@@ -125,5 +125,74 @@ theorem tendsto_qLearningSync (m : MDP S A) {α : ℕ → ℝ} {γ : ℝ}
   rw [m.qLearningSync_eq_qSyncIteration]
   exact m.tendsto_qSyncIteration hα0 hα1 hαsum hγ0 hγ1 _ he q₀ r hr
 
+/-- Synchronous Bellman Q iterations converge to the Bellman Q fixed point when the step sizes
+lie in `[0, 1]` and are not summable, and the step-weighted partial sums of each entry's
+target errors converge. The errors themselves need not tend to zero. -/
+theorem tendsto_qSyncIteration_of_tendsto_sum (m : MDP S A) {α : ℕ → ℝ} {γ : ℝ}
+    (hα0 : ∀ n, 0 ≤ α n) (hα1 : ∀ n, α n ≤ 1) (hαsum : ¬Summable α)
+    (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (e : ℕ → S → A → ℝ)
+    (he : ∀ s a, ∃ c, Tendsto (fun n => ∑ k ∈ Finset.range n, α k * e k s a) atTop (𝓝 c))
+    (q₀ r : S → A → ℝ) (hr : m.qBellmanOperator γ r = r) :
+    Tendsto (m.qSyncIteration α γ e q₀) atTop (𝓝 r) := by
+  have hγ : 0 < 1 - γ := sub_pos.mpr hγ1
+  set q := m.qSyncIteration α γ e q₀
+  let W : ℕ → S → A → ℝ := fun n s a =>
+    Nat.rec 0 (fun k Wk => (1 - α k) * Wk + α k * e k s a) n
+  have hW : Tendsto W atTop (𝓝 0) := by
+    refine tendsto_pi_nhds.2 fun s => tendsto_pi_nhds.2 fun a => ?_
+    obtain ⟨c, hc⟩ := he s a
+    exact tendsto_zero_of_eq_one_sub_mul_add_of_tendsto_sum (W := fun n => W n s a)
+      hα0 hα1 hαsum hc fun n => rfl
+  have hWn : Tendsto (fun n => ‖W n‖) atTop (𝓝 0) := by
+    simpa using hW.norm
+  set δ : ℕ → S → A → ℝ := fun n => q n - r - W n
+  have hstep (n : ℕ) :
+      ‖δ (n + 1)‖ ≤ (1 - α n * (1 - γ)) * ‖δ n‖ + α n * (γ * ‖W n‖) := by
+    have hB : ‖m.qBellmanOperator γ (q n) - r‖ ≤ γ * (‖δ n‖ + ‖W n‖) := by
+      have h := m.norm_qBellmanOperator_sub_le γ (q n) r
+      rw [Real.norm_of_nonneg hγ0, hr] at h
+      refine h.trans (mul_le_mul_of_nonneg_left ?_ hγ0)
+      have : q n - r = δ n + W n := by simp [δ]
+      rw [this]
+      exact norm_add_le _ _
+    have hnonneg : 0 ≤ (1 - α n * (1 - γ)) * ‖δ n‖ + α n * (γ * ‖W n‖) := by
+      have : 0 ≤ 1 - α n * (1 - γ) := by nlinarith [hα0 n, hα1 n]
+      have := hα0 n
+      positivity
+    apply (pi_norm_le_iff_of_nonneg hnonneg).2
+    intro s
+    apply (pi_norm_le_iff_of_nonneg hnonneg).2
+    intro a
+    have hd : ‖δ n s a‖ ≤ ‖δ n‖ :=
+      (norm_le_pi_norm (δ n s) a).trans (norm_le_pi_norm (δ n) s)
+    have hBe : ‖m.qBellmanOperator γ (q n) s a - r s a‖ ≤ γ * (‖δ n‖ + ‖W n‖) :=
+      ((norm_le_pi_norm ((m.qBellmanOperator γ (q n) - r) s) a).trans
+        (norm_le_pi_norm (m.qBellmanOperator γ (q n) - r) s)).trans hB
+    have hentry : δ (n + 1) s a =
+        (1 - α n) * δ n s a + α n * (m.qBellmanOperator γ (q n) s a - r s a) := by
+      simp only [δ, q, Pi.sub_apply, qSyncIteration]
+      change _ - _ - ((1 - α n) * W n s a + α n * e n s a) = _
+      ring
+    change ‖δ (n + 1) s a‖ ≤ _
+    rw [hentry]
+    refine (norm_add_le _ _).trans ?_
+    rw [norm_mul, norm_mul, Real.norm_of_nonneg (sub_nonneg.mpr (hα1 n)),
+      Real.norm_of_nonneg (hα0 n)]
+    nlinarith [mul_le_mul_of_nonneg_left hd (sub_nonneg.mpr (hα1 n)),
+      mul_le_mul_of_nonneg_left hBe (hα0 n), hα0 n]
+  have hδ : Tendsto (fun n => ‖δ n‖) atTop (𝓝 0) := by
+    refine tendsto_zero_of_le_one_sub_mul_add (a := fun n => α n * (1 - γ))
+      (d := fun n => γ * ‖W n‖ / (1 - γ)) (fun _ => norm_nonneg _)
+      (fun n => mul_nonneg (hα0 n) hγ.le) (fun n => by nlinarith [hα0 n, hα1 n])
+      (fun h => hαsum ((summable_mul_right_iff hγ.ne').1 h))
+      (by simpa using (hWn.const_mul γ).div_const (1 - γ)) fun n => ?_
+    refine (hstep n).trans_eq ?_
+    field_simp
+  apply tendsto_iff_norm_sub_tendsto_zero.2
+  refine squeeze_zero (fun _ => norm_nonneg _) (fun n => ?_) (by simpa using hδ.add hWn)
+  have : q n - r = δ n + W n := by simp [δ]
+  rw [this]
+  exact norm_add_le _ _
+
 end MDP
 end Rlib
