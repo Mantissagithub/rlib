@@ -123,3 +123,5 @@ import Rlib
 #print axioms Rlib.MDP.condExp_qLearningTarget_sub_eq_zero
 #print axioms Rlib.MDP.measurable_qLearningAsync_apply
 #print axioms Rlib.MDP.ae_tendsto_qLearningAsync_of_indep
+
+#print axioms Rlib.MDP.norm_sub_le_of_qBellmanOperator_fixed

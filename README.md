@@ -32,6 +32,7 @@ The Bellman and return results cover finite state and action sets:
 - Bellman Q iterations with a separate step size for each entry converge when every entry's step sizes lie in `[0, 1]` and are not summable, the iterates stay bounded, and each entry's step-weighted target errors have convergent partial sums. This covers updates that touch only some entries at each step.
 - Asynchronous Q-learning updates only the visited entry from one observation. Its tables stay within `max ‖q₀‖ (R / (1 - γ))`, and it converges when every entry's visit step sizes are not summable and its visit-weighted target errors have convergent partial sums.
 - Asynchronous Q-learning converges almost surely when visits are chosen from current information, each visited entry is updated from a fresh independent sample with the model's mean reward and transition law, rewards are bounded, step sizes in `[0, 1]` have summable squares, and almost surely every pair's visit step sizes are not summable.
+- The Bellman Q fixed points of two models differ by at most the gap between their Bellman Q operators at one fixed point, divided by `1 - γ`.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -65,6 +66,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
 | [MDP/QLearning](Rlib/MDP/QLearning.lean) | Sampled Q updates, expected and empirical targets, and Bellman Q contraction |
+| [MDP/QSimulation](Rlib/MDP/QSimulation.lean) | Comparing Bellman Q fixed points of two models |
 | [MDP/QBellmanSweep](Rlib/MDP/QBellmanSweep.lean) | Ordered Bellman Q updates and convergence of complete sweeps |
 | [MDP/QSampling](Rlib/MDP/QSampling.lean) | Error and expectation of a sampled update against the exact Bellman update |
 | [MDP/QPerturbedSweep](Rlib/MDP/QPerturbedSweep.lean) | Sweeps with bounded target errors and their geometric error floor |
@@ -134,6 +136,7 @@ lake env lean -DwarningAsError=true RlibTest/QLearningSampling.lean
 lake env lean -DwarningAsError=true RlibTest/QAsynchronous.lean
 lake env lean -DwarningAsError=true RlibTest/QLearningAsync.lean
 lake env lean -DwarningAsError=true RlibTest/QLearningAsyncSampling.lean
+lake env lean -DwarningAsError=true RlibTest/QSimulation.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
