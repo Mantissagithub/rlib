@@ -31,6 +31,7 @@ The Bellman and return results cover finite state and action sets:
 - That condition holds when each step's observations are revealed by the next time, independent of the current information, with the model's mean reward and transition law. Under this sampling model, synchronous Q-learning converges almost surely.
 - Bellman Q iterations with a separate step size for each entry converge when every entry's step sizes lie in `[0, 1]` and are not summable, the iterates stay bounded, and each entry's step-weighted target errors have convergent partial sums. This covers updates that touch only some entries at each step.
 - Asynchronous Q-learning updates only the visited entry from one observation. Its tables stay within `max ‖q₀‖ (R / (1 - γ))`, and it converges when every entry's visit step sizes are not summable and its visit-weighted target errors have convergent partial sums.
+- Asynchronous Q-learning converges almost surely when visits are chosen from current information, each visited entry is updated from a fresh independent sample with the model's mean reward and transition law, rewards are bounded, step sizes in `[0, 1]` have summable squares, and almost surely every pair's visit step sizes are not summable.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -69,7 +70,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/QPerturbedSweep](Rlib/MDP/QPerturbedSweep.lean) | Sweeps with bounded target errors and their geometric error floor |
 | [MDP/QSynchronous](Rlib/MDP/QSynchronous.lean) | Synchronous Q-learning with decaying step sizes and vanishing target errors |
 | [MDP/QLearningConvergence](Rlib/MDP/QLearningConvergence.lean) | Almost sure convergence of sampled synchronous Q-learning |
-| [MDP/QLearningSampling](Rlib/MDP/QLearningSampling.lean) | Unbiased targets and almost sure convergence from independent fresh samples |
+| [MDP/QLearningSampling](Rlib/MDP/QLearningSampling.lean) | Unbiased targets and almost sure convergence of synchronous and asynchronous Q-learning from fresh samples |
 | [MDP/QAsynchronous](Rlib/MDP/QAsynchronous.lean) | Bellman Q iterations with per-entry step sizes |
 | [MDP/QLearningAsync](Rlib/MDP/QLearningAsync.lean) | Asynchronous Q-learning, bounded tables, and convergence with averaged errors |
 | [MDP/ValueIteration](Rlib/MDP/ValueIteration.lean) | Repeated value updates, convergence, and error bounds |
@@ -132,6 +133,7 @@ lake env lean -DwarningAsError=true RlibTest/QLearningConvergence.lean
 lake env lean -DwarningAsError=true RlibTest/QLearningSampling.lean
 lake env lean -DwarningAsError=true RlibTest/QAsynchronous.lean
 lake env lean -DwarningAsError=true RlibTest/QLearningAsync.lean
+lake env lean -DwarningAsError=true RlibTest/QLearningAsyncSampling.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

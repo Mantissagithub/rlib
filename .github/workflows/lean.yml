@@ -78,3 +78,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QAsynchronous.lean
       - name: Check asynchronous Q-learning example
         run: lake env lean -DwarningAsError=true RlibTest/QLearningAsync.lean
+      - name: Check random-visit asynchronous Q-learning example
+        run: lake env lean -DwarningAsError=true RlibTest/QLearningAsyncSampling.lean

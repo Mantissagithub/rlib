@@ -26,24 +26,20 @@ def qLearningSyncError (m : MDP S A) (α : ℕ → ℝ) (γ : ℝ)
   qLearningTarget γ (qLearningSync α γ observations q₀ n) (observations n s a) -
     m.qBellmanOperator γ (qLearningSync α γ observations q₀ n) s a
 
-/-- With rewards bounded by `R`, realized target errors are bounded by a constant that depends
-only on the model, the discount, the reward bound, and the initial table. -/
-theorem abs_qLearningSyncError_le (m : MDP S A) {α : ℕ → ℝ} {γ R : ℝ}
-    (hα0 : ∀ n, 0 ≤ α n) (hα1 : ∀ n, α n ≤ 1) (hγ0 : 0 ≤ γ) (hγ1 : γ < 1)
-    (observations : ℕ → S → A → ℝ × S) (hR : ∀ n s a, |(observations n s a).1| ≤ R)
-    (q₀ : S → A → ℝ) (n : ℕ) (s : S) (a : A) :
-    |m.qLearningSyncError α γ observations q₀ n s a| ≤
-      R + ‖m.qBellmanOperator γ 0‖ + 2 * γ * max ‖q₀‖ (R / (1 - γ)) := by
-  set K := max ‖q₀‖ (R / (1 - γ))
-  set q := qLearningSync α γ observations q₀ n
-  have hq : ‖q‖ ≤ K := norm_qLearningSync_le hα0 hα1 hγ0 hγ1 observations hR q₀ n
-  have hmax : |qMax q (observations n s a).2| ≤ K := by
-    have := (norm_le_pi_norm (qMax q) (observations n s a).2).trans (norm_qMax_le q)
+/-- For a table bounded by `K` and an observed reward bounded by `R`, the gap between the
+sampled target and the exact Bellman Q target is at most `R + ‖B 0‖ + 2 * γ * K`. -/
+theorem abs_qLearningTarget_sub_le (m : MDP S A) {γ R K : ℝ} (hγ0 : 0 ≤ γ)
+    (q : S → A → ℝ) (hq : ‖q‖ ≤ K) (observation : ℝ × S) (hR : |observation.1| ≤ R)
+    (s : S) (a : A) :
+    |qLearningTarget γ q observation - m.qBellmanOperator γ q s a| ≤
+      R + ‖m.qBellmanOperator γ 0‖ + 2 * γ * K := by
+  have hmax : |qMax q observation.2| ≤ K := by
+    have := (norm_le_pi_norm (qMax q) observation.2).trans (norm_qMax_le q)
     rw [Real.norm_eq_abs] at this
     exact this.trans hq
-  have htarget : |qLearningTarget γ q (observations n s a)| ≤ R + γ * K := by
+  have htarget : |qLearningTarget γ q observation| ≤ R + γ * K := by
     unfold qLearningTarget
-    refine (abs_add_le _ _).trans (add_le_add (hR n s a) ?_)
+    refine (abs_add_le _ _).trans (add_le_add hR ?_)
     rw [abs_mul, abs_of_nonneg hγ0]
     exact mul_le_mul_of_nonneg_left hmax hγ0
   have hB : |m.qBellmanOperator γ q s a| ≤ ‖m.qBellmanOperator γ 0‖ + γ * K := by
@@ -55,10 +51,19 @@ theorem abs_qLearningSyncError_le (m : MDP S A) {α : ℕ → ℝ} {γ R : ℝ}
       (norm_le_pi_norm (m.qBellmanOperator γ q) s)
     rw [Real.norm_eq_abs] at h
     exact h.trans ((norm_le_insert' _ _).trans (by linarith))
-  unfold qLearningSyncError
   refine (abs_sub _ _).trans ?_
-  change |qLearningTarget γ q (observations n s a)| + |m.qBellmanOperator γ q s a| ≤ _
   linarith
+
+/-- With rewards bounded by `R`, realized target errors are bounded by a constant that depends
+only on the model, the discount, the reward bound, and the initial table. -/
+theorem abs_qLearningSyncError_le (m : MDP S A) {α : ℕ → ℝ} {γ R : ℝ}
+    (hα0 : ∀ n, 0 ≤ α n) (hα1 : ∀ n, α n ≤ 1) (hγ0 : 0 ≤ γ) (hγ1 : γ < 1)
+    (observations : ℕ → S → A → ℝ × S) (hR : ∀ n s a, |(observations n s a).1| ≤ R)
+    (q₀ : S → A → ℝ) (n : ℕ) (s : S) (a : A) :
+    |m.qLearningSyncError α γ observations q₀ n s a| ≤
+      R + ‖m.qBellmanOperator γ 0‖ + 2 * γ * max ‖q₀‖ (R / (1 - γ)) :=
+  m.abs_qLearningTarget_sub_le hγ0 _
+    (norm_qLearningSync_le hα0 hα1 hγ0 hγ1 observations hR q₀ n) _ (hR n s a) s a
 
 /-- **Almost sure convergence of synchronous Q-learning.** Suppose rewards are bounded, step
 sizes lie in `[0, 1]`, are not summable, and have summable squares, and the discount lies in

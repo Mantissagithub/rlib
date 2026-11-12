@@ -118,3 +118,8 @@ import Rlib
 #print axioms Rlib.norm_qLearningAsync_le
 #print axioms Rlib.MDP.qLearningAsync_eq_qAsyncIteration
 #print axioms Rlib.MDP.tendsto_qLearningAsync
+
+#print axioms Rlib.MDP.abs_qLearningTarget_sub_le
+#print axioms Rlib.MDP.condExp_qLearningTarget_sub_eq_zero
+#print axioms Rlib.MDP.measurable_qLearningAsync_apply
+#print axioms Rlib.MDP.ae_tendsto_qLearningAsync_of_indep
