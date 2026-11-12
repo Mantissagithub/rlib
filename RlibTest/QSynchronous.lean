@@ -23,3 +23,12 @@ example (q₀ : Unit → Bool → ℝ) :
     (by rw [summable_const_iff]; norm_num) (by norm_num) (by norm_num) observe q₀ qStar
     qStar_fixed ?_
   simp [qLearningTarget, MDP.qBellmanOperator, MDP.oneStepActionValue, model, observe]
+
+example (n : ℕ) :
+    ‖qLearningSync (fun _ => 1 / 2) (1 / 2) observe (fun _ _ => 0) n‖ ≤ 4 := by
+  have h := norm_qLearningSync_le (α := fun _ => 1 / 2) (γ := 1 / 2) (R := 2)
+    (fun _ => by norm_num) (fun _ => by norm_num)
+    (by norm_num) (by norm_num) observe
+    (fun _ _ a => by cases a <;> norm_num [observe]) (fun _ _ => 0) n
+  norm_num at h
+  exact h

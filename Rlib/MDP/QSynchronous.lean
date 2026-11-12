@@ -28,6 +28,58 @@ def qLearningSync (α : ℕ → ℝ) (γ : ℝ) (observations : ℕ → S → A 
       α n * (qLearningTarget γ (qLearningSync α γ observations q₀ n) (observations n s a) -
         qLearningSync α γ observations q₀ n s a)
 
+/-- The largest action value at each state is at most the sup norm of the table. -/
+theorem norm_qMax_le (q : S → A → ℝ) :
+    ‖qMax q‖ ≤ ‖q‖ := by
+  have h0 : qMax (0 : S → A → ℝ) = 0 := by
+    funext s
+    simp [qMax]
+  simpa [h0] using norm_qMax_sub_le q 0
+
+/-- With step sizes in `[0, 1]`, a discount in `[0, 1)`, and observed rewards bounded by `R`,
+synchronous Q-learning tables stay within `max ‖q₀‖ (R / (1 - γ))` in sup norm. -/
+theorem norm_qLearningSync_le {α : ℕ → ℝ} {γ R : ℝ}
+    (hα0 : ∀ n, 0 ≤ α n) (hα1 : ∀ n, α n ≤ 1) (hγ0 : 0 ≤ γ) (hγ1 : γ < 1)
+    (observations : ℕ → S → A → ℝ × S) (hR : ∀ n s a, |(observations n s a).1| ≤ R)
+    (q₀ : S → A → ℝ) (n : ℕ) :
+    ‖qLearningSync α γ observations q₀ n‖ ≤ max ‖q₀‖ (R / (1 - γ)) := by
+  set K := max ‖q₀‖ (R / (1 - γ))
+  have hK0 : 0 ≤ K := (norm_nonneg _).trans (le_max_left _ _)
+  have hRK : R + γ * K ≤ K := by
+    have h := (div_le_iff₀ (sub_pos.mpr hγ1)).1 (le_max_right ‖q₀‖ (R / (1 - γ)))
+    linarith
+  induction n with
+  | zero => exact le_max_left _ _
+  | succ n ih =>
+    set q := qLearningSync α γ observations q₀ n
+    apply (pi_norm_le_iff_of_nonneg hK0).2
+    intro s
+    apply (pi_norm_le_iff_of_nonneg hK0).2
+    intro a
+    have hq : |q s a| ≤ K := by
+      have := (norm_le_pi_norm (q s) a).trans (norm_le_pi_norm q s)
+      rw [Real.norm_eq_abs] at this
+      exact this.trans ih
+    have hmax : |qMax q (observations n s a).2| ≤ K := by
+      have := (norm_le_pi_norm (qMax q) (observations n s a).2).trans (norm_qMax_le q)
+      rw [Real.norm_eq_abs] at this
+      exact this.trans ih
+    have htarget : |qLearningTarget γ q (observations n s a)| ≤ R + γ * K := by
+      unfold qLearningTarget
+      refine (abs_add_le _ _).trans (add_le_add (hR n s a) ?_)
+      rw [abs_mul, abs_of_nonneg hγ0]
+      exact mul_le_mul_of_nonneg_left hmax hγ0
+    have hentry : qLearningSync α γ observations q₀ (n + 1) s a =
+        (1 - α n) * q s a + α n * qLearningTarget γ q (observations n s a) := by
+      simp only [qLearningSync, q]
+      ring
+    change ‖qLearningSync α γ observations q₀ (n + 1) s a‖ ≤ K
+    rw [hentry, Real.norm_eq_abs]
+    refine (abs_add_le _ _).trans ?_
+    rw [abs_mul, abs_mul, abs_of_nonneg (sub_nonneg.mpr (hα1 n)), abs_of_nonneg (hα0 n)]
+    nlinarith [mul_le_mul_of_nonneg_left hq (sub_nonneg.mpr (hα1 n)),
+      mul_le_mul_of_nonneg_left htarget (hα0 n), hα0 n]
+
 namespace MDP
 
 /-- Mix every entry with its exact Bellman Q target plus the supplied target error. -/
