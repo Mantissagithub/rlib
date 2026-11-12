@@ -72,3 +72,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QNoiseAveraging.lean
       - name: Check almost sure Q-learning convergence example
         run: lake env lean -DwarningAsError=true RlibTest/QLearningConvergence.lean
+      - name: Check independent sampling Q-learning example
+        run: lake env lean -DwarningAsError=true RlibTest/QLearningSampling.lean

@@ -105,3 +105,7 @@ import Rlib
 
 #print axioms Rlib.MDP.abs_qLearningSyncError_le
 #print axioms Rlib.MDP.ae_tendsto_qLearningSync
+
+#print axioms Rlib.MDP.measurable_qLearningSync_apply
+#print axioms Rlib.MDP.condExp_qLearningSyncError_eq_zero
+#print axioms Rlib.MDP.ae_tendsto_qLearningSync_of_indep
