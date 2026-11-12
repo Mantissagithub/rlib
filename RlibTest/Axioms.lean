@@ -92,6 +92,7 @@ import Rlib
 
 #print axioms Rlib.eventually_le_of_le_one_sub_mul_add
 #print axioms Rlib.tendsto_zero_of_le_one_sub_mul_add
+#print axioms Rlib.tendsto_zero_of_eq_one_sub_mul_add_of_tendsto_sum
 
 #print axioms Rlib.MDP.qLearningSync_eq_qSyncIteration
 #print axioms Rlib.MDP.norm_qSyncIteration_succ_sub_le
