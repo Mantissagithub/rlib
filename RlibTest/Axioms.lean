@@ -133,3 +133,7 @@ import Rlib
 #print axioms Rlib.MDP.norm_le_of_qBellmanOperator_fixed
 #print axioms Rlib.MDP.measure_norm_ofSamples_fixed_sub_le
 #print axioms Rlib.MDP.measure_norm_ofSamples_fixed_sub_le_of_le
+
+#print axioms Rlib.MDP.expect_policyActionValue
+#print axioms Rlib.MDP.expect_advantage
+#print axioms Rlib.MDP.policyActionValue_eq

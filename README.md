@@ -35,6 +35,7 @@ The Bellman and return results cover finite state and action sets:
 - The Bellman Q fixed points of two models differ by at most the gap between their Bellman Q operators at one fixed point, divided by `1 - γ`.
 - Hoeffding's bound holds for independent observations bounded by `c` with a common mean. At a fixed table, the empirical Bellman Q operator built from independent samples concentrates around the model's, both entrywise and uniformly in sup norm.
 - **Sample complexity of model-based Q-value estimation.** With `n + 1` independent samples per state-action pair, rewards bounded by `R > 0`, and `n + 1 ≥ 2 * R ^ 2 * log (2 * |S| * |A| / δ) / (ε ^ 2 * (1 - γ) ^ 2)`, the Bellman Q fixed point of the empirical MDP is within `ε / (1 - γ)` of the model's except with probability at most `δ`.
+- A stationary policy's action values average to its state value under its own action choice, its advantages average to zero, and its action values satisfy their own Bellman equation.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -68,6 +69,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/QSampleComplexity](Rlib/MDP/QSampleComplexity.lean) | Sample complexity of model-based Q-value estimation |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
+| [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
 | [MDP/QLearning](Rlib/MDP/QLearning.lean) | Sampled Q updates, expected and empirical targets, and Bellman Q contraction |
 | [MDP/QSimulation](Rlib/MDP/QSimulation.lean) | Comparing Bellman Q fixed points of two models |
@@ -143,6 +145,7 @@ lake env lean -DwarningAsError=true RlibTest/QLearningAsyncSampling.lean
 lake env lean -DwarningAsError=true RlibTest/QSimulation.lean
 lake env lean -DwarningAsError=true RlibTest/QConcentration.lean
 lake env lean -DwarningAsError=true RlibTest/QSampleComplexity.lean
+lake env lean -DwarningAsError=true RlibTest/Advantage.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

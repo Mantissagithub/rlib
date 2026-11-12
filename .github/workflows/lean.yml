@@ -86,3 +86,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QConcentration.lean
       - name: Check sample complexity example
         run: lake env lean -DwarningAsError=true RlibTest/QSampleComplexity.lean
+      - name: Check advantage example
+        run: lake env lean -DwarningAsError=true RlibTest/Advantage.lean

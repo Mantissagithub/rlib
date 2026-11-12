@@ -16,6 +16,7 @@ public import Rlib.MDP.InfiniteHorizon
 public import Rlib.MDP.InfiniteExpectation
 public import Rlib.MDP.OneStep
 public import Rlib.MDP.PolicyEvaluation
+public import Rlib.MDP.Advantage
 public import Rlib.MDP.Optimality
 public import Rlib.MDP.QLearning
 public import Rlib.MDP.QSimulation
