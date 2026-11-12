@@ -81,3 +81,7 @@ import Rlib
 #print axioms Rlib.MDP.norm_qBellmanSweep_sub_le
 #print axioms Rlib.MDP.norm_qBellmanSweepIteration_sub_le
 #print axioms Rlib.MDP.tendsto_qBellmanSweepIteration
+
+#print axioms Rlib.MDP.qLearningUpdate_sub_qBellmanUpdate
+#print axioms Rlib.MDP.norm_qLearningUpdate_sub_qBellmanUpdate
+#print axioms Rlib.MDP.expect_qLearningUpdate_apply_same
