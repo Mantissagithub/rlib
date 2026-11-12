@@ -20,6 +20,7 @@ public import Rlib.MDP.QBellmanSweep
 public import Rlib.MDP.QSampling
 public import Rlib.MDP.QPerturbedSweep
 public import Rlib.MDP.QSynchronous
+public import Rlib.MDP.QAsynchronous
 public import Rlib.MDP.QLearningConvergence
 public import Rlib.MDP.QLearningSampling
 public import Rlib.MDP.ValueIteration
