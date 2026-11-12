@@ -8,6 +8,7 @@ public import Rlib.Probability.MartingaleSeries
 public import Rlib.MDP.Basic
 public import Rlib.MDP.Empirical
 public import Rlib.MDP.Concentration
+public import Rlib.MDP.QConcentration
 public import Rlib.MDP.FiniteHorizon
 public import Rlib.MDP.TrajectoryMeasure
 public import Rlib.MDP.InfiniteHorizon

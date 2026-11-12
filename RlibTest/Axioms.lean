@@ -65,6 +65,7 @@ import Rlib
 #print axioms Rlib.Examples.oneState_value
 
 #print axioms Rlib.measure_abs_sampleMean_sub_le
+#print axioms Rlib.measure_abs_sampleMean_sub_le_of_abs_le
 #print axioms Rlib.MDP.measure_abs_ofSamples_reward_sub_le
 #print axioms Rlib.MDP.measure_abs_ofSamples_transition_sub_le
 #print axioms Rlib.ae_tendsto_sum_mul_of_condExp_eq_zero
@@ -125,3 +126,6 @@ import Rlib
 #print axioms Rlib.MDP.ae_tendsto_qLearningAsync_of_indep
 
 #print axioms Rlib.MDP.norm_sub_le_of_qBellmanOperator_fixed
+
+#print axioms Rlib.MDP.measure_abs_ofSamples_qBellmanOperator_sub_le
+#print axioms Rlib.MDP.measure_norm_ofSamples_qBellmanOperator_sub_le

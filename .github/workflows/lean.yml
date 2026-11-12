@@ -82,3 +82,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QLearningAsyncSampling.lean
       - name: Check simulation lemma example
         run: lake env lean -DwarningAsError=true RlibTest/QSimulation.lean
+      - name: Check empirical Bellman concentration example
+        run: lake env lean -DwarningAsError=true RlibTest/QConcentration.lean

@@ -33,6 +33,7 @@ The Bellman and return results cover finite state and action sets:
 - Asynchronous Q-learning updates only the visited entry from one observation. Its tables stay within `max ‖q₀‖ (R / (1 - γ))`, and it converges when every entry's visit step sizes are not summable and its visit-weighted target errors have convergent partial sums.
 - Asynchronous Q-learning converges almost surely when visits are chosen from current information, each visited entry is updated from a fresh independent sample with the model's mean reward and transition law, rewards are bounded, step sizes in `[0, 1]` have summable squares, and almost surely every pair's visit step sizes are not summable.
 - The Bellman Q fixed points of two models differ by at most the gap between their Bellman Q operators at one fixed point, divided by `1 - γ`.
+- Hoeffding's bound holds for independent observations bounded by `c` with a common mean. At a fixed table, the empirical Bellman Q operator built from independent samples concentrates around the model's, both entrywise and uniformly in sup norm.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -62,6 +63,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/Basic](Rlib/MDP/Basic.lean) | Environments, policies, and one-step values |
 | [MDP/Empirical](Rlib/MDP/Empirical.lean) | MDP estimates from paired observations and exact one-step sample identities |
 | [MDP/Concentration](Rlib/MDP/Concentration.lean) | Pointwise empirical reward and transition probability bounds |
+| [MDP/QConcentration](Rlib/MDP/QConcentration.lean) | Concentration of the empirical Bellman Q operator |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
@@ -137,6 +139,7 @@ lake env lean -DwarningAsError=true RlibTest/QAsynchronous.lean
 lake env lean -DwarningAsError=true RlibTest/QLearningAsync.lean
 lake env lean -DwarningAsError=true RlibTest/QLearningAsyncSampling.lean
 lake env lean -DwarningAsError=true RlibTest/QSimulation.lean
+lake env lean -DwarningAsError=true RlibTest/QConcentration.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

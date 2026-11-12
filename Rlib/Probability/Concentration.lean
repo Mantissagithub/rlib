@@ -73,4 +73,51 @@ theorem measure_abs_sampleMean_sub_le
   rw [hevent]
   exact (measureReal_union_le _ _).trans (by linarith)
 
+/-- Hoeffding's two-sided bound for independent observations bounded by `c` in absolute value
+with a common mean. Identical distributions are not required. -/
+theorem measure_abs_sampleMean_sub_le_of_abs_le
+    {X : Fin (n + 1) → Ω → ℝ} (hindep : iIndepFun X μ)
+    (hmeas : ∀ i, AEMeasurable (X i) μ) {c : ℝ} (hc : 0 < c)
+    (hbound : ∀ i, ∀ᵐ ω ∂μ, |X i ω| ≤ c)
+    {θ : ℝ} (hmean : ∀ i, ∫ ω, X i ω ∂μ = θ) {ε : ℝ} (hε : 0 ≤ ε) :
+    μ.real {ω | ε ≤ |sampleMean (fun i => X i ω) - θ|} ≤
+      2 * Real.exp (-((n + 1 : ℝ) * ε ^ 2) / (2 * c ^ 2)) := by
+  have h2c : 0 < 2 * c := by positivity
+  set Y : Fin (n + 1) → Ω → ℝ := fun i ω => (X i ω + c) / (2 * c)
+  have hY := measure_abs_sampleMean_sub_le (X := Y)
+    (hindep.comp (fun _ x => (x + c) / (2 * c)) (fun _ => by fun_prop))
+    (fun i => ((hmeas i).add_const c).div_const (2 * c))
+    (fun i => by
+      filter_upwards [hbound i] with ω h
+      rw [abs_le] at h
+      constructor
+      · exact div_nonneg (by linarith) h2c.le
+      · rw [div_le_one h2c]
+        linarith)
+    (θ := (θ + c) / (2 * c))
+    (fun i => by
+      have hint : Integrable (X i) μ :=
+        Integrable.of_bound (hmeas i).aestronglyMeasurable c
+          (by simpa [Real.norm_eq_abs] using hbound i)
+      simp only [Y]
+      rw [integral_div, integral_add hint (integrable_const c), hmean i]
+      simp)
+    (div_nonneg hε h2c.le)
+  have hmeanY (ω : Ω) : sampleMean (fun i => Y i ω) - (θ + c) / (2 * c) =
+      (sampleMean (fun i => X i ω) - θ) / (2 * c) := by
+    simp only [Y, sampleMean, ← Finset.sum_div, Finset.sum_add_distrib, Finset.sum_const,
+      Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+    push_cast
+    field_simp
+    ring
+  have hevent : {ω | ε ≤ |sampleMean (fun i => X i ω) - θ|} =
+      {ω | ε / (2 * c) ≤ |sampleMean (fun i => Y i ω) - (θ + c) / (2 * c)|} := by
+    ext ω
+    simp only [Set.mem_ofPred_eq, hmeanY, abs_div, abs_of_pos h2c]
+    exact (div_le_div_iff_of_pos_right h2c).symm
+  rw [hevent]
+  refine hY.trans_eq ?_
+  congr 2
+  field_simp
+
 end Rlib
