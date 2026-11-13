@@ -92,3 +92,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/PerformanceDifference.lean
       - name: Check discounted visitation example
         run: lake env lean -DwarningAsError=true RlibTest/Visitation.lean
+      - name: Check PPO clipped surrogate example
+        run: lake env lean -DwarningAsError=true RlibTest/ClippedSurrogate.lean

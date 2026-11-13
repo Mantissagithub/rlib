@@ -150,3 +150,11 @@ import Rlib
 #print axioms Rlib.MDP.discountedVisitation_nonneg
 #print axioms Rlib.MDP.sum_discountedVisitation
 #print axioms Rlib.MDP.sub_policyValue_eq_sum_visitation
+
+#print axioms Rlib.ppoClip_le
+#print axioms Rlib.ppoClip_eq_of_mem
+#print axioms Rlib.ppoClip_of_le_ratio
+#print axioms Rlib.ppoClip_of_ratio_le
+#print axioms Rlib.expect_ratio_mul
+#print axioms Rlib.MDP.clippedSurrogate_le_surrogate
+#print axioms Rlib.MDP.surrogate_eq
