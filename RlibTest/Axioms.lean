@@ -168,3 +168,12 @@ import Rlib
 #print axioms Rlib.kl_nonneg
 #print axioms Rlib.grpoObjective_le
 #print axioms Rlib.grpoObjective_one
+
+#print axioms Rlib.MDP.discountedVisitation_le_one
+#print axioms Rlib.MDP.expect_advantage_eq_sum_sub
+#print axioms Rlib.MDP.policyValue_sub_eq_sum
+#print axioms Rlib.MDP.tendsto_policyValue
+#print axioms Rlib.MDP.tendsto_discountedVisitation
+#print axioms Rlib.MDP.hasDerivAt_policyValue
+#print axioms Rlib.MDP.sum_deriv_eq_zero
+#print axioms Rlib.MDP.hasDerivAt_policyValue_actionValue

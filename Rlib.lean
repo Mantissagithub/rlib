@@ -19,6 +19,7 @@ public import Rlib.MDP.PolicyEvaluation
 public import Rlib.MDP.Advantage
 public import Rlib.MDP.PerformanceDifference
 public import Rlib.MDP.Visitation
+public import Rlib.MDP.PolicyGradient
 public import Rlib.MDP.ClippedSurrogate
 public import Rlib.MDP.GRPO
 public import Rlib.MDP.Optimality

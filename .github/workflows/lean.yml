@@ -96,3 +96,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/ClippedSurrogate.lean
       - name: Check GRPO example
         run: lake env lean -DwarningAsError=true RlibTest/GRPO.lean
+      - name: Check policy gradient example
+        run: lake env lean -DwarningAsError=true RlibTest/PolicyGradient.lean
