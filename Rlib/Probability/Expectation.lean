@@ -50,6 +50,12 @@ theorem expect_mul (p : PMF X) (c : ℝ) (f : X → ℝ) :
     expect p (fun x => c * f x) = c * expect p f := by
   simp [expect, Finset.mul_sum, mul_left_comm]
 
+/-- Expectation of a finite sum is the sum of the expectations. -/
+theorem expect_sum {ι : Type*} (p : PMF X) (s : Finset ι) (f : ι → X → ℝ) :
+    expect p (fun x => ∑ i ∈ s, f i x) = ∑ i ∈ s, expect p (f i) := by
+  simp only [expect, Finset.mul_sum]
+  exact Finset.sum_comm
+
 /-- Expectation preserves pointwise inequalities. -/
 theorem expect_mono (p : PMF X) {f g : X → ℝ} (h : ∀ x, f x ≤ g x) :
     expect p f ≤ expect p g := by

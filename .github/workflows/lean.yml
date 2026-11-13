@@ -90,3 +90,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/Advantage.lean
       - name: Check performance difference example
         run: lake env lean -DwarningAsError=true RlibTest/PerformanceDifference.lean
+      - name: Check discounted visitation example
+        run: lake env lean -DwarningAsError=true RlibTest/Visitation.lean

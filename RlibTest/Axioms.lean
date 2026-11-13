@@ -144,3 +144,9 @@ import Rlib
 #print axioms Rlib.MDP.policyValue_nonpos
 #print axioms Rlib.MDP.advantage_nonpos_iff
 #print axioms Rlib.MDP.policyValue_le_of_advantage_nonpos
+
+#print axioms Rlib.expect_sum
+#print axioms Rlib.MDP.policyValue_withReward_eq_sum
+#print axioms Rlib.MDP.discountedVisitation_nonneg
+#print axioms Rlib.MDP.sum_discountedVisitation
+#print axioms Rlib.MDP.sub_policyValue_eq_sum_visitation

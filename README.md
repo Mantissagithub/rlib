@@ -38,6 +38,7 @@ The Bellman and return results cover finite state and action sets:
 - A stationary policy's action values average to its state value under its own action choice, its advantages average to zero, and its action values satisfy their own Bellman equation.
 - **Performance difference lemma.** The value of a new policy minus the value of an old one is the new policy's value when every reward is replaced by the old policy's advantage. A policy with nonnegative expected advantage under another at every state is at least as good everywhere.
 - A policy has no action with positive advantage exactly when its value satisfies the Bellman optimality equation, and such a policy is at least as good as every stationary policy.
+- Discounted state visitation is a probability distribution on states. `1 - γ` times a policy's value is the visitation average of its expected reward, and `1 - γ` times the gain of a new policy is the new policy's visitation average of its expected advantage under the old one.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -73,6 +74,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |
 | [MDP/PerformanceDifference](Rlib/MDP/PerformanceDifference.lean) | The performance difference lemma and improvement from advantages |
+| [MDP/Visitation](Rlib/MDP/Visitation.lean) | Discounted state visitation and the visitation form of the performance difference lemma |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
 | [MDP/QLearning](Rlib/MDP/QLearning.lean) | Sampled Q updates, expected and empirical targets, and Bellman Q contraction |
 | [MDP/QSimulation](Rlib/MDP/QSimulation.lean) | Comparing Bellman Q fixed points of two models |
@@ -150,6 +152,7 @@ lake env lean -DwarningAsError=true RlibTest/QConcentration.lean
 lake env lean -DwarningAsError=true RlibTest/QSampleComplexity.lean
 lake env lean -DwarningAsError=true RlibTest/Advantage.lean
 lake env lean -DwarningAsError=true RlibTest/PerformanceDifference.lean
+lake env lean -DwarningAsError=true RlibTest/Visitation.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
