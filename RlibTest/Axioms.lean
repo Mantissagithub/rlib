@@ -283,3 +283,17 @@ import Rlib
 #print axioms Rlib.MDP.expect_sub_sq_eq_transitionVar
 #print axioms Rlib.MDP.measure_transition_deviation_le
 #print axioms Rlib.MDP.measure_exists_transition_deviation_le
+#print axioms Rlib.MDP.measure_transition_hoeffding_le
+#print axioms Rlib.MDP.measure_exists_transition_hoeffding_le
+#print axioms Rlib.sqrt_add_le_add_sqrt
+#print axioms Rlib.MDP.policyActionValue_withReward_eq
+#print axioms Rlib.MDP.abs_policyActionValue_withReward_le
+#print axioms Rlib.MDP.abs_policyActionValue_sub_le
+#print axioms Rlib.MDP.policyValue_qGreedyPolicy
+#print axioms Rlib.MDP.transitionVar_le_expect_sub_sq
+#print axioms Rlib.MDP.transitionVar_le_two_mul
+#print axioms Rlib.MDP.transitionVar_sub_transitionVar
+#print axioms Rlib.MDP.minimax_bound_le
+#print axioms Rlib.MDP.abs_policyActionValue_transitionGap_le
+#print axioms Rlib.MDP.abs_sub_le_of_deviations
+#print axioms Rlib.MDP.measure_abs_sub_qBellman_fixed_le

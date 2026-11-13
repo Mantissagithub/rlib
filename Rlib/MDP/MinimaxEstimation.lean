@@ -242,4 +242,102 @@ theorem measure_exists_transition_deviation_le (m : MDP S A) (D : Ω → S → A
         push_cast
         field_simp
 
+omit [Fintype A] [Nonempty A] in
+/-- **Hoeffding deviation at one pair.** If the `n + 1` successors at `(s, a)` are independent
+with law `P (· | s, a)` and `|v| ≤ B` with `B > 0`, then for `0 < δ`,
+`|(P - P̂) v (s, a)| ≥ B * √(2 * log (2 / δ) / (n + 1))` with probability at most `δ`. -/
+theorem measure_transition_hoeffding_le (m : MDP S A) (D : Ω → S → A → Fin (n + 1) → S)
+    (s : S) (a : A) (hindep : iIndepFun (fun i ω => D ω s a i) μ)
+    (hmeas : ∀ i, AEMeasurable (fun ω => D ω s a i) μ)
+    (hlaw : ∀ i, μ.map (fun ω => D ω s a i) = (m.transition s a).toMeasure)
+    {v : S → ℝ} {B : ℝ} (hB : 0 < B) (hv : ∀ s, |v s| ≤ B) {δ : ℝ} (hδ0 : 0 < δ)
+    (hδ2 : δ ≤ 2) :
+    μ.real {ω | B * Real.sqrt (2 * Real.log (2 / δ) / (n + 1)) ≤
+        |expect (m.transition s a) v - expect ((m.withSuccessors (D ω)).transition s a) v|} ≤
+      δ := by
+  have hvm : Measurable v := measurable_of_countable v
+  have hN : (0 : ℝ) < n + 1 := by positivity
+  have hL : 0 ≤ Real.log (2 / δ) := Real.log_nonneg (by rw [le_div_iff₀ hδ0]; linarith)
+  have hlawint (i : Fin (n + 1)) :
+      ∫ ω, v (D ω s a i) ∂μ = expect (m.transition s a) v := by
+    rw [← integral_toMeasure_eq_expect, ← hlaw i,
+      integral_map (hmeas i) hvm.aestronglyMeasurable]
+  set ε := B * Real.sqrt (2 * Real.log (2 / δ) / (n + 1))
+  have hε : 0 ≤ ε := by positivity
+  have h := measure_abs_sampleMean_sub_le_of_abs_le (X := fun i ω => v (D ω s a i))
+    (hindep.comp (fun _ => v) (fun _ => hvm)) (fun i => hvm.comp_aemeasurable (hmeas i)) hB
+    (fun i => ae_of_all μ fun ω => hv _) hlawint hε
+  have hexp : 2 * Real.exp (-((n + 1 : ℝ) * ε ^ 2) / (2 * B ^ 2)) = δ := by
+    have hsq : ε ^ 2 = B ^ 2 * (2 * Real.log (2 / δ) / (n + 1)) := by
+      simp only [ε, mul_pow, Real.sq_sqrt (by positivity : 0 ≤ 2 * Real.log (2 / δ) / (n + 1))]
+    rw [hsq, show -((n + 1 : ℝ) * (B ^ 2 * (2 * Real.log (2 / δ) / (n + 1)))) / (2 * B ^ 2) =
+      -Real.log (2 / δ) by field_simp, Real.exp_neg, Real.exp_log (by positivity)]
+    field_simp
+  rw [hexp] at h
+  refine le_trans (le_of_eq ?_) h
+  congr 1
+  ext ω
+  simp only [Set.mem_ofPred_eq, withSuccessors, expect_empiricalPMF,
+    abs_sub_comm (expect (m.transition s a) v)]
+
+omit [Nonempty A] in
+/-- **Uniform Hoeffding deviations.** If the successors at every pair are independent with the
+model's laws and `|v| ≤ B`, then for `0 < δ ≤ 1`, with probability at least `1 - δ`,
+`|(P - P̂) v| < B * √(2 * log (2 |S| |A| / δ) / (n + 1))` at every pair. -/
+theorem measure_exists_transition_hoeffding_le (m : MDP S A) (D : Ω → S → A → Fin (n + 1) → S)
+    (hindep : ∀ s a, iIndepFun (fun i ω => D ω s a i) μ)
+    (hmeas : ∀ s a i, AEMeasurable (fun ω => D ω s a i) μ)
+    (hlaw : ∀ s a i, μ.map (fun ω => D ω s a i) = (m.transition s a).toMeasure)
+    {v : S → ℝ} {B : ℝ} (hB : 0 < B) (hv : ∀ s, |v s| ≤ B) {δ : ℝ} (hδ0 : 0 < δ)
+    (hδ1 : δ ≤ 1) :
+    μ.real {ω | ∃ s a, B * Real.sqrt (2 * Real.log (2 * (Fintype.card S * Fintype.card A) / δ) /
+        (n + 1)) ≤
+        |expect (m.transition s a) v - expect ((m.withSuccessors (D ω)).transition s a) v|} ≤
+      δ := by
+  classical
+  by_cases hne : Nonempty (S × A)
+  swap
+  · have hempty : {ω | ∃ s a, B * Real.sqrt (2 * Real.log (2 * (Fintype.card S *
+        Fintype.card A) / δ) / (n + 1)) ≤
+        |expect (m.transition s a) v - expect ((m.withSuccessors (D ω)).transition s a) v|} =
+        ∅ := by
+      ext ω
+      simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false, not_exists]
+      exact fun s a _ => hne ⟨(s, a)⟩
+    rw [hempty, measureReal_empty]
+    exact hδ0.le
+  obtain ⟨⟨s₀, a₀⟩⟩ := hne
+  have : Nonempty S := ⟨s₀⟩
+  have : Nonempty A := ⟨a₀⟩
+  set K : ℝ := Fintype.card S * Fintype.card A
+  have hK : 1 ≤ K := by
+    have h1 : (1 : ℝ) ≤ Fintype.card S := Nat.one_le_cast.mpr Fintype.card_pos
+    have h2 : (1 : ℝ) ≤ Fintype.card A := Nat.one_le_cast.mpr Fintype.card_pos
+    nlinarith
+  set δ' := δ / K
+  have hδ'0 : 0 < δ' := div_pos hδ0 (by linarith)
+  have hδ'2 : δ' ≤ 2 := ((div_le_one (by linarith)).mpr (by linarith)).trans (by norm_num)
+  have hlog : Real.log (2 / δ') = Real.log (2 * K / δ) := by
+    simp only [δ']; congr 1; field_simp
+  have hsub : {ω | ∃ s a, B * Real.sqrt (2 * Real.log (2 * K / δ) / (n + 1)) ≤
+        |expect (m.transition s a) v - expect ((m.withSuccessors (D ω)).transition s a) v|} ⊆
+      ⋃ p : S × A, {ω | B * Real.sqrt (2 * Real.log (2 / δ') / (n + 1)) ≤
+        |expect (m.transition p.1 p.2) v -
+          expect ((m.withSuccessors (D ω)).transition p.1 p.2) v|} := by
+    rintro ω ⟨s, a, h⟩
+    refine Set.mem_iUnion.mpr ⟨(s, a), ?_⟩
+    simp only [Set.mem_ofPred_eq, hlog]
+    exact h
+  refine (measureReal_mono hsub).trans ((measureReal_iUnion_fintype_le _).trans ?_)
+  calc ∑ p : S × A, μ.real {ω | B * Real.sqrt (2 * Real.log (2 / δ') / (n + 1)) ≤
+          |expect (m.transition p.1 p.2) v -
+            expect ((m.withSuccessors (D ω)).transition p.1 p.2) v|}
+      ≤ ∑ _p : S × A, δ' := Finset.sum_le_sum fun p _ =>
+        m.measure_transition_hoeffding_le D p.1 p.2 (hindep p.1 p.2) (hmeas p.1 p.2)
+          (hlaw p.1 p.2) hB hv hδ'0 hδ'2
+    _ = δ := by
+        simp only [Finset.sum_const, Finset.card_univ, Fintype.card_prod, nsmul_eq_mul, δ', K]
+        push_cast
+        field_simp
+
 end Rlib.MDP

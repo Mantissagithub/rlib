@@ -35,3 +35,21 @@ example {Ω S A : Type} [MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMea
       1 / 10 :=
   m.measure_exists_transition_deviation_le D hindep hmeas hlaw (by norm_num) hv (by norm_num)
     (by norm_num)
+
+open MeasureTheory ProbabilityTheory in
+/-- Agarwal, Jiang, Kakade, and Sun, Theorem 2.6, with `γ = 1 / 2` and `δ = 1 / 10`. -/
+example {Ω S A : Type} [MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMeasure μ]
+    [Fintype S] [Fintype A] [Nonempty A] [MeasurableSpace S] [MeasurableSingletonClass S]
+    {n : ℕ} (m : MDP S A) (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1)
+    (D : Ω → S → A → Fin (n + 1) → S)
+    (hindep : ∀ s a, iIndepFun (fun i ω => D ω s a i) μ)
+    (hmeas : ∀ s a i, AEMeasurable (fun ω => D ω s a i) μ)
+    (hlaw : ∀ s a i, μ.map (fun ω => D ω s a i) = (m.transition s a).toMeasure)
+    {q : S → A → ℝ} (hq : m.qBellmanOperator (1 / 2) q = q) (qhat : Ω → S → A → ℝ)
+    (hqhat : ∀ ω, (m.withSuccessors (D ω)).qBellmanOperator (1 / 2) (qhat ω) = qhat ω) :
+    μ.real {ω | ∃ s a, 1 / 2 * Real.sqrt (12 * Real.log (12 * (Fintype.card S *
+        Fintype.card A) / (1 / 10)) / ((1 - 1 / 2) ^ 3 * (n + 1))) +
+        12 * (1 / 2) * Real.log (12 * (Fintype.card S * Fintype.card A) / (1 / 10)) /
+          ((1 - 1 / 2) ^ 3 * (n + 1)) < |q s a - qhat ω s a|} ≤ 1 / 10 :=
+  m.measure_abs_sub_qBellman_fixed_le hr D hindep hmeas hlaw (by norm_num) (by norm_num) hq qhat
+    hqhat (by norm_num) (by norm_num)
