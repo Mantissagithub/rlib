@@ -45,6 +45,16 @@ theorem expect_add (p : PMF X) (f g : X → ℝ) :
     expect p (fun x => f x + g x) = expect p f + expect p g := by
   simp [expect, mul_add, Finset.sum_add_distrib]
 
+/-- Expectation preserves subtraction. -/
+theorem expect_sub (p : PMF X) (f g : X → ℝ) :
+    expect p (fun x => f x - g x) = expect p f - expect p g := by
+  simp [expect, mul_sub, Finset.sum_sub_distrib]
+
+/-- Expectation commutes with division by a constant. -/
+theorem expect_div (p : PMF X) (f : X → ℝ) (c : ℝ) :
+    expect p (fun x => f x / c) = expect p f / c := by
+  simp only [expect, Finset.sum_div, mul_div_assoc]
+
 /-- A real scalar can be moved outside expectation. -/
 theorem expect_mul (p : PMF X) (c : ℝ) (f : X → ℝ) :
     expect p (fun x => c * f x) = c * expect p f := by

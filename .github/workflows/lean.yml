@@ -120,3 +120,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/QGreedy.lean
       - name: Check Bernstein example
         run: lake env lean -DwarningAsError=true RlibTest/Bernstein.lean
+      - name: Check total variance example
+        run: lake env lean -DwarningAsError=true RlibTest/TotalVariance.lean

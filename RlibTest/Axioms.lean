@@ -265,3 +265,13 @@ import Rlib
 #print axioms Rlib.measure_sum_ge_le_bernstein
 #print axioms Rlib.measure_abs_sampleMean_sub_le_bernstein
 #print axioms Rlib.measure_abs_sampleMean_sub_ge_le_bernstein
+
+#print axioms Rlib.expect_sub
+#print axioms Rlib.expect_div
+#print axioms Rlib.sq_expect_le_expect_sq
+#print axioms Rlib.expect_sqrt_le
+#print axioms Rlib.MDP.transitionVar_nonneg
+#print axioms Rlib.MDP.policyActionValue_withReward_le
+#print axioms Rlib.MDP.policyActionValue_withReward_transitionVar_le
+#print axioms Rlib.MDP.policyActionValue_withReward_sqrt_transitionVar_le
+#print axioms Rlib.MDP.policyActionValue_withReward_sqrt_transitionVar_le_two
