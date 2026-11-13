@@ -143,10 +143,8 @@ theorem mgf_le_of_abs_le {Y : Ω → ℝ} (hmeas : AEMeasurable Y μ) {M v l : �
         linarith
     _ ≤ _ := by linarith [Real.add_one_le_exp (l ^ 2 * v / (2 * (1 - l * M / 3)))]
 
-/-- **Bernstein's inequality for sums.** For independent `Y i`, `i < n + 1`, with `|Y i| ≤ M`,
-mean zero, and `E (Y i) ^ 2 ≤ v` where `v > 0`, the sum exceeds `t ≥ 0` with probability at most
-`exp (-t ^ 2 / (2 * ((n + 1) * v + M * t / 3)))`. -/
-theorem measure_sum_ge_le_bernstein {Y : Fin (n + 1) → Ω → ℝ} (hindep : iIndepFun Y μ)
+private theorem measure_sum_ge_le_bernstein_of_pos {Y : Fin (n + 1) → Ω → ℝ}
+    (hindep : iIndepFun Y μ)
     (hmeas : ∀ i, AEMeasurable (Y i) μ) {M v : ℝ} (hM : 0 ≤ M) (hv : 0 < v)
     (hbound : ∀ i, ∀ᵐ ω ∂μ, |Y i ω| ≤ M) (hmean : ∀ i, ∫ ω, Y i ω ∂μ = 0)
     (hvar : ∀ i, ∫ ω, Y i ω ^ 2 ∂μ ≤ v) {t : ℝ} (ht : 0 ≤ t) :
@@ -198,13 +196,50 @@ theorem measure_sum_ge_le_bernstein {Y : Fin (n + 1) → Ω → ℝ} (hindep : i
         field_simp
         ring
 
+/-- **Bernstein's inequality for sums.** For independent `Y i`, `i < n + 1`, with `|Y i| ≤ M`,
+mean zero, and `E (Y i) ^ 2 ≤ v`, the sum exceeds `t ≥ 0` with probability at most
+`exp (-t ^ 2 / (2 * ((n + 1) * v + M * t / 3)))`. -/
+theorem measure_sum_ge_le_bernstein {Y : Fin (n + 1) → Ω → ℝ} (hindep : iIndepFun Y μ)
+    (hmeas : ∀ i, AEMeasurable (Y i) μ) {M v : ℝ} (hM : 0 ≤ M) (hv : 0 ≤ v)
+    (hbound : ∀ i, ∀ᵐ ω ∂μ, |Y i ω| ≤ M) (hmean : ∀ i, ∫ ω, Y i ω ∂μ = 0)
+    (hvar : ∀ i, ∫ ω, Y i ω ^ 2 ∂μ ≤ v) {t : ℝ} (ht : 0 ≤ t) :
+    μ.real {ω | t ≤ ∑ i, Y i ω} ≤
+      Real.exp (-t ^ 2 / (2 * ((n + 1) * v + M * t / 3))) := by
+  rcases hv.lt_or_eq with hv | hv
+  · exact measure_sum_ge_le_bernstein_of_pos hindep hmeas hM hv hbound hmean hvar ht
+  subst hv
+  rcases ht.lt_or_eq with ht | ht
+  · -- With zero variance every `Y i` vanishes almost surely, so the event is null.
+    have hzero (i : Fin (n + 1)) : ∀ᵐ ω ∂μ, Y i ω = 0 := by
+      have hint : Integrable (fun ω => Y i ω ^ 2) μ := Integrable.of_bound
+        ((hmeas i).pow_const 2).aestronglyMeasurable (M ^ 2) (by
+          filter_upwards [hbound i] with ω h
+          rw [Real.norm_eq_abs, abs_pow]
+          exact pow_le_pow_left₀ (abs_nonneg _) h 2)
+      have h0 : ∫ ω, Y i ω ^ 2 ∂μ = 0 :=
+        le_antisymm (hvar i) (integral_nonneg fun ω => sq_nonneg _)
+      have hae := (integral_eq_zero_iff_of_nonneg (fun ω => sq_nonneg (Y i ω)) hint).mp h0
+      filter_upwards [hae] with ω hω
+      exact pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hω
+    have hnull : μ {ω | t ≤ ∑ i, Y i ω} = 0 := by
+      rw [measure_eq_zero_iff_ae_notMem]
+      filter_upwards [ae_all_iff.mpr hzero] with ω hω
+      simp only [hω, Finset.sum_const_zero, not_le]
+      exact ht
+    rw [measureReal_def, hnull, ENNReal.toReal_zero]
+    exact (Real.exp_pos _).le
+  · subst ht
+    simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, neg_zero, zero_div,
+      Real.exp_zero]
+    exact measureReal_le_one
+
 /-- **Bernstein's inequality (two-sided, sample mean).** For independent observations
-`X i`, `i < n + 1`, with `|X i - θ| ≤ M`, mean `θ`, and variance at most `σ2 > 0`, the sample
+`X i`, `i < n + 1`, with `|X i - θ| ≤ M`, mean `θ`, and variance at most `σ2 ≥ 0`, the sample
 mean deviates from `θ` by at least `ε ≥ 0` with probability at most
 `2 * exp (-(n + 1) * ε ^ 2 / (2 * σ2 + 2 * M * ε / 3))`. -/
 theorem measure_abs_sampleMean_sub_le_bernstein {X : Fin (n + 1) → Ω → ℝ}
     (hindep : iIndepFun X μ) (hmeas : ∀ i, AEMeasurable (X i) μ) {M σ2 θ : ℝ} (hM : 0 ≤ M)
-    (hσ : 0 < σ2) (hbound : ∀ i, ∀ᵐ ω ∂μ, |X i ω - θ| ≤ M) (hmean : ∀ i, ∫ ω, X i ω ∂μ = θ)
+    (hσ : 0 ≤ σ2) (hbound : ∀ i, ∀ᵐ ω ∂μ, |X i ω - θ| ≤ M) (hmean : ∀ i, ∫ ω, X i ω ∂μ = θ)
     (hvar : ∀ i, ∫ ω, (X i ω - θ) ^ 2 ∂μ ≤ σ2) {ε : ℝ} (hε : 0 ≤ ε) :
     μ.real {ω | ε ≤ |sampleMean (fun i => X i ω) - θ|} ≤
       2 * Real.exp (-((n + 1) * ε ^ 2) / (2 * σ2 + 2 * M * ε / 3)) := by
@@ -229,7 +264,10 @@ theorem measure_abs_sampleMean_sub_le_bernstein {X : Fin (n + 1) → Ω → ℝ}
     (fun i => by simp only [neg_sq]; exact hvar i) ht
   have hexp : -t ^ 2 / (2 * ((n + 1) * σ2 + M * t / 3)) =
       -((n + 1) * ε ^ 2) / (2 * σ2 + 2 * M * ε / 3) := by
-    simp only [t]; field_simp
+    have hden : 2 * ((n + 1) * σ2 + M * t / 3) = (n + 1) * (2 * σ2 + 2 * M * ε / 3) := by
+      simp only [t]; ring
+    rw [hden, show -t ^ 2 = (n + 1) * -((n + 1) * ε ^ 2) by simp only [t]; ring,
+      mul_div_mul_left _ _ (by positivity : (n + 1 : ℝ) ≠ 0)]
   rw [hexp] at hu hl
   have hcenter (ω : Ω) : ∑ i, (X i ω - θ) = (n + 1) * (sampleMean (fun i => X i ω) - θ) := by
     simp only [sampleMean, Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
@@ -248,12 +286,13 @@ theorem measure_abs_sampleMean_sub_le_bernstein {X : Fin (n + 1) → Ω → ℝ}
     _ ≤ _ := (measureReal_union_le _ _).trans (by linarith)
 
 /-- **Bernstein's inequality, high-probability form.** Under the conditions of
-`measure_abs_sampleMean_sub_le_bernstein`, for `0 < δ ≤ 1`, the sample mean deviates from `θ` by
-at least `√(2 * σ2 * log (2 / δ) / (n + 1)) + 2 * M * log (2 / δ) / (3 * (n + 1))` with
-probability at most `δ`. -/
+`measure_abs_sampleMean_sub_le_bernstein` with `M > 0`, for `0 < δ ≤ 1`, the sample mean
+deviates from `θ` by at least
+`√(2 * σ2 * log (2 / δ) / (n + 1)) + 2 * M * log (2 / δ) / (3 * (n + 1))` with probability at
+most `δ`. -/
 theorem measure_abs_sampleMean_sub_ge_le_bernstein {X : Fin (n + 1) → Ω → ℝ}
-    (hindep : iIndepFun X μ) (hmeas : ∀ i, AEMeasurable (X i) μ) {M σ2 θ : ℝ} (hM : 0 ≤ M)
-    (hσ : 0 < σ2) (hbound : ∀ i, ∀ᵐ ω ∂μ, |X i ω - θ| ≤ M) (hmean : ∀ i, ∫ ω, X i ω ∂μ = θ)
+    (hindep : iIndepFun X μ) (hmeas : ∀ i, AEMeasurable (X i) μ) {M σ2 θ : ℝ} (hM : 0 < M)
+    (hσ : 0 ≤ σ2) (hbound : ∀ i, ∀ᵐ ω ∂μ, |X i ω - θ| ≤ M) (hmean : ∀ i, ∫ ω, X i ω ∂μ = θ)
     (hvar : ∀ i, ∫ ω, (X i ω - θ) ^ 2 ∂μ ≤ σ2) {δ : ℝ} (hδ0 : 0 < δ) (hδ1 : δ ≤ 1) :
     μ.real {ω | Real.sqrt (2 * σ2 * Real.log (2 / δ) / (n + 1)) +
         2 * M * Real.log (2 / δ) / (3 * (n + 1)) ≤ |sampleMean (fun i => X i ω) - θ|} ≤ δ := by
@@ -267,8 +306,13 @@ theorem measure_abs_sampleMean_sub_ge_le_bernstein {X : Fin (n + 1) → Ω → �
   have ha2 : a ^ 2 = 2 * σ2 * L / (n + 1) := Real.sq_sqrt (by positivity)
   set ε := a + b
   have hε : 0 ≤ ε := add_nonneg ha hb
-  refine (measure_abs_sampleMean_sub_le_bernstein hindep hmeas hM hσ hbound hmean hvar hε).trans ?_
-  have hden : 0 < 2 * σ2 + 2 * M * ε / 3 := by positivity
+  refine (measure_abs_sampleMean_sub_le_bernstein hindep hmeas hM.le hσ hbound hmean hvar
+    hε).trans ?_
+  have hLpos : 0 < L := Real.log_pos (by rw [lt_div_iff₀ hδ0]; linarith)
+  have hbpos : 0 < b := by positivity
+  have hden : 0 < 2 * σ2 + 2 * M * ε / 3 := by
+    have : 0 < ε := add_pos_of_nonneg_of_pos ha hbpos
+    positivity
   -- `(n + 1) * ε ^ 2 ≥ L * (2 * σ2 + 2 * M * ε / 3)`.
   have hkey : L * (2 * σ2 + 2 * M * ε / 3) ≤ (n + 1) * ε ^ 2 := by
     have h1 : (n + 1) * a ^ 2 = 2 * σ2 * L := by rw [ha2]; field_simp

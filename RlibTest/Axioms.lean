@@ -275,3 +275,8 @@ import Rlib
 #print axioms Rlib.MDP.policyActionValue_withReward_transitionVar_le
 #print axioms Rlib.MDP.policyActionValue_withReward_sqrt_transitionVar_le
 #print axioms Rlib.MDP.policyActionValue_withReward_sqrt_transitionVar_le_two
+
+#print axioms Rlib.MDP.le_policyActionValue_withReward
+#print axioms Rlib.MDP.qMax_eq_qGreedy
+#print axioms Rlib.MDP.sub_eq_transitionGap_add
+#print axioms Rlib.MDP.sub_le_policyActionValue_transitionGap

@@ -38,8 +38,9 @@ The Bellman and return results cover finite state and action sets:
 - Hoeffding's bound holds for independent observations bounded by `c` with a common mean. At a fixed table, the empirical Bellman Q operator built from independent samples concentrates around the model's, both entrywise and uniformly in sup norm.
 - **Sample complexity of model-based Q-value estimation.** With `n + 1` independent samples per state-action pair, rewards bounded by `R > 0`, and `n + 1 ≥ 2 * R ^ 2 * log (2 * |S| * |A| / δ) / (ε ^ 2 * (1 - γ) ^ 2)`, the Bellman Q fixed point of the empirical MDP is within `ε / (1 - γ)` of the model's except with probability at most `δ`.
 - **Greedy policies (Agarwal, Jiang, Kakade, and Sun, Lemma 1.11).** If a table is within `ε` of the optimal Q table, its greedy policy is within `2 ε / (1 - γ)` of the optimal value at every state. So with the same number of samples, the greedy policy of the empirical Q fixed point is within `2 ε / (1 - γ) ^ 2` of optimal except with probability at most `δ`.
-- **Bernstein's inequality.** For independent observations within `M` of a common mean with variance at most `σ²`, the mean of `N` observations deviates by at least `ε` with probability at most `2 exp (-N ε ^ 2 / (2 σ ^ 2 + 2 M ε / 3))`; equivalently, with probability at least `1 - δ` the deviation is below `√(2 σ ^ 2 log (2 / δ) / N) + 2 M log (2 / δ) / (3 N)`.
+- **Bernstein's inequality.** For independent observations within `M` of a common mean with variance at most `σ² ≥ 0`, the mean of `N` observations deviates by at least `ε` with probability at most `2 exp (-N ε ^ 2 / (2 σ ^ 2 + 2 M ε / 3))`; equivalently, with probability at least `1 - δ` the deviation is below `√(2 σ ^ 2 log (2 / δ) / N) + 2 M log (2 / δ) / (3 N)`.
 - **Total variance (Agarwal, Jiang, Kakade, and Sun, Lemma 2.12).** With rewards in `[0, 1]`, discounting the variance of `V^π` under the transition law along the trajectories of `π` gives at most `1 / (1 - γ) ^ 2`, and discounting its square root gives at most `√(1 / (1 - γ) ^ 3) ≤ √(2 / (1 - γ) ^ 3)`.
+- **Component-wise bounds (Agarwal, Jiang, Kakade, and Sun, Lemma 2.5).** For two MDPs with the same rewards, the gap `Q* - Q̂*` between their optimal Q tables lies between the action values, in the second MDP, of its greedy policy and of the first MDP's greedy policy, both under the reward `γ (P - P̂) V*`.
 - A stationary policy's action values average to its state value under its own action choice, its advantages average to zero, and its action values satisfy their own Bellman equation.
 - **Performance difference lemma.** The value of a new policy minus the value of an old one is the new policy's value when every reward is replaced by the old policy's advantage. A policy with nonnegative expected advantage under another at every state is at least as good everywhere.
 - A policy has no action with positive advantage exactly when its value satisfies the Bellman optimality equation, and such a policy is at least as good as every stationary policy.
@@ -91,6 +92,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/QSampleComplexity](Rlib/MDP/QSampleComplexity.lean) | Sample complexity of model-based Q-value estimation |
 | [MDP/QGreedy](Rlib/MDP/QGreedy.lean) | Greedy policies of Q tables, Q-error amplification, and near-optimal policies from samples |
 | [MDP/TotalVariance](Rlib/MDP/TotalVariance.lean) | Variances of values under the transition law and the total variance bounds |
+| [MDP/MinimaxEstimation](Rlib/MDP/MinimaxEstimation.lean) | Component-wise bounds toward the minimax sample complexity of model-based estimation |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |
@@ -201,6 +203,7 @@ lake env lean -DwarningAsError=true RlibTest/SoftmaxPGConvergence.lean
 lake env lean -DwarningAsError=true RlibTest/QGreedy.lean
 lake env lean -DwarningAsError=true RlibTest/Bernstein.lean
 lake env lean -DwarningAsError=true RlibTest/TotalVariance.lean
+lake env lean -DwarningAsError=true RlibTest/MinimaxEstimation.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
