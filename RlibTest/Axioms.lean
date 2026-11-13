@@ -219,3 +219,7 @@ import Rlib
 #print axioms Rlib.MDP.sum_sub_policyValue_eq
 #print axioms Rlib.MDP.sum_sub_policyValue_le_sum_abs_softmaxGradient
 #print axioms Rlib.MDP.sq_sum_sub_policyValue_le
+
+#print axioms Rlib.le_one_div_mul_of_le_sub_mul_sq
+#print axioms Rlib.MDP.sum_policyValue_gradient_step_ge
+#print axioms Rlib.MDP.sum_sub_policyValue_pg_le

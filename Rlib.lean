@@ -21,6 +21,7 @@ public import Rlib.MDP.GAE
 public import Rlib.MDP.NaturalPolicyGradient
 public import Rlib.MDP.SoftmaxSmoothness
 public import Rlib.MDP.GradientDomination
+public import Rlib.MDP.SoftmaxPolicyGradient
 public import Rlib.MDP.PerformanceDifference
 public import Rlib.MDP.Visitation
 public import Rlib.MDP.PolicyGradient

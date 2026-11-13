@@ -48,6 +48,7 @@ The Bellman and return results cover finite state and action sets:
 - **Natural policy gradient.** Adding `η` times the advantage to softmax scores never lowers the value at any state. Starting from zero scores with rewards bounded by `R` and `η > 0`, after `T` steps the gap to any policy is at most `(log |A| / η + 2 R / (1 - γ)) / ((1 - γ) T)`.
 - **Smoothness of softmax values.** With rewards bounded by `R`, advantages are at most `2 R / (1 - γ)`, and policies within `δ` in `ℓ¹` have values within `2 R δ / (1 - γ) ^ 2`. Along a score direction `u` with `|u| ≤ K`, the value at step `t ≥ 0` is at least the linear prediction minus `6 K ^ 2 R t ^ 2 / (1 - γ) ^ 3`.
 - **Gradient domination.** If a deterministic policy `b` keeps probability at least `c` under `π` and its visitation is at most `C` times that of `π`, its value gain over `π` is at most `C / c` times the sum of the gradient entries at `b`, so its square is at most `(C / c) ^ 2 * |S|` times the squared gradient length.
+- **Exact softmax policy gradient.** With rewards bounded by `R > 0` and step `(1 - γ) ^ 3 / (12 R)`, each step raises the weighted value by at least half the step times the squared gradient length. If every iterate gives a deterministic policy `b` probability at least `c` and the visitation of `b` stays within a factor `C`, the gap to `b` after `T` steps is at most `24 R C ^ 2 |S| / ((1 - γ) ^ 3 c ^ 2 T)`. The lower bound `c` is assumed, not proved.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -86,6 +87,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/NaturalPolicyGradient](Rlib/MDP/NaturalPolicyGradient.lean) | Natural policy gradient for softmax policies and its `1 / T` convergence rate |
 | [MDP/SoftmaxSmoothness](Rlib/MDP/SoftmaxSmoothness.lean) | Lipschitz bounds in the policy and the ascent lemma for softmax policy values |
 | [MDP/GradientDomination](Rlib/MDP/GradientDomination.lean) | The softmax policy gradient and the gradient-domination inequality |
+| [MDP/SoftmaxPolicyGradient](Rlib/MDP/SoftmaxPolicyGradient.lean) | Exact softmax policy gradient and its `1 / T` rate |
 | [MDP/PerformanceDifference](Rlib/MDP/PerformanceDifference.lean) | The performance difference lemma and improvement from advantages |
 | [MDP/Visitation](Rlib/MDP/Visitation.lean) | Discounted state visitation and the visitation form of the performance difference lemma |
 | [MDP/ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean) | The PPO clipped surrogate objective and its pessimism |
@@ -180,6 +182,7 @@ lake env lean -DwarningAsError=true RlibTest/GAE.lean
 lake env lean -DwarningAsError=true RlibTest/NaturalPolicyGradient.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxSmoothness.lean
 lake env lean -DwarningAsError=true RlibTest/GradientDomination.lean
+lake env lean -DwarningAsError=true RlibTest/SoftmaxPolicyGradient.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
@@ -197,4 +200,4 @@ Several earlier projects formalize parts of this material.
 
 The value iteration, policy iteration, and Q-learning convergence results here overlap with that work. This library's Q-learning results use fresh independent samples rather than a single Markovian trajectory, and they cover synchronous and asynchronous updates with visits chosen from current information.
 
-We did not find earlier machine-checked versions of the performance difference lemma, discounted visitation, the policy gradient theorem and the softmax gradient, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, the trust-region policy improvement bound, generalized advantage estimation, the convergence rate of natural policy gradient, or the sample complexity of model-based Q-value estimation. This comes from a web search, not an exhaustive survey. Please open an issue if you know of related work we missed.
+We did not find earlier machine-checked versions of the performance difference lemma, discounted visitation, the policy gradient theorem and the softmax gradient, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, the trust-region policy improvement bound, generalized advantage estimation, the convergence rates of natural and exact softmax policy gradient, or the sample complexity of model-based Q-value estimation. This comes from a web search, not an exhaustive survey. Please open an issue if you know of related work we missed.
