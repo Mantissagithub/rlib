@@ -108,3 +108,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/NaturalPolicyGradient.lean
       - name: Check softmax smoothness example
         run: lake env lean -DwarningAsError=true RlibTest/SoftmaxSmoothness.lean
+      - name: Check gradient domination example
+        run: lake env lean -DwarningAsError=true RlibTest/GradientDomination.lean

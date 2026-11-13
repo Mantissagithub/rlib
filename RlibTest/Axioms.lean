@@ -214,3 +214,8 @@ import Rlib
 #print axioms Rlib.MDP.abs_directionalGain_sub_le
 #print axioms Rlib.MDP.hasDerivAt_policyValue_softmax_line
 #print axioms Rlib.MDP.policyValue_softmax_line_ge
+
+#print axioms Rlib.MDP.sum_directionalGain_eq
+#print axioms Rlib.MDP.sum_sub_policyValue_eq
+#print axioms Rlib.MDP.sum_sub_policyValue_le_sum_abs_softmaxGradient
+#print axioms Rlib.MDP.sq_sum_sub_policyValue_le
