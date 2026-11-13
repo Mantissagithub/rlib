@@ -94,3 +94,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/Visitation.lean
       - name: Check PPO clipped surrogate example
         run: lake env lean -DwarningAsError=true RlibTest/ClippedSurrogate.lean
+      - name: Check GRPO example
+        run: lake env lean -DwarningAsError=true RlibTest/GRPO.lean

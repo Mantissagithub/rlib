@@ -158,3 +158,13 @@ import Rlib
 #print axioms Rlib.expect_ratio_mul
 #print axioms Rlib.MDP.clippedSurrogate_le_surrogate
 #print axioms Rlib.MDP.surrogate_eq
+
+#print axioms Rlib.sum_groupAdvantage
+#print axioms Rlib.sampleMean_groupAdvantage_sq
+#print axioms Rlib.groupAdvantage_affine
+#print axioms Rlib.klEstimator_nonneg
+#print axioms Rlib.klEstimator_eq_zero_iff
+#print axioms Rlib.expect_klEstimator
+#print axioms Rlib.kl_nonneg
+#print axioms Rlib.grpoObjective_le
+#print axioms Rlib.grpoObjective_one
