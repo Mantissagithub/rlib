@@ -49,6 +49,7 @@ The Bellman and return results cover finite state and action sets:
 - **Smoothness of softmax values (Mei et al. 2020, Lemma 7).** With rewards in `[0, 1]`, values lie in `[0, 1 / (1 - γ)]`, advantages are at most `1 / (1 - γ)` in absolute value, and policies within `δ` in `ℓ¹` have values within `δ / (1 - γ) ^ 2`. The weighted value satisfies `V θ' ≥ V θ + ⟪∇ V θ, θ' - θ⟫ - 4 / (1 - γ) ^ 3 * ‖θ' - θ‖ ^ 2`, the quadratic bound of an `8 / (1 - γ) ^ 3`-smooth function.
 - **Gradient domination (Mei et al. 2020, Lemma 8).** If a deterministic policy `b` keeps probability at least `c` under `π` and its visitation is at most `C` times that of `π`, its value gain over `π` is at most `C / c` times the sum of the gradient entries at `b`, so its square is at most `(C / c) ^ 2 * |S|` times the squared gradient length.
 - **Exact softmax policy gradient (Mei et al. 2020, Theorem 4).** With rewards in `[0, 1]`, a start distribution `μ > 0`, and step `η = (1 - γ) ^ 3 / 8`, each step raises `V (μ)` by at least `(1 - γ) ^ 3 / 16 * ‖∇‖ ^ 2`. If every iterate gives an optimal deterministic policy probability at least `c`, then `V* ρ - V θ_t ρ ≤ 16 |S| / (c ^ 2 (1 - γ) ^ 6 t) * ‖d*_μ / μ‖∞ ^ 2 * ‖1 / μ‖∞`. As in the paper, `c` is a lower bound on these probabilities; the paper's proof that `c > 0` is not formalized.
+- **Asymptotics of exact softmax policy gradient (toward Agarwal et al. 2021, Theorem 10).** For any step size `η ≥ 0`, each step raises the value at every state, so values, action values, and advantages converge. With step `(1 - γ) ^ 3 / 8`, the squared gradient lengths are summable, every gradient entry tends to zero, and `π_t (a | s) * A_t (s, a) → 0` wherever `μ s > 0`.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -88,6 +89,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/SoftmaxSmoothness](Rlib/MDP/SoftmaxSmoothness.lean) | Lipschitz bounds in the policy and the ascent lemma for softmax policy values |
 | [MDP/GradientDomination](Rlib/MDP/GradientDomination.lean) | The softmax policy gradient and the gradient-domination inequality |
 | [MDP/SoftmaxPolicyGradient](Rlib/MDP/SoftmaxPolicyGradient.lean) | Exact softmax policy gradient and its `1 / T` rate |
+| [MDP/SoftmaxPGAsymptotic](Rlib/MDP/SoftmaxPGAsymptotic.lean) | Monotone improvement, value convergence, and vanishing gradients of exact softmax policy gradient |
 | [MDP/PerformanceDifference](Rlib/MDP/PerformanceDifference.lean) | The performance difference lemma and improvement from advantages |
 | [MDP/Visitation](Rlib/MDP/Visitation.lean) | Discounted state visitation and the visitation form of the performance difference lemma |
 | [MDP/ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean) | The PPO clipped surrogate objective and its pessimism |
@@ -183,6 +185,7 @@ lake env lean -DwarningAsError=true RlibTest/NaturalPolicyGradient.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxSmoothness.lean
 lake env lean -DwarningAsError=true RlibTest/GradientDomination.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxPolicyGradient.lean
+lake env lean -DwarningAsError=true RlibTest/SoftmaxPGAsymptotic.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

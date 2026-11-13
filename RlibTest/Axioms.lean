@@ -226,3 +226,12 @@ import Rlib
 #print axioms Rlib.MDP.sum_policyValue_pg_succ_ge
 #print axioms Rlib.MDP.mul_le_weightedVisitation
 #print axioms Rlib.MDP.sum_sub_policyValue_pg_le
+
+#print axioms Rlib.sum_softmaxPolicy_mul_nonneg
+#print axioms Rlib.MDP.pgScores_succ
+#print axioms Rlib.MDP.policyValue_pg_le_succ
+#print axioms Rlib.MDP.monotone_policyValue_pg
+#print axioms Rlib.MDP.tendsto_policyValue_pg
+#print axioms Rlib.MDP.tendsto_advantage_pg
+#print axioms Rlib.MDP.tendsto_softmaxGradient_pg
+#print axioms Rlib.MDP.tendsto_mul_advantage_pg

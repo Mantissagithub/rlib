@@ -112,3 +112,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/GradientDomination.lean
       - name: Check softmax policy gradient example
         run: lake env lean -DwarningAsError=true RlibTest/SoftmaxPolicyGradient.lean
+      - name: Check softmax policy gradient asymptotics example
+        run: lake env lean -DwarningAsError=true RlibTest/SoftmaxPGAsymptotic.lean
