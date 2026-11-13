@@ -206,3 +206,11 @@ import Rlib
 #print axioms Rlib.MDP.sum_expect_advantage_npg_le
 #print axioms Rlib.MDP.policyValue_sub_npg_le
 #print axioms Rlib.MDP.policyValue_sub_npg_le_of_abs_reward_le
+
+#print axioms Rlib.sum_abs_softmaxPolicy_sub_le
+#print axioms Rlib.MDP.abs_advantage_le
+#print axioms Rlib.MDP.abs_policyValue_sub_le_of_le
+#print axioms Rlib.MDP.abs_advantage_sub_le_of_le
+#print axioms Rlib.MDP.abs_directionalGain_sub_le
+#print axioms Rlib.MDP.hasDerivAt_policyValue_softmax_line
+#print axioms Rlib.MDP.policyValue_softmax_line_ge

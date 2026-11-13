@@ -46,6 +46,7 @@ The Bellman and return results cover finite state and action sets:
 - **Trust-region policy improvement bound.** Switching policies moves the discounted visitation by at most `γ / (1 - γ)` times the new visitation average of the `ℓ¹` distance between the action distributions. So `1 - γ` times the gain of the new policy is at least the surrogate objective minus `γ / (1 - γ) * ε * δ`, where `ε` bounds the expected advantage and `δ` bounds the `ℓ¹` distance between the policies at every state.
 - **Generalized advantage estimation.** With step weight `c = γ * λ`, the estimate is the first temporal-difference error when `λ = 0` and telescopes to the discounted return plus the discounted final value minus the start value when `λ = 1`. With the exact policy value, the expected temporal-difference error of an action is its advantage, and the expected estimate after taking an action and following the policy is that action's advantage for every `λ` and horizon.
 - **Natural policy gradient.** Adding `η` times the advantage to softmax scores never lowers the value at any state. Starting from zero scores with rewards bounded by `R` and `η > 0`, after `T` steps the gap to any policy is at most `(log |A| / η + 2 R / (1 - γ)) / ((1 - γ) T)`.
+- **Smoothness of softmax values.** With rewards bounded by `R`, advantages are at most `2 R / (1 - γ)`, and policies within `δ` in `ℓ¹` have values within `2 R δ / (1 - γ) ^ 2`. Along a score direction `u` with `|u| ≤ K`, the value at step `t ≥ 0` is at least the linear prediction minus `6 K ^ 2 R t ^ 2 / (1 - γ) ^ 3`.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -82,6 +83,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |
 | [MDP/GAE](Rlib/MDP/GAE.lean) | Temporal-difference errors and generalized advantage estimation |
 | [MDP/NaturalPolicyGradient](Rlib/MDP/NaturalPolicyGradient.lean) | Natural policy gradient for softmax policies and its `1 / T` convergence rate |
+| [MDP/SoftmaxSmoothness](Rlib/MDP/SoftmaxSmoothness.lean) | Lipschitz bounds in the policy and the ascent lemma for softmax policy values |
 | [MDP/PerformanceDifference](Rlib/MDP/PerformanceDifference.lean) | The performance difference lemma and improvement from advantages |
 | [MDP/Visitation](Rlib/MDP/Visitation.lean) | Discounted state visitation and the visitation form of the performance difference lemma |
 | [MDP/ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean) | The PPO clipped surrogate objective and its pessimism |
@@ -174,6 +176,7 @@ lake env lean -DwarningAsError=true RlibTest/Softmax.lean
 lake env lean -DwarningAsError=true RlibTest/TrustRegion.lean
 lake env lean -DwarningAsError=true RlibTest/GAE.lean
 lake env lean -DwarningAsError=true RlibTest/NaturalPolicyGradient.lean
+lake env lean -DwarningAsError=true RlibTest/SoftmaxSmoothness.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
