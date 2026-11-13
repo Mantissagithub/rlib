@@ -98,3 +98,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/GRPO.lean
       - name: Check policy gradient example
         run: lake env lean -DwarningAsError=true RlibTest/PolicyGradient.lean
+      - name: Check softmax gradient example
+        run: lake env lean -DwarningAsError=true RlibTest/Softmax.lean

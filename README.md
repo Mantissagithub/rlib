@@ -42,6 +42,7 @@ The Bellman and return results cover finite state and action sets:
 - **PPO clipped surrogate.** The clipped term never exceeds the importance-weighted advantage, equals it inside the clip range, and stops growing once the ratio leaves the range in the direction the advantage favors. The clipped surrogate never exceeds the surrogate, and the surrogate is the old policy's visitation average of the new policy's expected advantage when the old policy covers the new one's support.
 - **GRPO.** Group-relative advantages sum to zero, have mean square one when rewards differ, and are unchanged by shifting rewards or scaling them by a positive factor. The KL estimator `x - log x - 1` is nonnegative, vanishes only at `x = 1`, and has the KL divergence as its expectation when both distributions share their support, which gives Gibbs' inequality. The GRPO objective never exceeds the importance-weighted group-relative advantage and is zero at the first step.
 - **Policy gradient theorem.** Policy values depend continuously on action probabilities. If the action probabilities of a family of policies are differentiable in a real parameter, the policy value is differentiable, with derivative `(1 - γ)⁻¹` times the discounted visitation average of the derivative of the action probabilities weighted by the advantages, or equivalently by the action values.
+- **Softmax policy gradient.** Moving softmax scores in a direction `u` changes each action probability at rate `π a * (u a - ∑ b, π b * u b)` and the policy value at rate `(1 - γ)⁻¹ * ∑ s, d s * ∑ a, π a * u s a * A s a`. The partial derivative with respect to the score of `a` at `s` is `(1 - γ)⁻¹ * d s * π a * A s a`.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -81,6 +82,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean) | The PPO clipped surrogate objective and its pessimism |
 | [MDP/GRPO](Rlib/MDP/GRPO.lean) | Group-relative advantages, the KL estimator, and the GRPO objective |
 | [MDP/PolicyGradient](Rlib/MDP/PolicyGradient.lean) | Continuity of policy values and the policy gradient theorem |
+| [MDP/Softmax](Rlib/MDP/Softmax.lean) | Softmax policies and their gradient |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
 | [MDP/QLearning](Rlib/MDP/QLearning.lean) | Sampled Q updates, expected and empirical targets, and Bellman Q contraction |
 | [MDP/QSimulation](Rlib/MDP/QSimulation.lean) | Comparing Bellman Q fixed points of two models |
@@ -162,6 +164,7 @@ lake env lean -DwarningAsError=true RlibTest/Visitation.lean
 lake env lean -DwarningAsError=true RlibTest/ClippedSurrogate.lean
 lake env lean -DwarningAsError=true RlibTest/GRPO.lean
 lake env lean -DwarningAsError=true RlibTest/PolicyGradient.lean
+lake env lean -DwarningAsError=true RlibTest/Softmax.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

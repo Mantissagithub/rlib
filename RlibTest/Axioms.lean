@@ -177,3 +177,8 @@ import Rlib
 #print axioms Rlib.MDP.hasDerivAt_policyValue
 #print axioms Rlib.MDP.sum_deriv_eq_zero
 #print axioms Rlib.MDP.hasDerivAt_policyValue_actionValue
+
+#print axioms Rlib.softmaxPolicy_apply
+#print axioms Rlib.hasDerivAt_softmaxPolicy
+#print axioms Rlib.MDP.hasDerivAt_policyValue_softmax
+#print axioms Rlib.MDP.hasDerivAt_policyValue_softmax_single
