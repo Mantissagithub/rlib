@@ -116,3 +116,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/SoftmaxPGAsymptotic.lean
       - name: Check softmax policy gradient global convergence example
         run: lake env lean -DwarningAsError=true RlibTest/SoftmaxPGConvergence.lean
+      - name: Check greedy policy example
+        run: lake env lean -DwarningAsError=true RlibTest/QGreedy.lean

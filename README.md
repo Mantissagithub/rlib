@@ -35,6 +35,7 @@ The Bellman and return results cover finite state and action sets:
 - The Bellman Q fixed points of two models differ by at most the gap between their Bellman Q operators at one fixed point, divided by `1 - γ`.
 - Hoeffding's bound holds for independent observations bounded by `c` with a common mean. At a fixed table, the empirical Bellman Q operator built from independent samples concentrates around the model's, both entrywise and uniformly in sup norm.
 - **Sample complexity of model-based Q-value estimation.** With `n + 1` independent samples per state-action pair, rewards bounded by `R > 0`, and `n + 1 ≥ 2 * R ^ 2 * log (2 * |S| * |A| / δ) / (ε ^ 2 * (1 - γ) ^ 2)`, the Bellman Q fixed point of the empirical MDP is within `ε / (1 - γ)` of the model's except with probability at most `δ`.
+- **Greedy policies (Agarwal, Jiang, Kakade, and Sun, Lemma 1.11).** If a table is within `ε` of the optimal Q table, its greedy policy is within `2 ε / (1 - γ)` of the optimal value at every state. So with the same number of samples, the greedy policy of the empirical Q fixed point is within `2 ε / (1 - γ) ^ 2` of optimal except with probability at most `δ`.
 - A stationary policy's action values average to its state value under its own action choice, its advantages average to zero, and its action values satisfy their own Bellman equation.
 - **Performance difference lemma.** The value of a new policy minus the value of an old one is the new policy's value when every reward is replaced by the old policy's advantage. A policy with nonnegative expected advantage under another at every state is at least as good everywhere.
 - A policy has no action with positive advantage exactly when its value satisfies the Bellman optimality equation, and such a policy is at least as good as every stationary policy.
@@ -83,6 +84,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/Concentration](Rlib/MDP/Concentration.lean) | Pointwise empirical reward and transition probability bounds |
 | [MDP/QConcentration](Rlib/MDP/QConcentration.lean) | Concentration of the empirical Bellman Q operator |
 | [MDP/QSampleComplexity](Rlib/MDP/QSampleComplexity.lean) | Sample complexity of model-based Q-value estimation |
+| [MDP/QGreedy](Rlib/MDP/QGreedy.lean) | Greedy policies of Q tables, Q-error amplification, and near-optimal policies from samples |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |
@@ -190,6 +192,7 @@ lake env lean -DwarningAsError=true RlibTest/GradientDomination.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxPolicyGradient.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxPGAsymptotic.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxPGConvergence.lean
+lake env lean -DwarningAsError=true RlibTest/QGreedy.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

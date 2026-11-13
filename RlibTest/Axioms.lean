@@ -251,3 +251,8 @@ import Rlib
 #print axioms Rlib.MDP.tendsto_softmaxPolicy_pg_one
 #print axioms Rlib.MDP.exists_pos_le_softmaxPolicy_pg
 #print axioms Rlib.MDP.exists_sum_sub_policyValue_pg_le
+
+#print axioms Rlib.MDP.le_qGreedy
+#print axioms Rlib.MDP.policyValue_le_qMax
+#print axioms Rlib.MDP.qMax_sub_policyValue_qGreedyPolicy_le
+#print axioms Rlib.MDP.measure_qGreedyPolicy_suboptimal_le

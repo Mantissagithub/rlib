@@ -24,6 +24,7 @@ public import Rlib.MDP.GradientDomination
 public import Rlib.MDP.SoftmaxPolicyGradient
 public import Rlib.MDP.SoftmaxPGAsymptotic
 public import Rlib.MDP.SoftmaxPGConvergence
+public import Rlib.MDP.QGreedy
 public import Rlib.MDP.PerformanceDifference
 public import Rlib.MDP.Visitation
 public import Rlib.MDP.PolicyGradient
