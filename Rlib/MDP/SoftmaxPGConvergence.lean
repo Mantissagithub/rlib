@@ -398,4 +398,114 @@ theorem optimalityOperator_pgLimitValue (m : MDP S A) {γ : ℝ} (hγ0 : 0 ≤ �
             nlinarith
       _ ≤ m.optimalityOperator γ Vinf s := m.oneStepValue_le_optimalityOperator _ γ Vinf s
 
+/-- If `b` is an optimal deterministic policy, the limit of the values of exact softmax policy
+gradient is the value of `b`. -/
+theorem pgLimitValue_eq_policyValue (m : MDP S A) {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1)
+    (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1) {μ : S → ℝ} (hμ : ∀ s, 0 < μ s)
+    (hμ1 : ∑ s, μ s = 1) {η : ℝ} (hη0 : 0 < η) (hη : η ≤ (1 - γ) ^ 3 / 8) (θ₁ : S → A → ℝ)
+    (b : S → A) (hb : ∀ (π : StationaryPolicy S A) s,
+      m.policyValue π hγ0 hγ1 s ≤ m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 s) :
+    m.pgLimitValue hγ0 hγ1 μ η θ₁ = m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 := by
+  funext s
+  exact le_antisymm (ciSup_le fun t => hb _ s)
+    (m.policyValue_le_pgLimitValue hγ0 hγ1 hr hμ hμ1 hη0 hη θ₁ _ s)
+
+/-- **The optimal action takes over (Mei et al., proof of Lemma 9, Claim III).** If `b` is an
+optimal deterministic policy whose action is the unique optimal action at every state, the
+probability that the iterates give `b` tends to one. -/
+theorem tendsto_softmaxPolicy_pg_one (m : MDP S A) {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1)
+    (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1) {μ : S → ℝ} (hμ : ∀ s, 0 < μ s)
+    (hμ1 : ∑ s, μ s = 1) {η : ℝ} (hη0 : 0 < η) (hη : η ≤ (1 - γ) ^ 3 / 8) (θ₁ : S → A → ℝ)
+    (b : S → A) (hb : ∀ (π : StationaryPolicy S A) s,
+      m.policyValue π hγ0 hγ1 s ≤ m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 s)
+    (hgap : ∀ s a, a ≠ b s → m.oneStepActionValue γ
+      (m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1) s a <
+        m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 s) (s : S) :
+    Filter.Tendsto (fun t => (softmaxPolicy (m.pgScores hγ0 hγ1 μ η θ₁ t) s (b s)).toReal)
+      Filter.atTop (nhds 1) := by
+  classical
+  set π : ℕ → A → ℝ := fun t a => (softmaxPolicy (m.pgScores hγ0 hγ1 μ η θ₁ t) s a).toReal
+  have hlim := m.pgLimitValue_eq_policyValue hγ0 hγ1 hr hμ hμ1 hη0 hη θ₁ b hb
+  have hzero (a : A) (ha : a ≠ b s) : Filter.Tendsto (fun t => π t a) Filter.atTop (nhds 0) := by
+    refine m.tendsto_softmaxPolicy_pg_zero hγ0 hγ1 hr (fun s => (hμ s).le) hμ1 hη0 hη θ₁
+      (hμ s) ?_
+    simp only [pgLimitAdvantage, hlim]
+    exact (sub_neg.mpr (hgap s a ha)).ne
+  have hsum (t : ℕ) : π t (b s) = 1 - ∑ a ∈ Finset.univ.erase (b s), π t a := by
+    have h := Finset.add_sum_erase Finset.univ (π t) (Finset.mem_univ (b s))
+    rw [probability_sum] at h
+    linarith
+  have hrest : Filter.Tendsto (fun t => ∑ a ∈ Finset.univ.erase (b s), π t a) Filter.atTop
+      (nhds 0) := by
+    have := tendsto_finsetSum (Finset.univ.erase (b s)) fun a ha =>
+      hzero a (Finset.ne_of_mem_erase ha)
+    simpa using this
+  have h := hrest.const_sub 1
+  rw [sub_zero] at h
+  exact h.congr fun t => (hsum t).symm
+
+/-- **The optimal action keeps a positive probability (Mei et al., Lemma 9).** Under the
+conditions of `tendsto_softmaxPolicy_pg_one`, there is `c > 0` such that every iterate gives
+`b` probability at least `c` at every state. Unlike the paper, this needs only that the
+probability tends to one: it is eventually at least `1 / 2`, and the finitely many earlier
+probabilities are positive. -/
+theorem exists_pos_le_softmaxPolicy_pg [Nonempty S] (m : MDP S A) {γ : ℝ} (hγ0 : 0 ≤ γ)
+    (hγ1 : γ < 1) (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1) {μ : S → ℝ}
+    (hμ : ∀ s, 0 < μ s) (hμ1 : ∑ s, μ s = 1) {η : ℝ} (hη0 : 0 < η) (hη : η ≤ (1 - γ) ^ 3 / 8)
+    (θ₁ : S → A → ℝ) (b : S → A) (hb : ∀ (π : StationaryPolicy S A) s,
+      m.policyValue π hγ0 hγ1 s ≤ m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 s)
+    (hgap : ∀ s a, a ≠ b s → m.oneStepActionValue γ
+      (m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1) s a <
+        m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 s) :
+    ∃ c > 0, ∀ t s,
+      c ≤ (softmaxPolicy (m.pgScores hγ0 hγ1 μ η θ₁ t) s (b s)).toReal := by
+  set π : ℕ → S → ℝ := fun t s => (softmaxPolicy (m.pgScores hγ0 hγ1 μ η θ₁ t) s (b s)).toReal
+  have hpos (t : ℕ) (s : S) : 0 < π t s := by
+    simp only [π, softmaxPolicy_apply]
+    exact div_pos (Real.exp_pos _) (Finset.sum_pos (fun a _ => Real.exp_pos _)
+      Finset.univ_nonempty)
+  have hev : ∀ᶠ t in Filter.atTop, ∀ s, 1 / 2 ≤ π t s :=
+    Filter.eventually_all.mpr fun s =>
+      ((m.tendsto_softmaxPolicy_pg_one hγ0 hγ1 hr hμ hμ1 hη0 hη θ₁ b hb hgap s).eventually
+        (le_mem_nhds (by norm_num : (1 : ℝ) / 2 < 1)))
+  obtain ⟨T, hT⟩ := Filter.eventually_atTop.mp hev
+  set f : ℕ → ℝ := fun t => Finset.univ.inf' Finset.univ_nonempty (π t)
+  set g := (Finset.range (T + 1)).inf' ⟨0, Finset.mem_range.mpr (Nat.succ_pos T)⟩ f
+  have hg : 0 < g := (Finset.lt_inf'_iff _).mpr fun t _ =>
+    (Finset.lt_inf'_iff _).mpr fun s _ => hpos t s
+  refine ⟨min (1 / 2) g, lt_min (by norm_num) hg, fun t s => ?_⟩
+  rcases le_or_gt T t with ht | ht
+  · exact (min_le_left _ _).trans (hT t ht s)
+  · calc min (1 / 2) g ≤ g := min_le_right _ _
+      _ ≤ f t := Finset.inf'_le _ (Finset.mem_range.mpr (by omega))
+      _ ≤ π t s := Finset.inf'_le _ (Finset.mem_univ s)
+
+/-- **Exact softmax policy gradient converges at rate `1 / t`, unconditionally (Mei et al.,
+Theorem 4 with Lemma 9).** With rewards in `[0, 1]`, a start distribution `μ` with `μ s > 0`,
+step `η = (1 - γ) ^ 3 / 8`, and an optimal deterministic policy `b` whose action is the unique
+optimal action at every state, there is `c > 0` such that for every `t ≥ 1`,
+`V* ρ - V θ_t ρ ≤ 16 * |S| / (c ^ 2 * (1 - γ) ^ 6 * t) * D ^ 2 * M` whenever
+`d*_μ ≤ D * μ` and `1 ≤ M * μ`. -/
+theorem exists_sum_sub_policyValue_pg_le [Nonempty S] (m : MDP S A) {γ : ℝ} (hγ0 : 0 ≤ γ)
+    (hγ1 : γ < 1) (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1) {μ ρ : S → ℝ}
+    (hμ : ∀ s, 0 < μ s) (hμ1 : ∑ s, μ s = 1) (hρ : ∀ s, 0 ≤ ρ s) (hρ1 : ∑ s, ρ s = 1)
+    (θ₁ : S → A → ℝ) (b : S → A)
+    (hb : ∀ (π : StationaryPolicy S A) s,
+      m.policyValue π hγ0 hγ1 s ≤ m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 s)
+    (hgap : ∀ s a, a ≠ b s → m.oneStepActionValue γ
+      (m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1) s a <
+        m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 s)
+    {D M : ℝ} (hD : ∀ s, m.weightedVisitation (fun s => PMF.pure (b s)) hγ0 hγ1 μ s ≤ D * μ s)
+    (hM : ∀ s, 1 ≤ M * μ s) :
+    ∃ c > 0, ∀ t : ℕ, 1 ≤ t →
+      ∑ s₀, ρ s₀ * (m.policyValue (fun s => PMF.pure (b s)) hγ0 hγ1 s₀ -
+        m.policyValue (softmaxPolicy (m.pgScores hγ0 hγ1 μ ((1 - γ) ^ 3 / 8) θ₁ (t - 1)))
+          hγ0 hγ1 s₀) ≤
+      16 * Fintype.card S / (c ^ 2 * (1 - γ) ^ 6 * t) * D ^ 2 * M := by
+  have hγ : 0 < 1 - γ := sub_pos.mpr hγ1
+  obtain ⟨c, hc, hπ⟩ := m.exists_pos_le_softmaxPolicy_pg hγ0 hγ1 hr hμ hμ1
+    (by positivity : (0 : ℝ) < (1 - γ) ^ 3 / 8) le_rfl θ₁ b hb hgap
+  exact ⟨c, hc, fun t ht => m.sum_sub_policyValue_pg_le hγ0 hγ1 hr hμ hμ1 hρ hρ1 θ₁ b hb hc hπ
+    hD hM t ht⟩
+
 end Rlib.MDP

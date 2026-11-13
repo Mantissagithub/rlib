@@ -247,3 +247,7 @@ import Rlib
 #print axioms Rlib.MDP.policyValue_le_of_oneStepActionValue_le
 #print axioms Rlib.MDP.policyValue_le_pgLimitValue
 #print axioms Rlib.MDP.optimalityOperator_pgLimitValue
+#print axioms Rlib.MDP.pgLimitValue_eq_policyValue
+#print axioms Rlib.MDP.tendsto_softmaxPolicy_pg_one
+#print axioms Rlib.MDP.exists_pos_le_softmaxPolicy_pg
+#print axioms Rlib.MDP.exists_sum_sub_policyValue_pg_le
