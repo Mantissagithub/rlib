@@ -22,6 +22,7 @@ public import Rlib.MDP.Visitation
 public import Rlib.MDP.PolicyGradient
 public import Rlib.MDP.Softmax
 public import Rlib.MDP.ClippedSurrogate
+public import Rlib.MDP.TrustRegion
 public import Rlib.MDP.GRPO
 public import Rlib.MDP.Optimality
 public import Rlib.MDP.QLearning

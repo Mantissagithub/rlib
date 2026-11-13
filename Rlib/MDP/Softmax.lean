@@ -15,8 +15,6 @@ scores. Moving the scores in a direction `u` changes the policy value at rate
 
 noncomputable section
 
-open Filter Topology
-
 namespace Rlib
 
 variable {S A : Type*} [Fintype A] [Nonempty A]

@@ -43,6 +43,7 @@ The Bellman and return results cover finite state and action sets:
 - **GRPO.** Group-relative advantages sum to zero, have mean square one when rewards differ, and are unchanged by shifting rewards or scaling them by a positive factor. The KL estimator `x - log x - 1` is nonnegative, vanishes only at `x = 1`, and has the KL divergence as its expectation when both distributions share their support, which gives Gibbs' inequality. The GRPO objective never exceeds the importance-weighted group-relative advantage and is zero at the first step.
 - **Policy gradient theorem.** Policy values depend continuously on action probabilities. If the action probabilities of a family of policies are differentiable in a real parameter, the policy value is differentiable, with derivative `(1 - γ)⁻¹` times the discounted visitation average of the derivative of the action probabilities weighted by the advantages, or equivalently by the action values.
 - **Softmax policy gradient.** Moving softmax scores in a direction `u` changes each action probability at rate `π a * (u a - ∑ b, π b * u b)` and the policy value at rate `(1 - γ)⁻¹ * ∑ s, d s * ∑ a, π a * u s a * A s a`. The partial derivative with respect to the score of `a` at `s` is `(1 - γ)⁻¹ * d s * π a * A s a`.
+- **Trust-region policy improvement bound.** Switching policies moves the discounted visitation by at most `γ / (1 - γ)` times the new visitation average of the `ℓ¹` distance between the action distributions. So `1 - γ` times the gain of the new policy is at least the surrogate objective minus `γ / (1 - γ) * ε * δ`, where `ε` bounds the expected advantage and `δ` bounds the `ℓ¹` distance between the policies at every state.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -83,6 +84,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/GRPO](Rlib/MDP/GRPO.lean) | Group-relative advantages, the KL estimator, and the GRPO objective |
 | [MDP/PolicyGradient](Rlib/MDP/PolicyGradient.lean) | Continuity of policy values and the policy gradient theorem |
 | [MDP/Softmax](Rlib/MDP/Softmax.lean) | Softmax policies and their gradient |
+| [MDP/TrustRegion](Rlib/MDP/TrustRegion.lean) | Visitation stability and the trust-region policy improvement bound |
 | [MDP/Optimality](Rlib/MDP/Optimality.lean) | The Bellman operator that takes the best action |
 | [MDP/QLearning](Rlib/MDP/QLearning.lean) | Sampled Q updates, expected and empirical targets, and Bellman Q contraction |
 | [MDP/QSimulation](Rlib/MDP/QSimulation.lean) | Comparing Bellman Q fixed points of two models |
@@ -165,8 +167,22 @@ lake env lean -DwarningAsError=true RlibTest/ClippedSurrogate.lean
 lake env lean -DwarningAsError=true RlibTest/GRPO.lean
 lake env lean -DwarningAsError=true RlibTest/PolicyGradient.lean
 lake env lean -DwarningAsError=true RlibTest/Softmax.lean
+lake env lean -DwarningAsError=true RlibTest/TrustRegion.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
 
 The [axiom audit](scripts/check_axioms.py) rejects unfinished proofs and unexpected axioms. It allows only `propext`, `Classical.choice`, and `Quot.sound`.
+
+## Related work
+
+Several earlier projects formalize parts of this material.
+
+- [CertRL](https://arxiv.org/abs/2009.11403) (Coq, CPP 2021) proves convergence of value iteration and policy iteration for finite MDPs.
+- The Isabelle/HOL work of [Schäffeler and Abdulaziz](https://ojs.aaai.org/index.php/AAAI/article/view/26759) verifies value iteration, policy iteration, modified policy iteration, and later approximate policy iteration for factored MDPs. [Chevallier et al.](https://arxiv.org/abs/2112.05996) formalize the foundations of discrete reinforcement learning in Isabelle/HOL.
+- [markovgames](https://github.com/gabrielhrs/markovgames) ports Bellman operators, value iteration, and policy iteration to Lean 4 and Mathlib, and extends them to concurrent stochastic games.
+- [rl-theory-in-lean](https://reservoir.lean-lang.org/@ShangtongZhang/RL-Theory) by Shangtong Zhang ([paper](https://arxiv.org/abs/2511.03618)) proves almost sure convergence of Q-learning and linear TD with Markovian samples in Lean 4 and Mathlib, using the Robbins-Siegmund theorem.
+
+The value iteration, policy iteration, and Q-learning convergence results here overlap with that work. This library's Q-learning results use fresh independent samples rather than a single Markovian trajectory, and they cover synchronous and asynchronous updates with visits chosen from current information.
+
+We did not find earlier machine-checked versions of the performance difference lemma, discounted visitation, the policy gradient theorem and the softmax gradient, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, the trust-region policy improvement bound, or the sample complexity of model-based Q-value estimation. This comes from a web search, not an exhaustive survey. Please open an issue if you know of related work we missed.

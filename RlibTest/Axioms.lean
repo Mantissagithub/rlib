@@ -182,3 +182,10 @@ import Rlib
 #print axioms Rlib.hasDerivAt_softmaxPolicy
 #print axioms Rlib.MDP.hasDerivAt_policyValue_softmax
 #print axioms Rlib.MDP.hasDerivAt_policyValue_softmax_single
+
+#print axioms Rlib.MDP.sum_toReal_sub_eq_zero
+#print axioms Rlib.MDP.discountedVisitation_sub_eq
+#print axioms Rlib.MDP.sum_abs_discountedVisitation_sub_le
+#print axioms Rlib.MDP.sum_abs_discountedVisitation_sub_le_of_le
+#print axioms Rlib.MDP.policyValue_sub_ge
+#print axioms Rlib.MDP.surrogate_sub_le
