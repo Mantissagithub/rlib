@@ -195,3 +195,14 @@ import Rlib
 #print axioms Rlib.MDP.expect_tdError
 #print axioms Rlib.MDP.expect_generalizedAdvantage
 #print axioms Rlib.MDP.expect_generalizedAdvantage_action
+
+#print axioms Rlib.log_sum_exp_sub_le
+#print axioms Rlib.expect_le_log_sum_exp
+#print axioms Rlib.MDP.one_sub_le_discountedVisitation_self
+#print axioms Rlib.MDP.abs_policyValue_le
+#print axioms Rlib.MDP.log_sum_exp_npgScores_le_succ
+#print axioms Rlib.MDP.log_sum_exp_npgScores_succ_sub_le
+#print axioms Rlib.MDP.policyValue_npg_mono
+#print axioms Rlib.MDP.sum_expect_advantage_npg_le
+#print axioms Rlib.MDP.policyValue_sub_npg_le
+#print axioms Rlib.MDP.policyValue_sub_npg_le_of_abs_reward_le

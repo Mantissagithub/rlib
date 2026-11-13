@@ -104,3 +104,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/TrustRegion.lean
       - name: Check generalized advantage estimation example
         run: lake env lean -DwarningAsError=true RlibTest/GAE.lean
+      - name: Check natural policy gradient example
+        run: lake env lean -DwarningAsError=true RlibTest/NaturalPolicyGradient.lean
