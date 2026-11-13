@@ -235,3 +235,7 @@ import Rlib
 #print axioms Rlib.MDP.tendsto_advantage_pg
 #print axioms Rlib.MDP.tendsto_softmaxGradient_pg
 #print axioms Rlib.MDP.tendsto_mul_advantage_pg
+#print axioms Rlib.tendsto_atBot_of_softmax_step
+#print axioms Rlib.MDP.sum_policyValue_pg_succ_ge_of_le
+#print axioms Rlib.MDP.weightedVisitation_le_one
+#print axioms Rlib.MDP.tendsto_pgScores_atBot
