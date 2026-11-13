@@ -256,3 +256,12 @@ import Rlib
 #print axioms Rlib.MDP.policyValue_le_qMax
 #print axioms Rlib.MDP.qMax_sub_policyValue_qGreedyPolicy_le
 #print axioms Rlib.MDP.measure_qGreedyPolicy_suboptimal_le
+
+#print axioms Rlib.two_mul_three_pow_le_factorial
+#print axioms Rlib.exp_sub_one_sub_le_of_nonneg
+#print axioms Rlib.exp_sub_one_sub_le_of_nonpos
+#print axioms Rlib.exp_sub_one_sub_le
+#print axioms Rlib.mgf_le_of_abs_le
+#print axioms Rlib.measure_sum_ge_le_bernstein
+#print axioms Rlib.measure_abs_sampleMean_sub_le_bernstein
+#print axioms Rlib.measure_abs_sampleMean_sub_ge_le_bernstein

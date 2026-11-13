@@ -118,3 +118,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/SoftmaxPGConvergence.lean
       - name: Check greedy policy example
         run: lake env lean -DwarningAsError=true RlibTest/QGreedy.lean
+      - name: Check Bernstein example
+        run: lake env lean -DwarningAsError=true RlibTest/Bernstein.lean

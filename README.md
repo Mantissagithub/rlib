@@ -36,6 +36,7 @@ The Bellman and return results cover finite state and action sets:
 - Hoeffding's bound holds for independent observations bounded by `c` with a common mean. At a fixed table, the empirical Bellman Q operator built from independent samples concentrates around the model's, both entrywise and uniformly in sup norm.
 - **Sample complexity of model-based Q-value estimation.** With `n + 1` independent samples per state-action pair, rewards bounded by `R > 0`, and `n + 1 ≥ 2 * R ^ 2 * log (2 * |S| * |A| / δ) / (ε ^ 2 * (1 - γ) ^ 2)`, the Bellman Q fixed point of the empirical MDP is within `ε / (1 - γ)` of the model's except with probability at most `δ`.
 - **Greedy policies (Agarwal, Jiang, Kakade, and Sun, Lemma 1.11).** If a table is within `ε` of the optimal Q table, its greedy policy is within `2 ε / (1 - γ)` of the optimal value at every state. So with the same number of samples, the greedy policy of the empirical Q fixed point is within `2 ε / (1 - γ) ^ 2` of optimal except with probability at most `δ`.
+- **Bernstein's inequality.** For independent observations within `M` of a common mean with variance at most `σ²`, the mean of `N` observations deviates by at least `ε` with probability at most `2 exp (-N ε ^ 2 / (2 σ ^ 2 + 2 M ε / 3))`; equivalently, with probability at least `1 - δ` the deviation is below `√(2 σ ^ 2 log (2 / δ) / N) + 2 M log (2 / δ) / (3 N)`.
 - A stationary policy's action values average to its state value under its own action choice, its advantages average to zero, and its action values satisfy their own Bellman equation.
 - **Performance difference lemma.** The value of a new policy minus the value of an old one is the new policy's value when every reward is replaced by the old policy's advantage. A policy with nonnegative expected advantage under another at every state is at least as good everywhere.
 - A policy has no action with positive advantage exactly when its value satisfies the Bellman optimality equation, and such a policy is at least as good as every stationary policy.
@@ -78,6 +79,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [Probability/Expectation](Rlib/Probability/Expectation.lean) | Finite expectation, linearity, bounds, and sequential sampling |
 | [Probability/Empirical](Rlib/Probability/Empirical.lean) | Nonempty sample means, empirical distributions, frequencies, and expectation identities |
 | [Probability/Concentration](Rlib/Probability/Concentration.lean) | Two-sided Hoeffding bound for independent bounded observations with a common mean |
+| [Probability/Bernstein](Rlib/Probability/Bernstein.lean) | Bernstein's inequality for independent bounded observations |
 | [Probability/MartingaleSeries](Rlib/Probability/MartingaleSeries.lean) | Almost sure convergence of weighted bounded martingale differences |
 | [MDP/Basic](Rlib/MDP/Basic.lean) | Environments, policies, and one-step values |
 | [MDP/Empirical](Rlib/MDP/Empirical.lean) | MDP estimates from paired observations and exact one-step sample identities |
@@ -193,6 +195,7 @@ lake env lean -DwarningAsError=true RlibTest/SoftmaxPolicyGradient.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxPGAsymptotic.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxPGConvergence.lean
 lake env lean -DwarningAsError=true RlibTest/QGreedy.lean
+lake env lean -DwarningAsError=true RlibTest/Bernstein.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
