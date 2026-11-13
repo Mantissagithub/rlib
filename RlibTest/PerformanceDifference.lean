@@ -52,3 +52,24 @@ example : model.policyValue always (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_
       expect_const]
     linarith [advantage_true]
   rw [hval]
+
+private theorem always_value :
+    model.policyValue always (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num) = fun _ => 4 := by
+  symm
+  apply MDP.eq_policyValue_of_fixedPoint
+  funext s
+  norm_num [MDP.oneStepValue, MDP.oneStepActionValue, model, always]
+
+private theorem always_advantage_nonpos (s : Unit) (a : Bool) :
+    model.advantage always (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num) s a ≤ 0 := by
+  simp only [MDP.advantage, MDP.policyActionValue, always_value]
+  cases a <;> norm_num [MDP.oneStepActionValue, model]
+
+example : model.optimalityOperator (1 / 2)
+    (model.policyValue always (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num)) =
+      model.policyValue always (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num) :=
+  (model.advantage_nonpos_iff always _ _).1 always_advantage_nonpos
+
+example : model.policyValue uniform (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num) () ≤
+    model.policyValue always (by norm_num : (0 : ℝ) ≤ 1 / 2) (by norm_num) () :=
+  model.policyValue_le_of_advantage_nonpos always uniform _ _ always_advantage_nonpos ()

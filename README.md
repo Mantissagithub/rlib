@@ -37,6 +37,7 @@ The Bellman and return results cover finite state and action sets:
 - **Sample complexity of model-based Q-value estimation.** With `n + 1` independent samples per state-action pair, rewards bounded by `R > 0`, and `n + 1 ≥ 2 * R ^ 2 * log (2 * |S| * |A| / δ) / (ε ^ 2 * (1 - γ) ^ 2)`, the Bellman Q fixed point of the empirical MDP is within `ε / (1 - γ)` of the model's except with probability at most `δ`.
 - A stationary policy's action values average to its state value under its own action choice, its advantages average to zero, and its action values satisfy their own Bellman equation.
 - **Performance difference lemma.** The value of a new policy minus the value of an old one is the new policy's value when every reward is replaced by the old policy's advantage. A policy with nonnegative expected advantage under another at every state is at least as good everywhere.
+- A policy has no action with positive advantage exactly when its value satisfies the Bellman optimality equation, and such a policy is at least as good as every stationary policy.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 

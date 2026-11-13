@@ -141,3 +141,6 @@ import Rlib
 #print axioms Rlib.MDP.policyValue_nonneg
 #print axioms Rlib.MDP.policyValue_sub_policyValue
 #print axioms Rlib.MDP.policyValue_le_of_expect_advantage_nonneg
+#print axioms Rlib.MDP.policyValue_nonpos
+#print axioms Rlib.MDP.advantage_nonpos_iff
+#print axioms Rlib.MDP.policyValue_le_of_advantage_nonpos

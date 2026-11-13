@@ -1,6 +1,7 @@
 module
 
 public import Rlib.MDP.Advantage
+public import Rlib.MDP.Optimality
 
 /-! # The performance difference lemma
 
@@ -81,6 +82,74 @@ theorem policyValue_le_of_expect_advantage_nonneg (m : MDP S A) (π π' : Statio
     m.policyValue π hγ0 hγ1 s ≤ m.policyValue π' hγ0 hγ1 s := by
   have hdiff := congrFun (m.policyValue_sub_policyValue π π' hγ0 hγ1) s
   have hnn := (m.withReward (m.advantage π hγ0 hγ1)).policyValue_nonneg π' hγ0 hγ1 h s
+  simp only [Pi.sub_apply] at hdiff
+  linarith
+
+/-- A policy whose expected immediate reward is nonpositive at every state has a nonpositive
+value for a discount in `[0, 1)`. -/
+theorem policyValue_nonpos (m : MDP S A) (π : StationaryPolicy S A) {γ : ℝ} (hγ0 : 0 ≤ γ)
+    (hγ1 : γ < 1) (hr : ∀ s, expect (π s) (m.reward s) ≤ 0) (s : S) :
+    m.policyValue π hγ0 hγ1 s ≤ 0 := by
+  set v := m.policyValue π hγ0 hγ1
+  have : Nonempty S := ⟨s⟩
+  obtain ⟨t, ht⟩ := Finite.exists_max v
+  suffices v t ≤ 0 from (ht s).trans this
+  have hfix := congrFun (m.oneStepValue_policyValue π hγ0 hγ1) t
+  have hhigh : m.oneStepValue π γ v t ≤
+      expect (π t) (fun a => m.reward t a + γ * v t) := by
+    refine expect_mono _ fun a => ?_
+    simp only [oneStepActionValue]
+    have : expect (m.transition t a) v ≤ v t := by
+      simpa using expect_mono (m.transition t a) (fun x => ht x) (g := fun _ => v t)
+    nlinarith
+  rw [expect_add, expect_const, hfix] at hhigh
+  nlinarith [hr t]
+
+/-- **No positive advantage means optimality.** For a discount in `[0, 1)`, a policy has no
+action with positive advantage exactly when its value satisfies the Bellman optimality
+equation. -/
+theorem advantage_nonpos_iff [Nonempty A] (m : MDP S A) (π : StationaryPolicy S A) {γ : ℝ}
+    (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) :
+    (∀ s a, m.advantage π hγ0 hγ1 s a ≤ 0) ↔
+      m.optimalityOperator γ (m.policyValue π hγ0 hγ1) = m.policyValue π hγ0 hγ1 := by
+  set V := m.policyValue π hγ0 hγ1
+  have hQ (s : S) (a : A) : m.oneStepActionValue γ V s a = m.policyActionValue π hγ0 hγ1 s a :=
+    rfl
+  constructor
+  · intro h
+    funext s
+    apply le_antisymm
+    · refine Finset.sup'_le _ _ fun a _ => ?_
+      have := h s a
+      simp only [advantage] at this
+      rw [hQ]
+      linarith
+    · refine (m.expect_policyActionValue π hγ0 hγ1 s).symm.le.trans ?_
+      calc
+        expect (π s) (m.policyActionValue π hγ0 hγ1 s) ≤
+            expect (π s) (fun _ => m.optimalityOperator γ V s) :=
+          expect_mono _ fun a => by
+            rw [← hQ]
+            exact Finset.le_sup' (m.oneStepActionValue γ V s) (Finset.mem_univ a)
+        _ = m.optimalityOperator γ V s := expect_const _ _
+  · intro h s a
+    simp only [advantage]
+    rw [← hQ]
+    have hle : m.oneStepActionValue γ V s a ≤ m.optimalityOperator γ V s :=
+      Finset.le_sup' (m.oneStepActionValue γ V s) (Finset.mem_univ a)
+    rw [h] at hle
+    linarith
+
+/-- A policy with no action of positive advantage is at least as good as every stationary
+policy, for a discount in `[0, 1)`. -/
+theorem policyValue_le_of_advantage_nonpos (m : MDP S A) (π π' : StationaryPolicy S A)
+    {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (h : ∀ s a, m.advantage π hγ0 hγ1 s a ≤ 0) (s : S) :
+    m.policyValue π' hγ0 hγ1 s ≤ m.policyValue π hγ0 hγ1 s := by
+  have hdiff := congrFun (m.policyValue_sub_policyValue π π' hγ0 hγ1) s
+  have hnp := (m.withReward (m.advantage π hγ0 hγ1)).policyValue_nonpos π' hγ0 hγ1
+    (fun t => by
+      change expect (π' t) (m.advantage π hγ0 hγ1 t) ≤ 0
+      simpa using expect_mono (π' t) (fun a => h t a) (g := fun _ => (0 : ℝ))) s
   simp only [Pi.sub_apply] at hdiff
   linarith
 
