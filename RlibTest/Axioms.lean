@@ -189,3 +189,9 @@ import Rlib
 #print axioms Rlib.MDP.sum_abs_discountedVisitation_sub_le_of_le
 #print axioms Rlib.MDP.policyValue_sub_ge
 #print axioms Rlib.MDP.surrogate_sub_le
+
+#print axioms Rlib.MDP.generalizedAdvantage_zero
+#print axioms Rlib.MDP.generalizedAdvantage_one
+#print axioms Rlib.MDP.expect_tdError
+#print axioms Rlib.MDP.expect_generalizedAdvantage
+#print axioms Rlib.MDP.expect_generalizedAdvantage_action

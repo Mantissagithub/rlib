@@ -17,6 +17,7 @@ public import Rlib.MDP.InfiniteExpectation
 public import Rlib.MDP.OneStep
 public import Rlib.MDP.PolicyEvaluation
 public import Rlib.MDP.Advantage
+public import Rlib.MDP.GAE
 public import Rlib.MDP.PerformanceDifference
 public import Rlib.MDP.Visitation
 public import Rlib.MDP.PolicyGradient

@@ -44,6 +44,7 @@ The Bellman and return results cover finite state and action sets:
 - **Policy gradient theorem.** Policy values depend continuously on action probabilities. If the action probabilities of a family of policies are differentiable in a real parameter, the policy value is differentiable, with derivative `(1 - γ)⁻¹` times the discounted visitation average of the derivative of the action probabilities weighted by the advantages, or equivalently by the action values.
 - **Softmax policy gradient.** Moving softmax scores in a direction `u` changes each action probability at rate `π a * (u a - ∑ b, π b * u b)` and the policy value at rate `(1 - γ)⁻¹ * ∑ s, d s * ∑ a, π a * u s a * A s a`. The partial derivative with respect to the score of `a` at `s` is `(1 - γ)⁻¹ * d s * π a * A s a`.
 - **Trust-region policy improvement bound.** Switching policies moves the discounted visitation by at most `γ / (1 - γ)` times the new visitation average of the `ℓ¹` distance between the action distributions. So `1 - γ` times the gain of the new policy is at least the surrogate objective minus `γ / (1 - γ) * ε * δ`, where `ε` bounds the expected advantage and `δ` bounds the `ℓ¹` distance between the policies at every state.
+- **Generalized advantage estimation.** With step weight `c = γ * λ`, the estimate is the first temporal-difference error when `λ = 0` and telescopes to the discounted return plus the discounted final value minus the start value when `λ = 1`. With the exact policy value, the expected temporal-difference error of an action is its advantage, and the expected estimate after taking an action and following the policy is that action's advantage for every `λ` and horizon.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -78,6 +79,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |
+| [MDP/GAE](Rlib/MDP/GAE.lean) | Temporal-difference errors and generalized advantage estimation |
 | [MDP/PerformanceDifference](Rlib/MDP/PerformanceDifference.lean) | The performance difference lemma and improvement from advantages |
 | [MDP/Visitation](Rlib/MDP/Visitation.lean) | Discounted state visitation and the visitation form of the performance difference lemma |
 | [MDP/ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean) | The PPO clipped surrogate objective and its pessimism |
@@ -168,6 +170,7 @@ lake env lean -DwarningAsError=true RlibTest/GRPO.lean
 lake env lean -DwarningAsError=true RlibTest/PolicyGradient.lean
 lake env lean -DwarningAsError=true RlibTest/Softmax.lean
 lake env lean -DwarningAsError=true RlibTest/TrustRegion.lean
+lake env lean -DwarningAsError=true RlibTest/GAE.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
@@ -185,4 +188,4 @@ Several earlier projects formalize parts of this material.
 
 The value iteration, policy iteration, and Q-learning convergence results here overlap with that work. This library's Q-learning results use fresh independent samples rather than a single Markovian trajectory, and they cover synchronous and asynchronous updates with visits chosen from current information.
 
-We did not find earlier machine-checked versions of the performance difference lemma, discounted visitation, the policy gradient theorem and the softmax gradient, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, the trust-region policy improvement bound, or the sample complexity of model-based Q-value estimation. This comes from a web search, not an exhaustive survey. Please open an issue if you know of related work we missed.
+We did not find earlier machine-checked versions of the performance difference lemma, discounted visitation, the policy gradient theorem and the softmax gradient, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, the trust-region policy improvement bound, generalized advantage estimation, or the sample complexity of model-based Q-value estimation. This comes from a web search, not an exhaustive survey. Please open an issue if you know of related work we missed.

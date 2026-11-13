@@ -102,3 +102,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/Softmax.lean
       - name: Check trust-region example
         run: lake env lean -DwarningAsError=true RlibTest/TrustRegion.lean
+      - name: Check generalized advantage estimation example
+        run: lake env lean -DwarningAsError=true RlibTest/GAE.lean
