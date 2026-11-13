@@ -50,6 +50,7 @@ The Bellman and return results cover finite state and action sets:
 - **Gradient domination (Mei et al. 2020, Lemma 8).** If a deterministic policy `b` keeps probability at least `c` under `π` and its visitation is at most `C` times that of `π`, its value gain over `π` is at most `C / c` times the sum of the gradient entries at `b`, so its square is at most `(C / c) ^ 2 * |S|` times the squared gradient length.
 - **Exact softmax policy gradient (Mei et al. 2020, Theorem 4).** With rewards in `[0, 1]`, a start distribution `μ > 0`, and step `η = (1 - γ) ^ 3 / 8`, each step raises `V (μ)` by at least `(1 - γ) ^ 3 / 16 * ‖∇‖ ^ 2`. If every iterate gives an optimal deterministic policy probability at least `c`, then `V* ρ - V θ_t ρ ≤ 16 |S| / (c ^ 2 (1 - γ) ^ 6 t) * ‖d*_μ / μ‖∞ ^ 2 * ‖1 / μ‖∞`. As in the paper, `c` is a lower bound on these probabilities; the paper's proof that `c > 0` is not formalized.
 - **Asymptotics of exact softmax policy gradient (toward Agarwal et al. 2021, Theorem 10).** For any step size `η ≥ 0`, each step raises the value at every state, so values, action values, and advantages converge. With a step `0 < η ≤ (1 - γ) ^ 3 / 8`, the squared gradient lengths are summable, every gradient entry tends to zero, and `π_t (a | s) * A_t (s, a) → 0` wherever `μ s > 0`. If the advantage of an action at such a state stays below `-ε < 0`, its score tends to `-∞` (Lemma C.11).
+- **Global convergence of softmax policy gradient (Agarwal et al. 2021, Theorem 10).** With rewards in `[0, 1]`, `μ s > 0` for every state, and a step `0 < η ≤ (1 - γ) ^ 3 / 8`, no action keeps a positive advantage in the limit, so the limit of the values satisfies the Bellman optimality equation and is at least the value of every stationary policy: the values converge to the optimal values.
 
 Empirical estimates use at least one paired reward and successor observation per state and action. Rewards may be any real numbers, and duplicate successors retain their frequencies. The empirical expectation and one-step identities require a finite state type, but no finite action type or discount bounds. These estimation identities are deterministic.
 
@@ -90,6 +91,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/GradientDomination](Rlib/MDP/GradientDomination.lean) | The softmax policy gradient and the gradient-domination inequality |
 | [MDP/SoftmaxPolicyGradient](Rlib/MDP/SoftmaxPolicyGradient.lean) | Exact softmax policy gradient and its `1 / T` rate |
 | [MDP/SoftmaxPGAsymptotic](Rlib/MDP/SoftmaxPGAsymptotic.lean) | Monotone improvement, value convergence, and vanishing gradients of exact softmax policy gradient |
+| [MDP/SoftmaxPGConvergence](Rlib/MDP/SoftmaxPGConvergence.lean) | Global convergence of exact softmax policy gradient to optimal values |
 | [MDP/PerformanceDifference](Rlib/MDP/PerformanceDifference.lean) | The performance difference lemma and improvement from advantages |
 | [MDP/Visitation](Rlib/MDP/Visitation.lean) | Discounted state visitation and the visitation form of the performance difference lemma |
 | [MDP/ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean) | The PPO clipped surrogate objective and its pessimism |
@@ -186,6 +188,7 @@ lake env lean -DwarningAsError=true RlibTest/SoftmaxSmoothness.lean
 lake env lean -DwarningAsError=true RlibTest/GradientDomination.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxPolicyGradient.lean
 lake env lean -DwarningAsError=true RlibTest/SoftmaxPGAsymptotic.lean
+lake env lean -DwarningAsError=true RlibTest/SoftmaxPGConvergence.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.
@@ -203,4 +206,4 @@ Several earlier projects formalize parts of this material.
 
 The value iteration, policy iteration, and Q-learning convergence results here overlap with that work. This library's Q-learning results use fresh independent samples rather than a single Markovian trajectory, and they cover synchronous and asynchronous updates with visits chosen from current information.
 
-We did not find earlier machine-checked versions of the performance difference lemma, discounted visitation, the policy gradient theorem and the softmax gradient, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, the trust-region policy improvement bound, generalized advantage estimation, the convergence rates of natural and exact softmax policy gradient, or the sample complexity of model-based Q-value estimation. This comes from a web search, not an exhaustive survey. Please open an issue if you know of related work we missed.
+We did not find earlier machine-checked versions of the performance difference lemma, discounted visitation, the policy gradient theorem and the softmax gradient, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, the trust-region policy improvement bound, generalized advantage estimation, the convergence rates of natural and exact softmax policy gradient, the global convergence of exact softmax policy gradient, or the sample complexity of model-based Q-value estimation. This comes from a web search, not an exhaustive survey. Please open an issue if you know of related work we missed.

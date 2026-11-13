@@ -239,3 +239,11 @@ import Rlib
 #print axioms Rlib.MDP.sum_policyValue_pg_succ_ge_of_le
 #print axioms Rlib.MDP.weightedVisitation_le_one
 #print axioms Rlib.MDP.tendsto_pgScores_atBot
+
+#print axioms Rlib.MDP.tendsto_softmaxPolicy_pg_zero
+#print axioms Rlib.MDP.softmaxPolicy_le_of_le
+#print axioms Rlib.MDP.softmaxPolicy_le_mul
+#print axioms Rlib.MDP.advantage_limit_nonpos_pg
+#print axioms Rlib.MDP.policyValue_le_of_oneStepActionValue_le
+#print axioms Rlib.MDP.policyValue_le_pgLimitValue
+#print axioms Rlib.MDP.optimalityOperator_pgLimitValue
