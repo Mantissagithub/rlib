@@ -4,10 +4,13 @@ public import Rlib.MDP.Softmax
 
 /-! # Natural policy gradient for softmax policies
 
-For softmax policies, natural policy gradient adds a multiple `η` of the current advantage to
-the action scores. Each step improves the value at every state, and after `T` steps the gap to
-any comparison policy is at most a constant divided by `T`. The usual statement adds
-`η / (1 - γ)` times the advantage; this file absorbs the factor `1 / (1 - γ)` into `η`.
+This file follows Agarwal, Kakade, Lee, and Mahajan, *On the Theory of Policy Gradient
+Methods* (JMLR 2021), Section 5.3. For softmax policies, natural policy gradient updates the
+scores by `θ ← θ + η / (1 - γ) * A`, where `A` is the advantage of the current policy. Each step
+improves the value at every state. Starting from `θ⁽⁰⁾ = 0` with rewards in `[0, 1]`,
+`sum_sub_policyValue_npg_le` is their Theorem 16: for every `T > 0`,
+`V* ρ - V⁽ᵀ⁾ ρ ≤ log |A| / (η * T) + 1 / ((1 - γ) ^ 2 * T)`. The comparison policy may be any
+stationary policy, in particular an optimal one.
 -/
 
 @[expose] public section
@@ -92,12 +95,13 @@ theorem one_sub_le_discountedVisitation_self (m : MDP S A) (π : StationaryPolic
   nlinarith [sub_pos.mpr hγ1]
 
 /-- The action scores after `t` steps of natural policy gradient with step size `η`, starting
-from scores `θ₀`. Each step adds `η` times the advantage of the current softmax policy. -/
+from scores `θ₀`. Each step adds `η / (1 - γ)` times the advantage of the current softmax
+policy. -/
 def npgScores (m : MDP S A) {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (η : ℝ)
     (θ₀ : S → A → ℝ) : ℕ → S → A → ℝ
   | 0 => θ₀
   | t + 1 => fun s a => m.npgScores hγ0 hγ1 η θ₀ t s a +
-      η * m.advantage (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ t)) hγ0 hγ1 s a
+      η / (1 - γ) * m.advantage (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ t)) hγ0 hγ1 s a
 
 omit [Nonempty A] [DecidableEq S] in
 /-- With rewards bounded by `R` in absolute value, every policy value is bounded by
@@ -130,6 +134,18 @@ theorem abs_policyValue_le (m : MDP S A) (π : StationaryPolicy S A) {γ : ℝ} 
   rw [Real.norm_eq_abs] at this
   nlinarith
 
+omit [Nonempty A] [DecidableEq S] in
+/-- With rewards in `[0, 1]`, every policy value lies in `[0, 1 / (1 - γ)]`. -/
+theorem policyValue_mem_Icc (m : MDP S A) (π : StationaryPolicy S A) {γ : ℝ} (hγ0 : 0 ≤ γ)
+    (hγ1 : γ < 1) (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1) (s : S) :
+    m.policyValue π hγ0 hγ1 s ∈ Set.Icc 0 (1 / (1 - γ)) := by
+  refine ⟨m.policyValue_nonneg π hγ0 hγ1 (fun t => ?_) s, ?_⟩
+  · have h := expect_mono (π t) (f := fun _ => 0) (g := m.reward t) fun a => (hr t a).1
+    rwa [expect_zero] at h
+  · have h := m.abs_policyValue_le π hγ0 hγ1 (R := 1)
+      (fun t a => abs_le.mpr ⟨by linarith [(hr t a).1], (hr t a).2⟩) s
+    exact (le_abs_self _).trans h
+
 section
 
 variable (m : MDP S A) {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (η : ℝ)
@@ -147,27 +163,30 @@ theorem log_sum_exp_npgScores_le_succ (t : ℕ) (s : S) :
   have hzero := m.expect_advantage (softmaxPolicy θ) hγ0 hγ1 s
   have hrhs : ∑ a, (softmaxPolicy θ s a).toReal *
       (θ s a - m.npgScores hγ0 hγ1 η θ₀ (t + 1) s a) =
-        -η * expect (softmaxPolicy θ s) (Adv s) := by
+        -(η / (1 - γ)) * expect (softmaxPolicy θ s) (Adv s) := by
     simp only [npgScores, expect, Finset.mul_sum, θ, Adv]
     exact Finset.sum_congr rfl fun a _ => by ring
   rw [hrhs, hzero, mul_zero] at h
   linarith
 
 /-- **Natural policy gradient improves every state.** For a positive step size, one step raises
-the value at each state by at least the rise in the log-normalizer divided by `η`. -/
+the value at each state by at least the rise in the log-normalizer divided by `η / (1 - γ)`. -/
 theorem log_sum_exp_npgScores_succ_sub_le {η : ℝ} (hη : 0 < η) (t : ℕ) (s : S) :
     Real.log (∑ b, Real.exp (m.npgScores hγ0 hγ1 η θ₀ (t + 1) s b)) -
         Real.log (∑ b, Real.exp (m.npgScores hγ0 hγ1 η θ₀ t s b)) ≤
-      η * (m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ (t + 1))) hγ0 hγ1 s -
+      η / (1 - γ) * (m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ (t + 1))) hγ0 hγ1 s -
         m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ t)) hγ0 hγ1 s) := by
+  have hα : 0 < η / (1 - γ) := div_pos hη (sub_pos.mpr hγ1)
   set θ := m.npgScores hγ0 hγ1 η θ₀ t
   set θ' := m.npgScores hγ0 hγ1 η θ₀ (t + 1)
   set Adv := m.advantage (softmaxPolicy θ) hγ0 hγ1
   set g : S → ℝ := fun s' => expect (softmaxPolicy θ' s') (Adv s')
   have hg (s' : S) :
-      Real.log (∑ b, Real.exp (θ' s' b)) - Real.log (∑ b, Real.exp (θ s' b)) ≤ η * g s' := by
+      Real.log (∑ b, Real.exp (θ' s' b)) - Real.log (∑ b, Real.exp (θ s' b)) ≤
+        η / (1 - γ) * g s' := by
     have h := log_sum_exp_sub_le θ' θ s'
-    have hrhs : ∑ a, (softmaxPolicy θ' s' a).toReal * (θ' s' a - θ s' a) = η * g s' := by
+    have hrhs : ∑ a, (softmaxPolicy θ' s' a).toReal * (θ' s' a - θ s' a) =
+        η / (1 - γ) * g s' := by
       simp only [θ', npgScores, g, expect, Finset.mul_sum, θ, Adv]
       exact Finset.sum_congr rfl fun a _ => by ring
     rwa [hrhs] at h
@@ -175,7 +194,7 @@ theorem log_sum_exp_npgScores_succ_sub_le {η : ℝ} (hη : 0 < η) (t : ℕ) (s
     have h1 := hg s'
     have h2 := m.log_sum_exp_npgScores_le_succ hγ0 hγ1 η θ₀ t s'
     by_contra hneg
-    nlinarith [mul_neg_of_pos_of_neg hη (not_le.mp hneg)]
+    nlinarith [mul_neg_of_pos_of_neg hα (not_le.mp hneg)]
   have hpdl :=
     m.sub_policyValue_eq_sum_visitation (softmaxPolicy θ) (softmaxPolicy θ') hγ0 hγ1 s
   have hsingle : m.discountedVisitation (softmaxPolicy θ') hγ0 hγ1 s s * g s ≤
@@ -190,7 +209,7 @@ theorem log_sum_exp_npgScores_succ_sub_le {η : ℝ} (hη : 0 < η) (t : ℕ) (s
     rw [hpdl]
     exact (mul_le_mul_of_nonneg_right hself (hg0 s)).trans hsingle
   have hdiff := le_of_mul_le_mul_left hlow (sub_pos.mpr hγ1)
-  exact (hg s).trans (mul_le_mul_of_nonneg_left hdiff hη.le)
+  exact (hg s).trans (mul_le_mul_of_nonneg_left hdiff hα.le)
 
 /-- With a positive step size, natural policy gradient never lowers the value at any state. -/
 theorem policyValue_npg_mono {η : ℝ} (hη : 0 < η) (s : S) {t T : ℕ} (htT : t ≤ T) :
@@ -200,48 +219,51 @@ theorem policyValue_npg_mono {η : ℝ} (hη : 0 < η) (s : S) {t T : ℕ} (htT 
     m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ n)) hγ0 hγ1 s) (fun n => ?_) htT
   have h1 := m.log_sum_exp_npgScores_succ_sub_le hγ0 hγ1 θ₀ hη n s
   have h2 := m.log_sum_exp_npgScores_le_succ hγ0 hγ1 η θ₀ n s
+  have hα : 0 < η / (1 - γ) := div_pos hη (sub_pos.mpr hγ1)
   by_contra hneg
-  nlinarith [mul_neg_of_pos_of_neg hη (sub_neg.mpr (not_le.mp hneg))]
+  nlinarith [mul_neg_of_pos_of_neg hα (sub_neg.mpr (not_le.mp hneg))]
 
 /-- At each state, the comparison policy's summed advantages against the natural policy gradient
 iterates are bounded by a starting term plus the total value gain. -/
 theorem sum_expect_advantage_npg_le {η : ℝ} (hη : 0 < η) (π' : StationaryPolicy S A) (T : ℕ)
     (s : S) :
-    η * ∑ t ∈ Finset.range T, expect (π' s)
+    η / (1 - γ) * ∑ t ∈ Finset.range T, expect (π' s)
         (m.advantage (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ t)) hγ0 hγ1 s) ≤
       Real.log (∑ b, Real.exp (θ₀ s b)) - expect (π' s) (θ₀ s) +
-        η * (m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ T)) hγ0 hγ1 s -
+        η / (1 - γ) * (m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ T)) hγ0 hγ1 s -
           m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ 0)) hγ0 hγ1 s) := by
   set θ := m.npgScores hγ0 hγ1 η θ₀
   set V : ℕ → ℝ := fun t => m.policyValue (softmaxPolicy (θ t)) hγ0 hγ1 s
   set L : ℕ → ℝ := fun t => Real.log (∑ b, Real.exp (θ t s b))
   set c : ℕ → ℝ := fun t => expect (π' s) (θ t s)
-  have hstep (t : ℕ) : η * expect (π' s) (m.advantage (softmaxPolicy (θ t)) hγ0 hγ1 s) =
+  have hstep (t : ℕ) :
+      η / (1 - γ) * expect (π' s) (m.advantage (softmaxPolicy (θ t)) hγ0 hγ1 s) =
       c (t + 1) - c t := by
     simp only [c, θ, npgScores]
     rw [expect_add, expect_mul]
     ring
-  have hscore : η * ∑ t ∈ Finset.range T,
+  have hscore : η / (1 - γ) * ∑ t ∈ Finset.range T,
       expect (π' s) (m.advantage (softmaxPolicy (θ t)) hγ0 hγ1 s) = c T - c 0 := by
     rw [Finset.mul_sum, Finset.sum_congr rfl fun t _ => hstep t, Finset.sum_range_sub]
-  have hL : L T - L 0 ≤ η * (V T - V 0) := by
+  have hL : L T - L 0 ≤ η / (1 - γ) * (V T - V 0) := by
     rw [← Finset.sum_range_sub, ← Finset.sum_range_sub, Finset.mul_sum]
     exact Finset.sum_le_sum fun t _ => m.log_sum_exp_npgScores_succ_sub_le hγ0 hγ1 θ₀ hη t s
   have hcT : c T ≤ L T := expect_le_log_sum_exp _ _ _
-  change η * ∑ t ∈ Finset.range T,
+  change η / (1 - γ) * ∑ t ∈ Finset.range T,
       expect (π' s) (m.advantage (softmaxPolicy (θ t)) hγ0 hγ1 s) ≤
-        L 0 - c 0 + η * (V T - V 0)
+        L 0 - c 0 + η / (1 - γ) * (V T - V 0)
   linarith
 
 /-- **Natural policy gradient converges at rate `1 / T`.** After `T` steps with step size
 `η > 0`, `(1 - γ) * T` times the value gap to any policy `π'` is at most the average, under the
-visitation of `π'`, of a starting term divided by `η` plus the total value gain. -/
+visitation of `π'`, of `1 - γ` times a starting term divided by `η` plus the total value
+gain. -/
 theorem policyValue_sub_npg_le {η : ℝ} (hη : 0 < η) (π' : StationaryPolicy S A) (T : ℕ)
     (s₀ : S) :
     (1 - γ) * T * (m.policyValue π' hγ0 hγ1 s₀ -
         m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ T)) hγ0 hγ1 s₀) ≤
       ∑ s, m.discountedVisitation π' hγ0 hγ1 s₀ s *
-        ((Real.log (∑ b, Real.exp (θ₀ s b)) - expect (π' s) (θ₀ s)) / η +
+        ((1 - γ) * (Real.log (∑ b, Real.exp (θ₀ s b)) - expect (π' s) (θ₀ s)) / η +
           (m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ T)) hγ0 hγ1 s -
             m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η θ₀ 0)) hγ0 hγ1 s)) := by
   set θ := m.npgScores hγ0 hγ1 η θ₀
@@ -252,11 +274,15 @@ theorem policyValue_sub_npg_le {η : ℝ} (hη : 0 < η) (π' : StationaryPolicy
     expect (π' s) (m.advantage (softmaxPolicy (θ t)) hγ0 hγ1 s)
   have hγ : 0 ≤ 1 - γ := sub_nonneg.mpr hγ1.le
   have hstate (s : S) : ∑ t ∈ Finset.range T, G t s ≤
-      (Real.log (∑ b, Real.exp (θ₀ s b)) - expect (π' s) (θ₀ s)) / η +
+      (1 - γ) * (Real.log (∑ b, Real.exp (θ₀ s b)) - expect (π' s) (θ₀ s)) / η +
         (V T s - V 0 s) := by
     have h := m.sum_expect_advantage_npg_le hγ0 hγ1 θ₀ hη π' T s
-    rw [div_add' _ _ _ hη.ne', le_div_iff₀ hη]
-    change η * ∑ t ∈ Finset.range T, G t s ≤ _ at h
+    have hα : 0 < η / (1 - γ) := div_pos hη (sub_pos.mpr hγ1)
+    rw [show (1 - γ) * (Real.log (∑ b, Real.exp (θ₀ s b)) - expect (π' s) (θ₀ s)) / η =
+      (Real.log (∑ b, Real.exp (θ₀ s b)) - expect (π' s) (θ₀ s)) / (η / (1 - γ)) by
+        field_simp]
+    rw [div_add' _ _ _ hα.ne', le_div_iff₀ hα]
+    change η / (1 - γ) * ∑ t ∈ Finset.range T, G t s ≤ _ at h
     linarith
   calc (1 - γ) * T * (V' s₀ - V T s₀)
       = ∑ t ∈ Finset.range T, (1 - γ) * (V' s₀ - V T s₀) := by
@@ -273,41 +299,51 @@ theorem policyValue_sub_npg_le {η : ℝ} (hη : 0 < η) (π' : StationaryPolicy
     _ ≤ _ := Finset.sum_le_sum fun s _ =>
         mul_le_mul_of_nonneg_left (hstate s) (m.discountedVisitation_nonneg π' hγ0 hγ1 s₀ s)
 
-/-- **Natural policy gradient from uniform scores.** Starting from zero scores, with rewards
-bounded by `R` and step size `η > 0`, after `T > 0` steps the value gap to any policy `π'` is at
-most `(log |A| / η + 2 R / (1 - γ)) / ((1 - γ) T)`. -/
-theorem policyValue_sub_npg_le_of_abs_reward_le {R : ℝ} (hR : ∀ s a, |m.reward s a| ≤ R)
-    {η : ℝ} (hη : 0 < η) (π' : StationaryPolicy S A) {T : ℕ} (hT : 0 < T) (s₀ : S) :
-    m.policyValue π' hγ0 hγ1 s₀ -
-        m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η (fun _ _ => 0) T)) hγ0 hγ1 s₀ ≤
-      (Real.log (Fintype.card A) / η + 2 * R / (1 - γ)) / ((1 - γ) * T) := by
-  have h := m.policyValue_sub_npg_le hγ0 hγ1 (fun _ _ => 0) hη π' T s₀
+/-- **Natural policy gradient converges at rate `1 / T` (Agarwal et al., Theorem 16).** With
+rewards in `[0, 1]`, initial scores `θ⁽⁰⁾ = 0`, step size `η > 0`, and any start distribution `ρ`,
+after `T > 0` steps the value gap to any policy `π'` satisfies
+`V^{π'} ρ - V⁽ᵀ⁾ ρ ≤ log |A| / (η * T) + 1 / ((1 - γ) ^ 2 * T)`. -/
+theorem sum_sub_policyValue_npg_le (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1) {η : ℝ}
+    (hη : 0 < η) (π' : StationaryPolicy S A) {ρ : S → ℝ} (hρ : ∀ s, 0 ≤ ρ s)
+    (hρ1 : ∑ s, ρ s = 1) {T : ℕ} (hT : 0 < T) :
+    ∑ s₀, ρ s₀ * (m.policyValue π' hγ0 hγ1 s₀ -
+        m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η (fun _ _ => 0) T)) hγ0 hγ1 s₀) ≤
+      Real.log (Fintype.card A) / (η * T) + 1 / ((1 - γ) ^ 2 * T) := by
+  have hγ : 0 < 1 - γ := sub_pos.mpr hγ1
+  have hTpos : (0 : ℝ) < T := by exact_mod_cast hT
   set V := fun t =>
     m.policyValue (softmaxPolicy (m.npgScores hγ0 hγ1 η (fun _ _ => 0) t)) hγ0 hγ1
-  have hbound (s : S) : (Real.log (∑ _b : A, Real.exp 0) - expect (π' s) (fun _ => 0)) / η +
-      (V T s - V 0 s) ≤ Real.log (Fintype.card A) / η + 2 * R / (1 - γ) := by
-    have h1 := m.abs_policyValue_le (softmaxPolicy (m.npgScores hγ0 hγ1 η (fun _ _ => 0) T))
-      hγ0 hγ1 hR s
-    have h2 := m.abs_policyValue_le (softmaxPolicy (m.npgScores hγ0 hγ1 η (fun _ _ => 0) 0))
-      hγ0 hγ1 hR s
-    simp only [Real.exp_zero, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one,
-      expect_zero, sub_zero]
-    have : V T s - V 0 s ≤ 2 * R / (1 - γ) := by
-      rw [mul_div_assoc, two_mul]
-      linarith [le_abs_self (V T s), neg_abs_le (V 0 s)]
-    linarith
-  have hsum : ∑ s, m.discountedVisitation π' hγ0 hγ1 s₀ s *
-      ((Real.log (∑ _b : A, Real.exp 0) - expect (π' s) (fun _ => 0)) / η + (V T s - V 0 s)) ≤
-      Real.log (Fintype.card A) / η + 2 * R / (1 - γ) := by
-    calc _ ≤ ∑ s, m.discountedVisitation π' hγ0 hγ1 s₀ s *
-          (Real.log (Fintype.card A) / η + 2 * R / (1 - γ)) :=
-          Finset.sum_le_sum fun s _ => mul_le_mul_of_nonneg_left (hbound s)
-            (m.discountedVisitation_nonneg π' hγ0 hγ1 s₀ s)
-      _ = _ := by rw [← Finset.sum_mul, m.sum_discountedVisitation, one_mul]
-  have hpos : 0 < (1 - γ) * T := mul_pos (sub_pos.mpr hγ1) (by exact_mod_cast hT)
-  rw [le_div_iff₀ hpos]
-  change (1 - γ) * T * (m.policyValue π' hγ0 hγ1 s₀ - V T s₀) ≤ _ at h
-  linarith
+  set B := Real.log (Fintype.card A) / (η * T) + 1 / ((1 - γ) ^ 2 * T)
+  have hstate (s₀ : S) : m.policyValue π' hγ0 hγ1 s₀ - V T s₀ ≤ B := by
+    have h := m.policyValue_sub_npg_le hγ0 hγ1 (fun _ _ => 0) hη π' T s₀
+    have hbound (s : S) :
+        (1 - γ) * (Real.log (∑ _b : A, Real.exp 0) - expect (π' s) (fun _ => 0)) / η +
+          (V T s - V 0 s) ≤ (1 - γ) * Real.log (Fintype.card A) / η + 1 / (1 - γ) := by
+      have h1 := (m.policyValue_mem_Icc
+        (softmaxPolicy (m.npgScores hγ0 hγ1 η (fun _ _ => 0) T)) hγ0 hγ1 hr s).2
+      have h2 := (m.policyValue_mem_Icc
+        (softmaxPolicy (m.npgScores hγ0 hγ1 η (fun _ _ => 0) 0)) hγ0 hγ1 hr s).1
+      simp only [Real.exp_zero, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one,
+        expect_zero, sub_zero]
+      change _ + (V T s - V 0 s) ≤ _ at *
+      linarith
+    have hsum : ∑ s, m.discountedVisitation π' hγ0 hγ1 s₀ s *
+        ((1 - γ) * (Real.log (∑ _b : A, Real.exp 0) - expect (π' s) (fun _ => 0)) / η +
+          (V T s - V 0 s)) ≤ (1 - γ) * Real.log (Fintype.card A) / η + 1 / (1 - γ) := by
+      calc _ ≤ ∑ s, m.discountedVisitation π' hγ0 hγ1 s₀ s *
+            ((1 - γ) * Real.log (Fintype.card A) / η + 1 / (1 - γ)) :=
+            Finset.sum_le_sum fun s _ => mul_le_mul_of_nonneg_left (hbound s)
+              (m.discountedVisitation_nonneg π' hγ0 hγ1 s₀ s)
+        _ = _ := by rw [← Finset.sum_mul, m.sum_discountedVisitation, one_mul]
+    change (1 - γ) * T * (m.policyValue π' hγ0 hγ1 s₀ - V T s₀) ≤ _ at h
+    have hB : (1 - γ) * T * B = (1 - γ) * Real.log (Fintype.card A) / η + 1 / (1 - γ) := by
+      simp only [B]; field_simp
+    have hpos : 0 < (1 - γ) * T := mul_pos hγ hTpos
+    rw [← hB] at hsum
+    exact le_of_mul_le_mul_left (h.trans hsum) hpos
+  calc _ ≤ ∑ s₀, ρ s₀ * B := Finset.sum_le_sum fun s₀ _ =>
+        mul_le_mul_of_nonneg_left (hstate s₀) (hρ s₀)
+    _ = B := by rw [← Finset.sum_mul, hρ1, one_mul]
 
 end
 

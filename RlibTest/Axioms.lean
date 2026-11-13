@@ -205,7 +205,8 @@ import Rlib
 #print axioms Rlib.MDP.policyValue_npg_mono
 #print axioms Rlib.MDP.sum_expect_advantage_npg_le
 #print axioms Rlib.MDP.policyValue_sub_npg_le
-#print axioms Rlib.MDP.policyValue_sub_npg_le_of_abs_reward_le
+#print axioms Rlib.MDP.policyValue_mem_Icc
+#print axioms Rlib.MDP.sum_sub_policyValue_npg_le
 
 #print axioms Rlib.sum_abs_softmaxPolicy_sub_le
 #print axioms Rlib.MDP.abs_advantage_le
@@ -221,5 +222,7 @@ import Rlib
 #print axioms Rlib.MDP.sq_sum_sub_policyValue_le
 
 #print axioms Rlib.le_one_div_mul_of_le_sub_mul_sq
-#print axioms Rlib.MDP.sum_policyValue_gradient_step_ge
+#print axioms Rlib.MDP.sum_policyValue_softmax_ge
+#print axioms Rlib.MDP.sum_policyValue_pg_succ_ge
+#print axioms Rlib.MDP.mul_le_weightedVisitation
 #print axioms Rlib.MDP.sum_sub_policyValue_pg_le
