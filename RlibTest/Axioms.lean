@@ -280,3 +280,6 @@ import Rlib
 #print axioms Rlib.MDP.qMax_eq_qGreedy
 #print axioms Rlib.MDP.sub_eq_transitionGap_add
 #print axioms Rlib.MDP.sub_le_policyActionValue_transitionGap
+#print axioms Rlib.MDP.expect_sub_sq_eq_transitionVar
+#print axioms Rlib.MDP.measure_transition_deviation_le
+#print axioms Rlib.MDP.measure_exists_transition_deviation_le

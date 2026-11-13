@@ -2,6 +2,7 @@ module
 
 public import Rlib.MDP.TotalVariance
 public import Rlib.MDP.QGreedy
+public import Rlib.Probability.Bernstein
 
 /-! # Minimax model-based Q estimation
 
@@ -16,6 +17,8 @@ reward `g`, their Lemma 2.5 (component-wise bounds) states
 @[expose] public section
 
 noncomputable section
+
+open MeasureTheory ProbabilityTheory
 
 namespace Rlib.MDP
 
@@ -109,5 +112,134 @@ theorem sub_le_policyActionValue_transitionGap (m m' : MDP S A) (hrew : m'.rewar
     simp only [qGreedyPolicy, expect_pure, D]
     rw [qMax_eq_qGreedy q s']
     linarith [le_qGreedy q' s' (qGreedy q s'), qMax_eq_qGreedy q' s']
+
+omit [Fintype A] [Nonempty A] in
+/-- The variance of `v` under `P (· | s, a)` is the expected squared deviation from the mean. -/
+theorem expect_sub_sq_eq_transitionVar (m : MDP S A) (v : S → ℝ) (s : S) (a : A) :
+    expect (m.transition s a) (fun s' => (v s' - expect (m.transition s a) v) ^ 2) =
+      m.transitionVar v s a := by
+  set c := expect (m.transition s a) v
+  have hterm (s' : S) : (v s' - c) ^ 2 = v s' ^ 2 + (-2 * c) * v s' + c ^ 2 := by ring
+  simp only [hterm, expect_add, expect_mul, expect_const, transitionVar]
+  simp only [c]
+  ring
+
+/-- The MDP with the rewards of `m` and the empirical transition laws of observed successors,
+as in the generative model of Agarwal, Jiang, Kakade, and Sun, Section 2.1. -/
+def withSuccessors {n : ℕ} (m : MDP S A) (rows : S → A → Fin (n + 1) → S) : MDP S A where
+  reward := m.reward
+  transition s a := empiricalPMF (rows s a)
+
+variable {Ω : Type*} [MeasurableSpace Ω] {μ : Measure Ω} [IsProbabilityMeasure μ]
+  [MeasurableSpace S] [MeasurableSingletonClass S] {n : ℕ}
+
+omit [Fintype A] [Nonempty A] in
+/-- **Bernstein deviation at one pair.** If the `n + 1` successors at `(s, a)` are independent
+with law `P (· | s, a)` and `v` takes values in `[0, B]` with `B > 0`, then for `0 < δ ≤ 1`,
+`|(P - P̂) v (s, a)| ≥ √(2 * Var_P (v) (s, a) * log (2 / δ) / (n + 1)) +
+2 * B * log (2 / δ) / (3 * (n + 1))` with probability at most `δ`. -/
+theorem measure_transition_deviation_le (m : MDP S A) (D : Ω → S → A → Fin (n + 1) → S)
+    (s : S) (a : A) (hindep : iIndepFun (fun i ω => D ω s a i) μ)
+    (hmeas : ∀ i, AEMeasurable (fun ω => D ω s a i) μ)
+    (hlaw : ∀ i, μ.map (fun ω => D ω s a i) = (m.transition s a).toMeasure)
+    {v : S → ℝ} {B : ℝ} (hB : 0 < B) (hv : ∀ s, v s ∈ Set.Icc 0 B) {δ : ℝ} (hδ0 : 0 < δ)
+    (hδ1 : δ ≤ 1) :
+    μ.real {ω | Real.sqrt (2 * m.transitionVar v s a * Real.log (2 / δ) / (n + 1)) +
+        2 * B * Real.log (2 / δ) / (3 * (n + 1)) ≤
+        |expect (m.transition s a) v - expect ((m.withSuccessors (D ω)).transition s a) v|} ≤
+      δ := by
+  have hvm : Measurable v := measurable_of_countable v
+  set θ := expect (m.transition s a) v
+  have hθ : θ ∈ Set.Icc 0 B := by
+    constructor
+    · have h := expect_mono (m.transition s a) (f := fun _ => 0) (g := v) fun t => (hv t).1
+      rwa [expect_zero] at h
+    · have h := expect_mono (m.transition s a) (g := fun _ => B) (f := v) fun t => (hv t).2
+      rwa [expect_const] at h
+  have hlawint (i : Fin (n + 1)) (f : S → ℝ) :
+      ∫ ω, f (D ω s a i) ∂μ = expect (m.transition s a) f := by
+    rw [← integral_toMeasure_eq_expect, ← hlaw i,
+      integral_map (hmeas i) (measurable_of_countable f).aestronglyMeasurable]
+  have h := measure_abs_sampleMean_sub_ge_le_bernstein (X := fun i ω => v (D ω s a i))
+    (hindep.comp (fun _ => v) (fun _ => hvm)) (fun i => hvm.comp_aemeasurable (hmeas i))
+    (M := B) (σ2 := m.transitionVar v s a) (θ := θ) hB (m.transitionVar_nonneg v s a)
+    (fun i => ae_of_all μ fun ω => by
+      rw [abs_le]
+      constructor <;> linarith [(hv (D ω s a i)).1, (hv (D ω s a i)).2, hθ.1, hθ.2])
+    (fun i => hlawint i v)
+    (fun i => by rw [hlawint i (fun s' => (v s' - θ) ^ 2), expect_sub_sq_eq_transitionVar])
+    hδ0 hδ1
+  refine le_trans (le_of_eq ?_) h
+  congr 1
+  ext ω
+  simp only [Set.mem_ofPred_eq, withSuccessors, expect_empiricalPMF, abs_sub_comm θ]
+
+omit [Nonempty A] in
+/-- **Uniform Bernstein deviations (Agarwal, Jiang, Kakade, and Sun, Lemma 2.10).** If the
+successors at every pair are independent with the model's laws and `v` takes values in `[0, B]`,
+then for `0 < δ ≤ 1`, with probability at least `1 - δ`, at every pair
+`|(P - P̂) v| < √(2 * log (2 |S| |A| / δ) / (n + 1) * Var_P (v)) +
+2 * B * log (2 |S| |A| / δ) / (3 * (n + 1))`. -/
+theorem measure_exists_transition_deviation_le (m : MDP S A) (D : Ω → S → A → Fin (n + 1) → S)
+    (hindep : ∀ s a, iIndepFun (fun i ω => D ω s a i) μ)
+    (hmeas : ∀ s a i, AEMeasurable (fun ω => D ω s a i) μ)
+    (hlaw : ∀ s a i, μ.map (fun ω => D ω s a i) = (m.transition s a).toMeasure)
+    {v : S → ℝ} {B : ℝ} (hB : 0 < B) (hv : ∀ s, v s ∈ Set.Icc 0 B) {δ : ℝ} (hδ0 : 0 < δ)
+    (hδ1 : δ ≤ 1) :
+    μ.real {ω | ∃ s a, Real.sqrt (2 * Real.log (2 * (Fintype.card S * Fintype.card A) / δ) /
+        (n + 1) * m.transitionVar v s a) +
+        2 * B * Real.log (2 * (Fintype.card S * Fintype.card A) / δ) / (3 * (n + 1)) ≤
+        |expect (m.transition s a) v - expect ((m.withSuccessors (D ω)).transition s a) v|} ≤
+      δ := by
+  classical
+  by_cases hne : Nonempty (S × A)
+  swap
+  · have hempty : {ω | ∃ s a, Real.sqrt (2 * Real.log (2 * (Fintype.card S * Fintype.card A) / δ) /
+        (n + 1) * m.transitionVar v s a) +
+        2 * B * Real.log (2 * (Fintype.card S * Fintype.card A) / δ) / (3 * (n + 1)) ≤
+        |expect (m.transition s a) v - expect ((m.withSuccessors (D ω)).transition s a) v|} =
+        ∅ := by
+      ext ω
+      simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false, not_exists]
+      exact fun s a _ => hne ⟨(s, a)⟩
+    rw [hempty, measureReal_empty]
+    exact hδ0.le
+  obtain ⟨⟨s₀, a₀⟩⟩ := hne
+  have : Nonempty S := ⟨s₀⟩
+  have : Nonempty A := ⟨a₀⟩
+  set K : ℝ := Fintype.card S * Fintype.card A
+  have hK : 1 ≤ K := by
+    have h1 : (1 : ℝ) ≤ Fintype.card S := Nat.one_le_cast.mpr Fintype.card_pos
+    have h2 : (1 : ℝ) ≤ Fintype.card A := Nat.one_le_cast.mpr Fintype.card_pos
+    nlinarith
+  set δ' := δ / K
+  have hδ'0 : 0 < δ' := div_pos hδ0 (by linarith)
+  have hδ'1 : δ' ≤ 1 := (div_le_one (by linarith)).mpr (by linarith)
+  have hlog : Real.log (2 / δ') = Real.log (2 * K / δ) := by
+    simp only [δ']; congr 1; field_simp
+  have hsub : {ω | ∃ s a, Real.sqrt (2 * Real.log (2 * K / δ) / (n + 1) * m.transitionVar v s a) +
+        2 * B * Real.log (2 * K / δ) / (3 * (n + 1)) ≤
+        |expect (m.transition s a) v - expect ((m.withSuccessors (D ω)).transition s a) v|} ⊆
+      ⋃ p : S × A, {ω | Real.sqrt (2 * m.transitionVar v p.1 p.2 * Real.log (2 / δ') / (n + 1)) +
+        2 * B * Real.log (2 / δ') / (3 * (n + 1)) ≤
+        |expect (m.transition p.1 p.2) v -
+          expect ((m.withSuccessors (D ω)).transition p.1 p.2) v|} := by
+    rintro ω ⟨s, a, h⟩
+    refine Set.mem_iUnion.mpr ⟨(s, a), ?_⟩
+    simp only [Set.mem_ofPred_eq, hlog]
+    convert h using 4
+    ring
+  refine (measureReal_mono hsub).trans ((measureReal_iUnion_fintype_le _).trans ?_)
+  calc ∑ p : S × A, μ.real {ω | Real.sqrt (2 * m.transitionVar v p.1 p.2 *
+          Real.log (2 / δ') / (n + 1)) + 2 * B * Real.log (2 / δ') / (3 * (n + 1)) ≤
+          |expect (m.transition p.1 p.2) v -
+            expect ((m.withSuccessors (D ω)).transition p.1 p.2) v|}
+      ≤ ∑ _p : S × A, δ' := Finset.sum_le_sum fun p _ =>
+        m.measure_transition_deviation_le D p.1 p.2 (hindep p.1 p.2) (hmeas p.1 p.2)
+          (hlaw p.1 p.2) hB hv hδ'0 hδ'1
+    _ = δ := by
+        simp only [Finset.sum_const, Finset.card_univ, Fintype.card_prod, nsmul_eq_mul, δ', K]
+        push_cast
+        field_simp
 
 end Rlib.MDP
