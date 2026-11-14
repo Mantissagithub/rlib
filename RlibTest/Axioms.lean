@@ -314,3 +314,7 @@ import Rlib
 #print axioms Rlib.EpisodicMDP.ucbValue_of_le
 #print axioms Rlib.EpisodicMDP.optValue_le_ucbValue
 #print axioms Rlib.EpisodicMDP.ucbValue_sub_value_le
+#print axioms Rlib.sum_range_one_div_sqrt_le
+#print axioms Rlib.sum_visitCount_eq
+#print axioms Rlib.sum_visitCount
+#print axioms Rlib.sum_one_div_sqrt_visitCount_le

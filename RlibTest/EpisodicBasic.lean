@@ -19,3 +19,9 @@ example {S A : Type} [Fintype S] [Fintype A] [Nonempty A] (M : EpisodicMDP S A)
   have h2 := M.optValue_le (fun h s a => (hr h s a).2) (Nat.zero_le H) s
   simp at h2
   linarith
+
+/-- Agarwal, Jiang, Kakade, and Sun, Lemma 7.5, for trajectories in `Bool × Bool`. -/
+example (τ : ℕ → ℕ → Bool × Bool) (H K : ℕ) :
+    ∑ k ∈ Finset.range K, ∑ h ∈ Finset.range H, 1 / Real.sqrt (visitCount τ k h (τ k h)) ≤
+      2 * H * Real.sqrt (4 * K) := by
+  simpa using sum_one_div_sqrt_visitCount_le τ H K
