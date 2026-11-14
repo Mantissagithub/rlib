@@ -25,3 +25,10 @@ example (τ : ℕ → ℕ → Bool × Bool) (H K : ℕ) :
     ∑ k ∈ Finset.range K, ∑ h ∈ Finset.range H, 1 / Real.sqrt (visitCount τ k h (τ k h)) ≤
       2 * H * Real.sqrt (4 * K) := by
   simpa using sum_one_div_sqrt_visitCount_le τ H K
+
+/-- Every episode of UCB-VI starts at the start state. -/
+example {S A : Type} [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [DecidableEq A]
+    (M : EpisodicMDP S A) (H : ℕ) (L : ℝ) (s₀ : S) (samples : ℕ → S → A → ℕ → S) (k : ℕ) :
+    (M.ucbviTrajectory H L s₀ samples k 0).1 = s₀ := by
+  rw [M.ucbviTrajectory_eq]
+  rfl

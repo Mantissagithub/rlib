@@ -318,3 +318,10 @@ import Rlib
 #print axioms Rlib.sum_visitCount_eq
 #print axioms Rlib.sum_visitCount
 #print axioms Rlib.sum_one_div_sqrt_visitCount_le
+#print axioms Rlib.EpisodicMDP.ucbviHistory_apply
+#print axioms Rlib.EpisodicMDP.countsOf_ucbviHistory
+#print axioms Rlib.EpisodicMDP.ucbviTrajectory_eq
+#print axioms Rlib.EpisodicMDP.abs_expect_sub_expect_le
+#print axioms Rlib.EpisodicMDP.ucbValue_mem_Icc
+#print axioms Rlib.EpisodicMDP.ucbBonus_nonneg
+#print axioms Rlib.EpisodicMDP.optValue_sub_value_ucbviPolicy_le

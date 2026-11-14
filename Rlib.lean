@@ -31,6 +31,7 @@ public import Rlib.MDP.MinimaxEstimation
 public import Rlib.MDP.MinimaxSampleComplexity
 public import Rlib.Episodic.Basic
 public import Rlib.Episodic.Counting
+public import Rlib.Episodic.UCBVI
 public import Rlib.MDP.PerformanceDifference
 public import Rlib.MDP.Visitation
 public import Rlib.MDP.PolicyGradient
