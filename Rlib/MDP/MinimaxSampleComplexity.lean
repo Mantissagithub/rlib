@@ -552,6 +552,42 @@ theorem measure_abs_sub_qBellman_fixed_le (m : MDP S A)
         · exact hE3
     _ = δ := by simp only [δ3]; ring
 
+/-- **Near-optimal planning from samples (Theorem 2.6 with Lemma 1.11).** Under the conditions
+of `measure_abs_sub_qBellman_fixed_le`, with probability at least `1 - δ`, the greedy policy of
+`Q̂*` has value within `2 / (1 - γ)` times the bound of Theorem 2.6 of `V*` at every state. -/
+theorem measure_qGreedyPolicy_suboptimal_le_minimax (m : MDP S A)
+    (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1) (D : Ω → S → A → Fin (n + 1) → S)
+    (hindep : ∀ s a, iIndepFun (fun i ω => D ω s a i) μ)
+    (hmeas : ∀ s a i, AEMeasurable (fun ω => D ω s a i) μ)
+    (hlaw : ∀ s a i, μ.map (fun ω => D ω s a i) = (m.transition s a).toMeasure)
+    {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) {q : S → A → ℝ} (hq : m.qBellmanOperator γ q = q)
+    (qhat : Ω → S → A → ℝ)
+    (hqhat : ∀ ω, (m.withSuccessors (D ω)).qBellmanOperator γ (qhat ω) = qhat ω)
+    {δ : ℝ} (hδ0 : 0 < δ) (hδ1 : δ ≤ 1) :
+    μ.real {ω | ∃ s, 2 / (1 - γ) * (γ * Real.sqrt (12 * Real.log (12 * (Fintype.card S *
+        Fintype.card A) / δ) / ((1 - γ) ^ 3 * (n + 1))) +
+        12 * γ * Real.log (12 * (Fintype.card S * Fintype.card A) / δ) /
+          ((1 - γ) ^ 3 * (n + 1))) <
+        qMax q s - m.policyValue (qGreedyPolicy (qhat ω)) hγ0 hγ1 s} ≤ δ := by
+  have hγ : 0 < 1 - γ := sub_pos.mpr hγ1
+  set b := γ * Real.sqrt (12 * Real.log (12 * (Fintype.card S * Fintype.card A) / δ) /
+    ((1 - γ) ^ 3 * (n + 1))) + 12 * γ * Real.log (12 * (Fintype.card S * Fintype.card A) / δ) /
+      ((1 - γ) ^ 3 * (n + 1))
+  refine le_trans (measureReal_mono fun ω hω => ?_)
+    (m.measure_abs_sub_qBellman_fixed_le hr D hindep hmeas hlaw hγ0 hγ1 hq qhat hqhat hδ0 hδ1)
+  obtain ⟨s, hs⟩ := hω
+  simp only [Set.mem_ofPred_eq]
+  by_contra hnot
+  simp only [not_exists, not_lt] at hnot
+  have hb : 0 ≤ b := (abs_nonneg _).trans (hnot s (Classical.arbitrary A))
+  have hnorm : ‖qhat ω - q‖ ≤ b := (pi_norm_le_iff_of_nonneg hb).mpr fun s =>
+    (pi_norm_le_iff_of_nonneg hb).mpr fun a => by
+      rw [Pi.sub_apply, Pi.sub_apply, Real.norm_eq_abs, abs_sub_comm]
+      exact hnot s a
+  have h := m.qMax_sub_policyValue_qGreedyPolicy_le hγ0 hγ1 hq hnorm s
+  have : 2 * b / (1 - γ) = 2 / (1 - γ) * b := by ring
+  linarith
+
 end MDP
 
 end Rlib

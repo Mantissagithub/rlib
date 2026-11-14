@@ -297,3 +297,4 @@ import Rlib
 #print axioms Rlib.MDP.abs_policyActionValue_transitionGap_le
 #print axioms Rlib.MDP.abs_sub_le_of_deviations
 #print axioms Rlib.MDP.measure_abs_sub_qBellman_fixed_le
+#print axioms Rlib.MDP.measure_qGreedyPolicy_suboptimal_le_minimax
