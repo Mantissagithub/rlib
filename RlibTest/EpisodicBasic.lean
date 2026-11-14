@@ -40,3 +40,15 @@ example (ν : Bool → PMF Bool) (G : (Bool → Bool) → Bool → ℝ)
     ∫ ω, G ω (ω true) ∂(Measure.pi fun i => (ν i).toMeasure) =
       ∫ ω, expect (ν true) (G ω) ∂(Measure.pi fun i => (ν i).toMeasure) :=
   integral_pi_resample ν true G hG
+
+open MeasureTheory in
+/-- The first state of every episode is the start state, whatever the draws. -/
+example {S A : Type} [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [DecidableEq A]
+    [MeasurableSpace S] [MeasurableSingletonClass S] (M : EpisodicMDP S A) (H K : ℕ) (L : ℝ)
+    (s₀ : S) {k : ℕ} (hk : k < K) (f : S → ℝ) :
+    ∫ ω, f (M.ucbviTrajectory H L s₀ (EpisodicMDP.tapeSamples ω) k 0).1 ∂M.tapeLaw H K =
+      f s₀ := by
+  have h := M.integral_ucbviTrajectory_eq_stateDist L s₀ hk 0 (Nat.zero_le H)
+    (fun _ s => f s) (fun _ _ _ _ => rfl)
+  rw [h]
+  simp [EpisodicMDP.stateDist]

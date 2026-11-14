@@ -46,6 +46,7 @@ The Bellman and return results cover finite state and action sets:
 - **Episodic MDPs and optimism (Agarwal, Jiang, Kakade, and Sun, Lemma 7.4 and Equation 0.4).** For finite-horizon MDPs with stage-dependent transitions and rewards in `[0, 1]`, the optimistic value iteration of UCB-VI, truncated at `H`, dominates the optimal values whenever the bonuses cover the model error on `V*`, and its start value exceeds the value of its greedy policy by at most the summed expected bonuses and model errors along that policy.
 - **Counting visits (Agarwal, Jiang, Kakade, and Sun, Lemma 7.5).** For any `K` trajectories of length `H`, summing `1 / √N_h^k` over the visited state-action pairs gives at most `2 H √(|S| |A| K)`, where `N_h^k` counts earlier episodes at the same pair and stage and first visits contribute zero.
 - **The UCB-VI learner.** UCB-VI runs on pre-drawn successors, the `n`-th visit to a stage, state, and action using the `n`-th draw, which gives the same law of trajectories as sampling on the fly. Its empirical models average the first `N` draws and its bonus is `2 H √(L / N)` (and `H` at unvisited pairs). When the model errors satisfy the bounds of Lemmas 7.2 and 7.3, the regret of each episode is at most the expected visit cost `2 H` (unvisited) or `10 H √(|S| L / N)` along the episode's policy.
+- **The law of an episode.** With independent draws `ω (h, s, a, n) ∼ P_h (· | s, a)`, each episode reads only draws no earlier step has read, so for any function `φ` of the past and a state, `E [φ (s^k_h)] = E [E_{s ∼ d^{π_k}_h} φ (s)]`: given the history, the episode's states follow the state distribution of its policy.
 - A stationary policy's action values average to its state value under its own action choice, its advantages average to zero, and its action values satisfy their own Bellman equation.
 - **Performance difference lemma.** The value of a new policy minus the value of an old one is the new policy's value when every reward is replaced by the old policy's advantage. A policy with nonnegative expected advantage under another at every state is at least as good everywhere.
 - A policy has no action with positive advantage exactly when its value satisfies the Bellman optimality equation, and such a policy is at least as good as every stationary policy.
@@ -103,6 +104,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [Episodic/Basic](Rlib/Episodic/Basic.lean) | Episodic MDPs, optimal values, and the optimistic value iteration of UCB-VI |
 | [Episodic/Counting](Rlib/Episodic/Counting.lean) | Visit counts and the pigeonhole bound on summed inverse square roots |
 | [Episodic/UCBVI](Rlib/Episodic/UCBVI.lean) | The UCB-VI learner on pre-drawn successors and its per-episode regret on the good event |
+| [Episodic/UCBVILaw](Rlib/Episodic/UCBVILaw.lean) | The law of each UCB-VI episode given the past |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |

@@ -332,3 +332,11 @@ import Rlib
 #print axioms Rlib.EpisodicMDP.episodeState_congr
 #print axioms Rlib.EpisodicMDP.countsOf_ucbviHistory_succ
 #print axioms Rlib.EpisodicMDP.ucbviHistory_congr
+#print axioms Rlib.EpisodicMDP.tapeSamples_update_of_ne
+#print axioms Rlib.EpisodicMDP.ucbviCounts_le
+#print axioms Rlib.EpisodicMDP.ucbviCounts_policy_congr
+#print axioms Rlib.EpisodicMDP.ucbviTrajectory_succ_fst
+#print axioms Rlib.EpisodicMDP.update_readIndex
+#print axioms Rlib.EpisodicMDP.readIndex_update_iff
+#print axioms Rlib.EpisodicMDP.integral_ucbviTrajectory_succ
+#print axioms Rlib.EpisodicMDP.integral_ucbviTrajectory_eq_stateDist
