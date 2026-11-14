@@ -52,3 +52,16 @@ example {S A : Type} [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [Decid
     (fun _ s => f s) (fun _ _ _ _ => rfl)
   rw [h]
   simp [EpisodicMDP.stateDist]
+
+open MeasureTheory in
+/-- Agarwal, Jiang, Kakade, and Sun, Theorem 7.1, for UCB-VI on pre-drawn successors. -/
+example {S A : Type} [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [DecidableEq A]
+    [MeasurableSpace S] [MeasurableSingletonClass S] (M : EpisodicMDP S A)
+    (hr : ∀ h s a, M.reward h s a ∈ Set.Icc (0 : ℝ) 1) (H K : ℕ) (hH : 0 < H) (s₀ : S) :
+    ∫ ω, ∑ k ∈ Finset.range K, (M.optValue H 0 s₀ - M.value (M.ucbviPolicyAt H
+        (Real.log (2 * (H * Fintype.card S * Fintype.card A * K) / (1 / 2))) s₀
+        (EpisodicMDP.tapeSamples ω) k) H 0 s₀) ∂M.tapeLaw H K ≤
+      20 * H ^ 2 * Fintype.card S * Real.sqrt (Fintype.card A * K *
+          Real.log (2 * (H * Fintype.card S * Fintype.card A * K) / (1 / 2))) +
+        2 * H ^ 2 * Fintype.card S * Fintype.card A + 2 * (1 / 2) * K * H :=
+  M.regret_ucbvi_le' hr hH s₀ (by norm_num) (by norm_num)

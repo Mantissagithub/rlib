@@ -340,3 +340,15 @@ import Rlib
 #print axioms Rlib.EpisodicMDP.readIndex_update_iff
 #print axioms Rlib.EpisodicMDP.integral_ucbviTrajectory_succ
 #print axioms Rlib.EpisodicMDP.integral_ucbviTrajectory_eq_stateDist
+#print axioms Rlib.EpisodicMDP.abs_expect_sub_le_of_sets
+#print axioms Rlib.EpisodicMDP.drawIndex_lt
+#print axioms Rlib.EpisodicMDP.measure_tape_sampleMean_le
+#print axioms Rlib.EpisodicMDP.measure_tape_exists_le
+#print axioms Rlib.EpisodicMDP.expect_empiricalModel_tape
+#print axioms Rlib.EpisodicMDP.expect_indicator
+#print axioms Rlib.EpisodicMDP.good_event
+#print axioms Rlib.EpisodicMDP.measure_bad_le
+#print axioms Rlib.EpisodicMDP.visitCost_nonneg
+#print axioms Rlib.EpisodicMDP.sum_visitCost_le
+#print axioms Rlib.EpisodicMDP.regret_ucbvi_le
+#print axioms Rlib.EpisodicMDP.regret_ucbvi_le'
