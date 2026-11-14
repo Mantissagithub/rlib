@@ -325,3 +325,10 @@ import Rlib
 #print axioms Rlib.EpisodicMDP.ucbValue_mem_Icc
 #print axioms Rlib.EpisodicMDP.ucbBonus_nonneg
 #print axioms Rlib.EpisodicMDP.optValue_sub_value_ucbviPolicy_le
+#print axioms Rlib.integral_pi_eq_sum
+#print axioms Rlib.integral_pi_resample
+#print axioms Rlib.EpisodicMDP.empiricalModel_congr
+#print axioms Rlib.EpisodicMDP.ucbviPolicy_congr
+#print axioms Rlib.EpisodicMDP.episodeState_congr
+#print axioms Rlib.EpisodicMDP.countsOf_ucbviHistory_succ
+#print axioms Rlib.EpisodicMDP.ucbviHistory_congr

@@ -228,6 +228,98 @@ theorem optValue_sub_value_ucbviPolicy_le (M : EpisodicMDP S A)
       expect (M.transition h s (π h s)) (M.ucbValue Phat b H (h + 1))),
       mul_le_mul_of_nonneg_left hsq (by positivity : (0 : ℝ) ≤ 2 * H)]
 
+/-! ### Runs that agree on the draws they read -/
+
+omit [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [DecidableEq A] in
+/-- The empirical model only reads the first `N h s a` draws. -/
+theorem empiricalModel_congr {samples samples' : ℕ → S → A → ℕ → S} {N : ℕ → S → A → ℕ}
+    (hagree : ∀ h s a i, i < N h s a → samples' h s a i = samples h s a i) :
+    empiricalModel samples' N = empiricalModel samples N := by
+  funext h s a
+  unfold empiricalModel
+  split
+  · rfl
+  · next m hN =>
+    congr 1
+    funext i
+    exact hagree h s a i (by rw [hN]; exact i.isLt)
+
+omit [DecidableEq S] [DecidableEq A] in
+/-- The policy of UCB-VI only reads the draws counted by `N`. -/
+theorem ucbviPolicy_congr (M : EpisodicMDP S A) (H : ℕ) (L : ℝ)
+    {samples samples' : ℕ → S → A → ℕ → S} {N : ℕ → S → A → ℕ}
+    (hagree : ∀ h s a i, i < N h s a → samples' h s a i = samples h s a i) :
+    M.ucbviPolicy H L samples' N = M.ucbviPolicy H L samples N := by
+  simp only [ucbviPolicy, empiricalModel_congr hagree]
+
+omit [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [DecidableEq A] in
+/-- The states of an episode up to stage `h` only read the draws at the earlier stages. -/
+theorem episodeState_congr {samples samples' : ℕ → S → A → ℕ → S} (π : EpisodicPolicy S A)
+    (N : ℕ → S → A → ℕ) (s₀ : S) {h : ℕ}
+    (hagree : ∀ j, j < h → samples' j (episodeState samples π N s₀ j)
+      (π j (episodeState samples π N s₀ j))
+      (N j (episodeState samples π N s₀ j) (π j (episodeState samples π N s₀ j))) =
+      samples j (episodeState samples π N s₀ j) (π j (episodeState samples π N s₀ j))
+      (N j (episodeState samples π N s₀ j) (π j (episodeState samples π N s₀ j)))) :
+    ∀ j, j ≤ h → episodeState samples' π N s₀ j = episodeState samples π N s₀ j := by
+  intro j hj
+  induction j with
+  | zero => rfl
+  | succ j ih =>
+    simp only [episodeState, ih (by omega)]
+    exact hagree j (by omega)
+
+/-- The counts after an episode exceed the counts before it at the pairs it visits. -/
+theorem countsOf_ucbviHistory_succ (M : EpisodicMDP S A) (H : ℕ) (L : ℝ) (s₀ : S)
+    (samples : ℕ → S → A → ℕ → S) (k h : ℕ) (s : S) (a : A) :
+    countsOf (M.ucbviHistory H L s₀ samples (k + 1)) (k + 1) h s a =
+      countsOf (M.ucbviHistory H L s₀ samples k) k h s a +
+        if M.ucbviTrajectory H L s₀ samples k h = (s, a) then 1 else 0 := by
+  rw [countsOf_ucbviHistory, countsOf_ucbviHistory]
+  simp only [ucbviCounts, countsOf, visitCount, Finset.range_add_one, Finset.filter_insert]
+  split_ifs with hx
+  · rw [Finset.card_insert_of_notMem (by simp)]
+  · rfl
+
+/-- **Agreement.** If two draw tables agree on every draw counted before episode `k` under the
+first table, they produce the same history before episode `k`. -/
+theorem ucbviHistory_congr (M : EpisodicMDP S A) (H : ℕ) (L : ℝ) (s₀ : S)
+    {samples samples' : ℕ → S → A → ℕ → S} (k : ℕ)
+    (hagree : ∀ h s a i, i < countsOf (M.ucbviHistory H L s₀ samples k) k h s a →
+      samples' h s a i = samples h s a i) :
+    M.ucbviHistory H L s₀ samples' k = M.ucbviHistory H L s₀ samples k := by
+  induction k with
+  | zero => rfl
+  | succ k ih =>
+    have hprev : ∀ h s a i, i < countsOf (M.ucbviHistory H L s₀ samples k) k h s a →
+        samples' h s a i = samples h s a i := fun h s a i hi =>
+      hagree h s a i (by rw [countsOf_ucbviHistory_succ]; omega)
+    have hτ := ih hprev
+    set N := countsOf (M.ucbviHistory H L s₀ samples k) k
+    have hπ := M.ucbviPolicy_congr H L (N := N) hprev
+    have hstates := episodeState_congr (samples := samples) (samples' := samples')
+      (M.ucbviPolicy H L samples N) N s₀ (h := 0) (fun j hj => absurd hj (by omega))
+    have hep : ∀ j, episodeState samples' (M.ucbviPolicy H L samples N) N s₀ j =
+        episodeState samples (M.ucbviPolicy H L samples N) N s₀ j := by
+      intro j
+      refine episodeState_congr _ N s₀ (h := j) (fun i _ => ?_) j le_rfl
+      apply hagree
+      rw [countsOf_ucbviHistory_succ]
+      have htr : M.ucbviTrajectory H L s₀ samples k i =
+          (episodeState samples (M.ucbviPolicy H L samples N) N s₀ i,
+            M.ucbviPolicy H L samples N i
+              (episodeState samples (M.ucbviPolicy H L samples N) N s₀ i)) := by
+        rw [ucbviTrajectory_eq, ucbviPolicyAt, ← countsOf_ucbviHistory]
+      rw [htr]
+      simp only [↓reduceIte]
+      exact Nat.lt_succ_self _
+    clear hstates
+    simp only [ucbviHistory, hτ]
+    rw [show countsOf (M.ucbviHistory H L s₀ samples k) k = N from rfl, hπ]
+    congr 1
+    funext h
+    rw [hep h]
+
 end EpisodicMDP
 
 end Rlib

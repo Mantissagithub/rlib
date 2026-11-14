@@ -32,3 +32,11 @@ example {S A : Type} [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [Decid
     (M.ucbviTrajectory H L s₀ samples k 0).1 = s₀ := by
   rw [M.ucbviTrajectory_eq]
   rfl
+
+open MeasureTheory in
+/-- Resampling one coordinate of a product of two fair coins. -/
+example (ν : Bool → PMF Bool) (G : (Bool → Bool) → Bool → ℝ)
+    (hG : ∀ ω z y, G (Function.update ω true z) y = G ω y) :
+    ∫ ω, G ω (ω true) ∂(Measure.pi fun i => (ν i).toMeasure) =
+      ∫ ω, expect (ν true) (G ω) ∂(Measure.pi fun i => (ν i).toMeasure) :=
+  integral_pi_resample ν true G hG

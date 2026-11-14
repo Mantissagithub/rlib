@@ -89,6 +89,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [Probability/Empirical](Rlib/Probability/Empirical.lean) | Nonempty sample means, empirical distributions, frequencies, and expectation identities |
 | [Probability/Concentration](Rlib/Probability/Concentration.lean) | Two-sided Hoeffding bound for independent bounded observations with a common mean |
 | [Probability/Bernstein](Rlib/Probability/Bernstein.lean) | Bernstein's inequality for independent bounded observations |
+| [Probability/ProductResample](Rlib/Probability/ProductResample.lean) | Resampling one coordinate of a product of finite distributions |
 | [Probability/MartingaleSeries](Rlib/Probability/MartingaleSeries.lean) | Almost sure convergence of weighted bounded martingale differences |
 | [MDP/Basic](Rlib/MDP/Basic.lean) | Environments, policies, and one-step values |
 | [MDP/Empirical](Rlib/MDP/Empirical.lean) | MDP estimates from paired observations and exact one-step sample identities |
