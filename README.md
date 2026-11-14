@@ -43,6 +43,7 @@ The Bellman and return results cover finite state and action sets:
 - **Component-wise bounds (Agarwal, Jiang, Kakade, and Sun, Lemma 2.5).** For two MDPs with the same rewards, the gap `Q* - Q̂*` between their optimal Q tables lies between the action values, in the second MDP, of its greedy policy and of the first MDP's greedy policy, both under the reward `γ (P - P̂) V*`.
 - **Uniform Bernstein deviations (Agarwal, Jiang, Kakade, and Sun, Lemma 2.10).** With `N` independent successors per state-action pair from the model's law and the true rewards, for any `v` with values in `[0, B]`, with probability at least `1 - δ`, `|(P - P̂) v| < √(2 log (2 |S| |A| / δ) / N * Var_P (v)) + 2 B log (2 |S| |A| / δ) / (3 N)` at every pair.
 - **Minimax value estimation (Agarwal, Jiang, Kakade, and Sun, Theorem 2.6).** With rewards in `[0, 1]`, `N` independent successors per state-action pair, and `Q̂*` the optimal Q table of the MDP with the true rewards and empirical transitions, with probability at least `1 - δ`, `‖Q* - Q̂*‖∞ ≤ γ √(c log (c |S| |A| / δ) / ((1 - γ) ^ 3 N)) + c γ log (c |S| |A| / δ) / ((1 - γ) ^ 3 N)` with the explicit constant `c = 12`. This improves the earlier `1 / (1 - γ) ^ 4` dependence to the minimax `1 / (1 - γ) ^ 3`. With Lemma 1.11, the greedy policy of `Q̂*` is then within `2 / (1 - γ)` times this bound of optimal.
+- **Episodic MDPs and optimism (Agarwal, Jiang, Kakade, and Sun, Lemma 7.4 and Equation 0.4).** For finite-horizon MDPs with stage-dependent transitions and rewards in `[0, 1]`, the optimistic value iteration of UCB-VI, truncated at `H`, dominates the optimal values whenever the bonuses cover the model error on `V*`, and its start value exceeds the value of its greedy policy by at most the summed expected bonuses and model errors along that policy.
 - A stationary policy's action values average to its state value under its own action choice, its advantages average to zero, and its action values satisfy their own Bellman equation.
 - **Performance difference lemma.** The value of a new policy minus the value of an old one is the new policy's value when every reward is replaced by the old policy's advantage. A policy with nonnegative expected advantage under another at every state is at least as good everywhere.
 - A policy has no action with positive advantage exactly when its value satisfies the Bellman optimality equation, and such a policy is at least as good as every stationary policy.
@@ -96,6 +97,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [MDP/TotalVariance](Rlib/MDP/TotalVariance.lean) | Variances of values under the transition law and the total variance bounds |
 | [MDP/MinimaxEstimation](Rlib/MDP/MinimaxEstimation.lean) | Component-wise bounds toward the minimax sample complexity of model-based estimation |
 | [MDP/MinimaxSampleComplexity](Rlib/MDP/MinimaxSampleComplexity.lean) | The minimax value-estimation bound of model-based planning with a generative model |
+| [Episodic/Basic](Rlib/Episodic/Basic.lean) | Episodic MDPs, optimal values, and the optimistic value iteration of UCB-VI |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |
@@ -207,6 +209,7 @@ lake env lean -DwarningAsError=true RlibTest/QGreedy.lean
 lake env lean -DwarningAsError=true RlibTest/Bernstein.lean
 lake env lean -DwarningAsError=true RlibTest/TotalVariance.lean
 lake env lean -DwarningAsError=true RlibTest/MinimaxEstimation.lean
+lake env lean -DwarningAsError=true RlibTest/EpisodicBasic.lean
 ```
 
 CI builds the library, audits the public theorems, and compiles the examples. These include stochastic transitions, negative rewards, tied actions, and concentration for four independent fair Bool observations on a product probability space.

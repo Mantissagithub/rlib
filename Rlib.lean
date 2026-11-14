@@ -29,6 +29,7 @@ public import Rlib.MDP.QGreedy
 public import Rlib.MDP.TotalVariance
 public import Rlib.MDP.MinimaxEstimation
 public import Rlib.MDP.MinimaxSampleComplexity
+public import Rlib.Episodic.Basic
 public import Rlib.MDP.PerformanceDifference
 public import Rlib.MDP.Visitation
 public import Rlib.MDP.PolicyGradient

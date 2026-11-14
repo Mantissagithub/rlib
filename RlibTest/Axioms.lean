@@ -298,3 +298,19 @@ import Rlib
 #print axioms Rlib.MDP.abs_sub_le_of_deviations
 #print axioms Rlib.MDP.measure_abs_sub_qBellman_fixed_le
 #print axioms Rlib.MDP.measure_qGreedyPolicy_suboptimal_le_minimax
+
+#print axioms Rlib.stage_induction
+#print axioms Rlib.EpisodicMDP.value_of_lt
+#print axioms Rlib.EpisodicMDP.value_of_le
+#print axioms Rlib.EpisodicMDP.value_nonneg
+#print axioms Rlib.EpisodicMDP.optValue_of_lt
+#print axioms Rlib.EpisodicMDP.optValue_of_le
+#print axioms Rlib.EpisodicMDP.optQ_le_optValue
+#print axioms Rlib.EpisodicMDP.optValue_nonneg
+#print axioms Rlib.EpisodicMDP.optValue_le
+#print axioms Rlib.EpisodicMDP.value_le_optValue
+#print axioms Rlib.EpisodicMDP.le_argmaxAction
+#print axioms Rlib.EpisodicMDP.ucbValue_of_lt
+#print axioms Rlib.EpisodicMDP.ucbValue_of_le
+#print axioms Rlib.EpisodicMDP.optValue_le_ucbValue
+#print axioms Rlib.EpisodicMDP.ucbValue_sub_value_le

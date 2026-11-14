@@ -124,3 +124,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/TotalVariance.lean
       - name: Check minimax estimation example
         run: lake env lean -DwarningAsError=true RlibTest/MinimaxEstimation.lean
+      - name: Check episodic example
+        run: lake env lean -DwarningAsError=true RlibTest/EpisodicBasic.lean
