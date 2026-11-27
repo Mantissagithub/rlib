@@ -364,3 +364,10 @@ import Rlib
 #print axioms Rlib.EpisodicMDP.good_value
 #print axioms Rlib.EpisodicMDP.sum_refinedCost_le
 #print axioms Rlib.EpisodicMDP.regret_ucbvi_refined_le
+#print axioms Rlib.MDP.mixPolicy_toReal
+#print axioms Rlib.MDP.expect_mixPolicy
+#print axioms Rlib.MDP.expect_mixPolicy_advantage
+#print axioms Rlib.MDP.sum_abs_mixPolicy_sub_le
+#print axioms Rlib.MDP.sum_abs_weightedVisitation_mixPolicy_sub_le
+#print axioms Rlib.MDP.expect_policyValue_mixPolicy_sub_ge
+#print axioms Rlib.MDP.expect_policyValue_mixPolicy_sub_ge_sq

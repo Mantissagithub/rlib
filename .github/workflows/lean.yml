@@ -126,3 +126,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/MinimaxEstimation.lean
       - name: Check episodic example
         run: lake env lean -DwarningAsError=true RlibTest/EpisodicBasic.lean
+      - name: Check conservative policy iteration example
+        run: lake env lean -DwarningAsError=true RlibTest/ConservativePolicyIteration.lean
