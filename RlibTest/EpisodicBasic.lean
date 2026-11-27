@@ -69,3 +69,7 @@ example {S A : Type} [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [Decid
 /-- The refined analysis loses at most the factor `(1 + 1 / H) ^ H ≤ e`. -/
 example : (1 + 1 / (4 : ℝ)) ^ 4 ≤ Real.exp 1 := by
   exact_mod_cast EpisodicMDP.one_add_inv_pow_le_exp_one (H := 4) (by norm_num) le_rfl
+
+/-- The harmonic sum used for the `1 / N` terms of Theorem 7.6. -/
+example : ∑ j ∈ Finset.range 3, 1 / (j : ℝ) ≤ 1 + Real.log 3 :=
+  EpisodicMDP.sum_range_one_div_le_one_add_log 3

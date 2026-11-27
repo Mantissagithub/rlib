@@ -356,3 +356,11 @@ import Rlib
 #print axioms Rlib.EpisodicMDP.one_add_inv_pow_le_exp_one
 #print axioms Rlib.EpisodicMDP.refinedCost_nonneg
 #print axioms Rlib.EpisodicMDP.optValue_sub_value_ucbviPolicy_le_refined
+#print axioms Rlib.EpisodicMDP.measure_tape_coord_le
+#print axioms Rlib.EpisodicMDP.measure_badCoord_le
+#print axioms Rlib.EpisodicMDP.sum_range_one_div_le_one_add_log
+#print axioms Rlib.EpisodicMDP.sum_one_div_visitCount_le
+#print axioms Rlib.EpisodicMDP.good_coord
+#print axioms Rlib.EpisodicMDP.good_value
+#print axioms Rlib.EpisodicMDP.sum_refinedCost_le
+#print axioms Rlib.EpisodicMDP.regret_ucbvi_refined_le
