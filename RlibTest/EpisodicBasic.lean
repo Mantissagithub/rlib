@@ -65,3 +65,7 @@ example {S A : Type} [Fintype S] [Fintype A] [Nonempty A] [DecidableEq S] [Decid
           Real.log (2 * (H * Fintype.card S * Fintype.card A * K) / (1 / 2))) +
         2 * H ^ 2 * Fintype.card S * Fintype.card A + 2 * (1 / 2) * K * H :=
   M.regret_ucbvi_le' hr hH s₀ (by norm_num) (by norm_num)
+
+/-- The refined analysis loses at most the factor `(1 + 1 / H) ^ H ≤ e`. -/
+example : (1 + 1 / (4 : ℝ)) ^ 4 ≤ Real.exp 1 := by
+  exact_mod_cast EpisodicMDP.one_add_inv_pow_le_exp_one (H := 4) (by norm_num) le_rfl

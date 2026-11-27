@@ -36,6 +36,7 @@ public import Rlib.Episodic.UCBVI
 public import Rlib.Episodic.UCBVILaw
 public import Rlib.Episodic.UCBVIConcentration
 public import Rlib.Episodic.UCBVIRegret
+public import Rlib.Episodic.UCBVIRefined
 public import Rlib.MDP.PerformanceDifference
 public import Rlib.MDP.Visitation
 public import Rlib.MDP.PolicyGradient

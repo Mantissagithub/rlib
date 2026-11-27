@@ -352,3 +352,7 @@ import Rlib
 #print axioms Rlib.EpisodicMDP.sum_visitCost_le
 #print axioms Rlib.EpisodicMDP.regret_ucbvi_le
 #print axioms Rlib.EpisodicMDP.regret_ucbvi_le'
+#print axioms Rlib.EpisodicMDP.expect_sub_expect_le_refined
+#print axioms Rlib.EpisodicMDP.one_add_inv_pow_le_exp_one
+#print axioms Rlib.EpisodicMDP.refinedCost_nonneg
+#print axioms Rlib.EpisodicMDP.optValue_sub_value_ucbviPolicy_le_refined

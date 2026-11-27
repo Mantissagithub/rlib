@@ -108,6 +108,7 @@ See [ROADMAP.md](ROADMAP.md) for completed and planned work.
 | [Episodic/UCBVILaw](Rlib/Episodic/UCBVILaw.lean) | The law of each UCB-VI episode given the past |
 | [Episodic/UCBVIConcentration](Rlib/Episodic/UCBVIConcentration.lean) | Hoeffding bounds for the empirical models of UCB-VI |
 | [Episodic/UCBVIRegret](Rlib/Episodic/UCBVIRegret.lean) | The regret bound of UCB-VI |
+| [Episodic/UCBVIRefined](Rlib/Episodic/UCBVIRefined.lean) | The refined per-episode analysis of UCB-VI |
 | [MDP/OneStep](Rlib/MDP/OneStep.lean) | Ordering and error bounds for one-step updates |
 | [MDP/PolicyEvaluation](Rlib/MDP/PolicyEvaluation.lean) | A policy's unique Bellman value |
 | [MDP/Advantage](Rlib/MDP/Advantage.lean) | Action values and advantages of a stationary policy |
