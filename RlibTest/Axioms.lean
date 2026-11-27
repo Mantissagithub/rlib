@@ -373,3 +373,6 @@ import Rlib
 #print axioms Rlib.MDP.expect_policyValue_mixPolicy_sub_ge_sq
 #print axioms Rlib.MDP.visitationAdvantage_le
 #print axioms Rlib.MDP.cpi_local_optimality
+#print axioms Rlib.MDP.maxAdvantage_nonneg
+#print axioms Rlib.MDP.expect_policyValue_sub_le_of_coverage
+#print axioms Rlib.MDP.cpi_global_optimality

@@ -318,4 +318,121 @@ theorem cpi_local_optimality (m : MDP S A) (hr : ∀ s a, m.reward s a ∈ Set.I
     exact mul_lt_mul_of_pos_right hlt hcpos
   linarith [(hVrange 0).1, (hVrange (N + 1)).2]
 
+/-! ### Global optimality (Theorem 14.4) -/
+
+/-- The largest advantage of `π` at a state. -/
+def maxAdvantage [Nonempty A] (m : MDP S A) (π : StationaryPolicy S A) {γ : ℝ} (hγ0 : 0 ≤ γ)
+    (hγ1 : γ < 1) (s : S) : ℝ :=
+  Finset.univ.sup' Finset.univ_nonempty (m.advantage π hγ0 hγ1 s)
+
+omit [DecidableEq S] in
+/-- The largest advantage is nonnegative, since advantages average to zero under the policy. -/
+theorem maxAdvantage_nonneg [Nonempty A] (m : MDP S A) (π : StationaryPolicy S A) {γ : ℝ}
+    (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (s : S) : 0 ≤ m.maxAdvantage π hγ0 hγ1 s := by
+  have h := expect_mono (π s) (f := m.advantage π hγ0 hγ1 s)
+    (g := fun _ => m.maxAdvantage π hγ0 hγ1 s) fun a =>
+      Finset.le_sup' (m.advantage π hγ0 hγ1 s) (Finset.mem_univ a)
+  rwa [m.expect_advantage π hγ0 hγ1 s, expect_const] at h
+
+/-- **Theorem 14.4 (global optimality of CPI).** Take start distributions `ρ` for evaluation and
+`μ` for restarts, and any comparison policy `π⋆` (for example an optimal one). Suppose the
+visitation of `π⋆` from `ρ` is at most `C` times `μ`, so `C` plays the role of
+`‖d^{π⋆}_ρ / μ‖∞`. If some `π̂` satisfies `E_{s ∼ d^π_μ} A^π (s, π̂ (s)) ≤ 2 ε`, as `π` does on
+termination of CPI (Theorem 14.3), then
+`V^{π⋆}_ρ - V^π_ρ ≤ C (2 ε + ε_Π) / (1 - γ) ^ 2`, where
+`ε_Π = E_{s ∼ d^π_μ} max_a A^π (s, a) - E_{s ∼ d^π_μ} A^π (s, π̂ (s))`. -/
+theorem expect_policyValue_sub_le_of_coverage [Nonempty A] (m : MDP S A)
+    (π πstar πhat : StationaryPolicy S A) {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (ρ μ : PMF S)
+    {C ε : ℝ}
+    (hC : 0 ≤ C)
+    (hcov : ∀ s, m.weightedVisitation πstar hγ0 hγ1 (fun t => (ρ t).toReal) s ≤ C * (μ s).toReal)
+    (hloc : m.visitationAdvantage π πhat hγ0 hγ1 μ ≤ 2 * ε) :
+    expect ρ (m.policyValue πstar hγ0 hγ1) - expect ρ (m.policyValue π hγ0 hγ1) ≤
+      C * (2 * ε + (∑ s, m.weightedVisitation π hγ0 hγ1 (fun t => (μ t).toReal) s *
+        m.maxAdvantage π hγ0 hγ1 s - m.visitationAdvantage π πhat hγ0 hγ1 μ)) / (1 - γ) ^ 2 := by
+  have hγ : 0 < 1 - γ := sub_pos.mpr hγ1
+  set dρ := m.weightedVisitation πstar hγ0 hγ1 (fun t => (ρ t).toReal)
+  set dμ := m.weightedVisitation π hγ0 hγ1 (fun t => (μ t).toReal)
+  set M := m.maxAdvantage π hγ0 hγ1
+  have hM0 (s : S) : 0 ≤ M s := m.maxAdvantage_nonneg π hγ0 hγ1 s
+  have hdρ (s : S) : 0 ≤ dρ s := Finset.sum_nonneg fun s₀ _ =>
+    mul_nonneg ENNReal.toReal_nonneg (m.discountedVisitation_nonneg πstar hγ0 hγ1 s₀ s)
+  -- The visitation from `μ` puts at least `(1 - γ) μ (s)` on every state.
+  have hdμ (s : S) : (1 - γ) * (μ s).toReal ≤ dμ s := by
+    calc (1 - γ) * (μ s).toReal ≤ (μ s).toReal * m.discountedVisitation π hγ0 hγ1 s s := by
+          rw [mul_comm]
+          exact mul_le_mul_of_nonneg_left (m.one_sub_le_discountedVisitation_self π hγ0 hγ1 s)
+            ENNReal.toReal_nonneg
+      _ ≤ dμ s := Finset.single_le_sum (f := fun s₀ => (μ s₀).toReal *
+          m.discountedVisitation π hγ0 hγ1 s₀ s) (fun s₀ _ =>
+            mul_nonneg ENNReal.toReal_nonneg (m.discountedVisitation_nonneg π hγ0 hγ1 s₀ s))
+          (Finset.mem_univ s)
+  -- The performance difference lemma, averaged over `ρ`.
+  have hpdl : (1 - γ) * (expect ρ (m.policyValue πstar hγ0 hγ1) -
+      expect ρ (m.policyValue π hγ0 hγ1)) =
+      ∑ s, dρ s * expect (πstar s) (m.advantage π hγ0 hγ1 s) := by
+    simp only [expect, dρ, weightedVisitation]
+    rw [← Finset.sum_sub_distrib, Finset.mul_sum]
+    simp only [Finset.sum_mul]
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun s₀ _ => ?_
+    rw [← mul_sub, mul_left_comm, m.sub_policyValue_eq_sum_visitation π πstar hγ0 hγ1 s₀,
+      Finset.mul_sum]
+    exact Finset.sum_congr rfl fun s _ => by simp only [expect]; ring
+  have hchain : ∑ s, dρ s * expect (πstar s) (m.advantage π hγ0 hγ1 s) ≤
+      C / (1 - γ) * ∑ s, dμ s * M s := by
+    calc ∑ s, dρ s * expect (πstar s) (m.advantage π hγ0 hγ1 s)
+        ≤ ∑ s, dρ s * M s := Finset.sum_le_sum fun s _ => by
+          refine mul_le_mul_of_nonneg_left ?_ (hdρ s)
+          have := expect_mono (πstar s) (f := m.advantage π hγ0 hγ1 s) (g := fun _ => M s)
+            fun a => Finset.le_sup' (m.advantage π hγ0 hγ1 s) (Finset.mem_univ a)
+          rwa [expect_const] at this
+      _ ≤ ∑ s, C * (μ s).toReal * M s := Finset.sum_le_sum fun s _ =>
+          mul_le_mul_of_nonneg_right (hcov s) (hM0 s)
+      _ ≤ ∑ s, C / (1 - γ) * (dμ s * M s) := Finset.sum_le_sum fun s _ => by
+          have h1 : C * (μ s).toReal ≤ C / (1 - γ) * dμ s := by
+            rw [div_mul_eq_mul_div, le_div_iff₀ hγ]
+            nlinarith [mul_le_mul_of_nonneg_left (hdμ s) hC]
+          nlinarith [mul_le_mul_of_nonneg_right h1 (hM0 s)]
+      _ = C / (1 - γ) * ∑ s, dμ s * M s := by rw [Finset.mul_sum]
+  have hgap : ∑ s, dμ s * M s ≤ 2 * ε + (∑ s, dμ s * M s -
+      m.visitationAdvantage π πhat hγ0 hγ1 μ) := by linarith
+  have hfinal : (1 - γ) * (expect ρ (m.policyValue πstar hγ0 hγ1) -
+      expect ρ (m.policyValue π hγ0 hγ1)) ≤ C / (1 - γ) * (2 * ε + (∑ s, dμ s * M s -
+        m.visitationAdvantage π πhat hγ0 hγ1 μ)) := by
+    rw [hpdl]
+    exact hchain.trans (mul_le_mul_of_nonneg_left hgap (div_nonneg hC hγ.le))
+  rw [le_div_iff₀ (by positivity)]
+  have : C / (1 - γ) * (2 * ε + (∑ s, dμ s * M s - m.visitationAdvantage π πhat hγ0 hγ1 μ)) *
+      (1 - γ) = C * (2 * ε + (∑ s, dμ s * M s - m.visitationAdvantage π πhat hγ0 hγ1 μ)) := by
+    field_simp
+  nlinarith [mul_le_mul_of_nonneg_right hfinal hγ.le]
+
+/-- **CPI finds a near-optimal policy (Theorems 14.3 and 14.4).** Under the assumptions of
+Theorem 14.3 and the coverage assumption of Theorem 14.4, CPI stops within
+`8 γ / (ε ^ 2 (1 - γ) ^ 2)` steps at a policy `π_t` with
+`V^{π⋆}_ρ - V^{π_t}_ρ ≤ C (2 ε + ε_Π) / (1 - γ) ^ 2` for every `π̂` in the class, where `ε_Π` is
+measured against `π̂`. -/
+theorem cpi_global_optimality [Nonempty A] (m : MDP S A)
+    (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1) {γ : ℝ} (hγ0 : 0 < γ) (hγ1 : γ < 1)
+    (hγ5 : 1 - γ ≤ 4 * γ) (ρ μ : PMF S) (G : StationaryPolicy S A → StationaryPolicy S A)
+    {ε : ℝ} (hε : 0 < ε) (C : Set (StationaryPolicy S A))
+    (hG : ∀ π, ∀ π' ∈ C, m.visitationAdvantage π π' hγ0.le hγ1 μ ≤
+      m.visitationAdvantage π (G π) hγ0.le hγ1 μ + ε) (π₀ πstar : StationaryPolicy S A) {K : ℝ}
+    (hK : 0 ≤ K)
+    (hcov : ∀ s, m.weightedVisitation πstar hγ0.le hγ1 (fun t => (ρ t).toReal) s ≤
+      K * (μ s).toReal) :
+    ∃ t ≤ ⌊8 * γ / (ε ^ 2 * (1 - γ) ^ 2)⌋₊, ∀ πhat ∈ C,
+      expect ρ (m.policyValue πstar hγ0.le hγ1) -
+          expect ρ (m.policyValue (m.cpiPolicy hγ0.le hγ1 μ G ε π₀ t) hγ0.le hγ1) ≤
+        K * (2 * ε + (∑ s, m.weightedVisitation (m.cpiPolicy hγ0.le hγ1 μ G ε π₀ t) hγ0.le hγ1
+          (fun t => (μ t).toReal) s *
+            m.maxAdvantage (m.cpiPolicy hγ0.le hγ1 μ G ε π₀ t) hγ0.le hγ1 s -
+          m.visitationAdvantage (m.cpiPolicy hγ0.le hγ1 μ G ε π₀ t) πhat hγ0.le hγ1 μ)) /
+          (1 - γ) ^ 2 := by
+  obtain ⟨t, ht, -, hloc⟩ := m.cpi_local_optimality hr hγ0 hγ1 hγ5 μ G hε C hG π₀
+  exact ⟨t, ht, fun πhat hπhat =>
+    m.expect_policyValue_sub_le_of_coverage _ πstar πhat hγ0.le hγ1 ρ μ
+    hK hcov (hloc πhat hπhat)⟩
+
 end Rlib.MDP
