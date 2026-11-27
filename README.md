@@ -44,7 +44,7 @@ The learner reads successors from a table drawn in advance, which gives the same
 - The performance difference lemma, discounted visitation, and the policy gradient theorem ([PerformanceDifference](Rlib/MDP/PerformanceDifference.lean), [Visitation](Rlib/MDP/Visitation.lean), [PolicyGradient](Rlib/MDP/PolicyGradient.lean)).
 - Natural policy gradient converges at rate `log |A| / (η T) + 1 / ((1 - γ)² T)` (Agarwal et al., Theorem 16; [NaturalPolicyGradient](Rlib/MDP/NaturalPolicyGradient.lean)).
 - Exact softmax policy gradient with `η = (1 - γ)³ / 8` converges to the optimal values (Agarwal et al., Theorem 10) at rate `O(1 / t)` when the optimal action is unique (Mei et al., Lemmas 7–9 and Theorem 4; [SoftmaxSmoothness](Rlib/MDP/SoftmaxSmoothness.lean), [GradientDomination](Rlib/MDP/GradientDomination.lean), [SoftmaxPolicyGradient](Rlib/MDP/SoftmaxPolicyGradient.lean), [SoftmaxPGConvergence](Rlib/MDP/SoftmaxPGConvergence.lean)).
-- Conservative policy iteration: Lemma 14.1 and Theorem 14.2, monotonic improvement of the mixture `(1 - α) π + α π'` ([ConservativePolicyIteration](Rlib/MDP/ConservativePolicyIteration.lean)).
+- Conservative policy iteration (Section 14.1): mixing in a greedy policy improves the value by at least `𝔸² (1 - γ) / (8 γ)` (Theorem 14.2), and CPI stops within `8 γ / (ε² (1 - γ)²)` steps at a locally optimal policy (Theorem 14.3) ([ConservativePolicyIteration](Rlib/MDP/ConservativePolicyIteration.lean)).
 - The trust-region improvement bound, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, and generalized advantage estimation ([TrustRegion](Rlib/MDP/TrustRegion.lean), [ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean), [GRPO](Rlib/MDP/GRPO.lean), [GAE](Rlib/MDP/GAE.lean)).
 
 ## Build and check

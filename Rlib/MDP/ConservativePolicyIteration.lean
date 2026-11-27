@@ -44,7 +44,8 @@ theorem mixPolicy_toReal {α : ℝ} (hα : α ∈ Set.Icc (0 : ℝ) 1) (π π' :
     rw [min_eq_left hα.2, max_eq_right hα.1]
   simp only [mixPolicy, PMF.ofFintype_apply, hc]
   rw [ENNReal.toReal_add (ENNReal.mul_ne_top ENNReal.ofReal_ne_top ((π s).apply_ne_top a))
-    (ENNReal.mul_ne_top ENNReal.ofReal_ne_top ((π' s).apply_ne_top a)), ENNReal.toReal_mul, ENNReal.toReal_mul,
+    (ENNReal.mul_ne_top ENNReal.ofReal_ne_top ((π' s).apply_ne_top a)), ENNReal.toReal_mul,
+    ENNReal.toReal_mul,
     ENNReal.toReal_ofReal (by linarith [hα.2]), ENNReal.toReal_ofReal hα.1]
 
 omit [Fintype S] [DecidableEq S] in
@@ -194,3 +195,127 @@ theorem expect_policyValue_mixPolicy_sub_ge_sq (m : MDP S A)
   refine le_trans (le_of_eq ?_) (m.expect_policyValue_mixPolicy_sub_ge hr hα π π' hγ0.le hγ1 μ)
   field_simp
   ring
+
+/-! ### The CPI algorithm (Algorithm 8) -/
+
+/-- With rewards in `[0, 1]`, `𝔸` is at most `1 / (1 - γ)`. -/
+theorem visitationAdvantage_le (m : MDP S A) (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1)
+    (π π' : StationaryPolicy S A) {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (μ : PMF S) :
+    m.visitationAdvantage π π' hγ0 hγ1 μ ≤ 1 / (1 - γ) := by
+  have hw (s : S) : 0 ≤ m.weightedVisitation π hγ0 hγ1 (fun t => (μ t).toReal) s :=
+    Finset.sum_nonneg fun s₀ _ =>
+      mul_nonneg ENNReal.toReal_nonneg (m.discountedVisitation_nonneg π hγ0 hγ1 s₀ s)
+  have hsum : ∑ s, m.weightedVisitation π hγ0 hγ1 (fun t => (μ t).toReal) s = 1 := by
+    simp only [weightedVisitation]
+    rw [Finset.sum_comm]
+    simp only [← Finset.mul_sum, m.sum_discountedVisitation π hγ0 hγ1, mul_one, probability_sum]
+  have hg (s : S) : expect (π' s) (m.advantage π hγ0 hγ1 s) ≤ 1 / (1 - γ) := by
+    have := expect_mono (π' s) (g := fun _ => 1 / (1 - γ)) (f := m.advantage π hγ0 hγ1 s)
+      fun a => (abs_le.mp (m.abs_advantage_le π hγ0 hγ1 hr s a)).2
+    rwa [expect_const] at this
+  calc m.visitationAdvantage π π' hγ0 hγ1 μ
+      ≤ ∑ s, m.weightedVisitation π hγ0 hγ1 (fun t => (μ t).toReal) s * (1 / (1 - γ)) :=
+        Finset.sum_le_sum fun s _ => mul_le_mul_of_nonneg_left (hg s) (hw s)
+    _ = 1 / (1 - γ) := by rw [← Finset.sum_mul, hsum, one_mul]
+
+/-- The policies of conservative policy iteration (Algorithm 8). `G` is the greedy policy
+selector. At step `t`, if `𝔸 = E_{s ∼ d^{π_t}_μ} A^{π_t} (s, G π_t (s))` is at most `ε`, CPI
+returns `π_t`, and the sequence stays there. Otherwise it moves to the mixture with step
+`α = 𝔸 (1 - γ) ^ 2 / (4 γ)`. -/
+def cpiPolicy (m : MDP S A) {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1) (μ : PMF S)
+    (G : StationaryPolicy S A → StationaryPolicy S A) (ε : ℝ) (π₀ : StationaryPolicy S A) :
+    ℕ → StationaryPolicy S A
+  | 0 => π₀
+  | t + 1 =>
+    let π := cpiPolicy m hγ0 hγ1 μ G ε π₀ t
+    if m.visitationAdvantage π (G π) hγ0 hγ1 μ ≤ ε then π
+    else mixPolicy (m.visitationAdvantage π (G π) hγ0 hγ1 μ * (1 - γ) ^ 2 / (4 * γ)) π (G π)
+
+/-- **Theorem 14.3 (local optimality of CPI).** Take rewards in `[0, 1]`, `1 / 5 ≤ γ < 1`, and
+`ε > 0`. Suppose `G` is an `ε`-approximate greedy policy selector over a class `C`: for every
+`π` and every `π̃ ∈ C`, `E_{s ∼ d^π_μ} A^π (s, π̃ (s)) ≤ E_{s ∼ d^π_μ} A^π (s, G π (s)) + ε`.
+Then CPI stops within `8 γ / (ε ^ 2 (1 - γ) ^ 2)` steps, at a policy `π_t` with
+`E_{s ∼ d^{π_t}_μ} A^{π_t} (s, π̃ (s)) ≤ 2 ε` for every `π̃ ∈ C`.
+
+Each step before stopping gains at least `ε ^ 2 (1 - γ) / (8 γ)`, and values lie in
+`[0, 1 / (1 - γ)]`, which gives the step count. The book states `8 γ / ε ^ 2`, which omits the
+factor `(1 - γ) ^ 2` from the value range. The assumption `γ ≥ 1 / 5` makes every step size
+`α ≤ (1 - γ) / (4 γ)` at most one, which the book leaves implicit. -/
+theorem cpi_local_optimality (m : MDP S A) (hr : ∀ s a, m.reward s a ∈ Set.Icc (0 : ℝ) 1)
+    {γ : ℝ} (hγ0 : 0 < γ) (hγ1 : γ < 1) (hγ5 : 1 - γ ≤ 4 * γ) (μ : PMF S)
+    (G : StationaryPolicy S A → StationaryPolicy S A) {ε : ℝ} (hε : 0 < ε)
+    (C : Set (StationaryPolicy S A))
+    (hG : ∀ π, ∀ π' ∈ C, m.visitationAdvantage π π' hγ0.le hγ1 μ ≤
+      m.visitationAdvantage π (G π) hγ0.le hγ1 μ + ε) (π₀ : StationaryPolicy S A) :
+    ∃ t ≤ ⌊8 * γ / (ε ^ 2 * (1 - γ) ^ 2)⌋₊,
+      m.visitationAdvantage (m.cpiPolicy hγ0.le hγ1 μ G ε π₀ t)
+          (G (m.cpiPolicy hγ0.le hγ1 μ G ε π₀ t)) hγ0.le hγ1 μ ≤ ε ∧
+      ∀ π' ∈ C, m.visitationAdvantage (m.cpiPolicy hγ0.le hγ1 μ G ε π₀ t) π' hγ0.le hγ1 μ ≤
+        2 * ε := by
+  have hγ : 0 < 1 - γ := sub_pos.mpr hγ1
+  set N := ⌊8 * γ / (ε ^ 2 * (1 - γ) ^ 2)⌋₊
+  set π : ℕ → StationaryPolicy S A := m.cpiPolicy hγ0.le hγ1 μ G ε π₀
+  set 𝔸 : ℕ → ℝ := fun t => m.visitationAdvantage (π t) (G (π t)) hγ0.le hγ1 μ
+  set V : ℕ → ℝ := fun t => expect μ (m.policyValue (π t) hγ0.le hγ1)
+  set c : ℝ := ε ^ 2 * (1 - γ) / (8 * γ)
+  suffices hstop : ∃ t ≤ N, 𝔸 t ≤ ε by
+    obtain ⟨t, ht, hA⟩ := hstop
+    exact ⟨t, ht, hA, fun π' hπ' => (hG (π t) π' hπ').trans (by simp only [𝔸] at hA; linarith)⟩
+  by_contra hne
+  have hgt (t : ℕ) (ht : t ≤ N) : ε < 𝔸 t := by
+    by_contra h
+    exact hne ⟨t, ht, not_lt.mp h⟩
+  -- Every step before `N + 1` gains at least `c`.
+  have hgain (t : ℕ) (ht : t ≤ N) : V t + c ≤ V (t + 1) := by
+    have hA0 : 0 ≤ 𝔸 t := hε.le.trans (hgt t ht).le
+    have hA1 : 𝔸 t * (1 - γ) ^ 2 / (4 * γ) ≤ 1 := by
+      have h1 := m.visitationAdvantage_le hr (π t) (G (π t)) hγ0.le hγ1 μ
+      rw [div_le_one (by positivity)]
+      calc 𝔸 t * (1 - γ) ^ 2 ≤ 1 / (1 - γ) * (1 - γ) ^ 2 :=
+            mul_le_mul_of_nonneg_right h1 (by positivity)
+        _ = 1 - γ := by field_simp
+        _ ≤ 4 * γ := hγ5
+    have hnext : π (t + 1) = mixPolicy (𝔸 t * (1 - γ) ^ 2 / (4 * γ)) (π t) (G (π t)) := by
+      have hn : ¬ 𝔸 t ≤ ε := not_le.mpr (hgt t ht)
+      change (if 𝔸 t ≤ ε then π t else _) = _
+      simp only [hn, ↓reduceIte]
+      rfl
+    have h := m.expect_policyValue_mixPolicy_sub_ge_sq hr (π t) (G (π t)) hγ0 hγ1 μ hA0 hA1
+    have hsq : ε ^ 2 ≤ 𝔸 t ^ 2 := pow_le_pow_left₀ hε.le (hgt t ht).le 2
+    have hc : c ≤ 𝔸 t ^ 2 * (1 - γ) / (8 * γ) := by
+      simp only [c]
+      gcongr
+    simp only [V, hnext]
+    change c ≤ _ at hc
+    linarith
+  have hsum : ∀ t ≤ N + 1, V 0 + t * c ≤ V t := by
+    intro t
+    induction t with
+    | zero => intro _; simp
+    | succ t ih =>
+      intro ht
+      have := hgain t (by omega)
+      push_cast
+      linarith [ih (by omega)]
+  have hVrange (t : ℕ) : V t ∈ Set.Icc 0 (1 / (1 - γ)) := by
+    constructor
+    · have := expect_mono μ (f := fun _ => 0) (g := m.policyValue (π t) hγ0.le hγ1)
+        fun s => (m.policyValue_mem_Icc (π t) hγ0.le hγ1 hr s).1
+      rwa [expect_const] at this
+    · have := expect_mono μ (g := fun _ => 1 / (1 - γ)) (f := m.policyValue (π t) hγ0.le hγ1)
+        fun s => (m.policyValue_mem_Icc (π t) hγ0.le hγ1 hr s).2
+      rwa [expect_const] at this
+  have hfin := hsum (N + 1) le_rfl
+  have hlt : 8 * γ / (ε ^ 2 * (1 - γ) ^ 2) < (N + 1 : ℕ) := by
+    push_cast
+    exact Nat.lt_floor_add_one _
+  have hcpos : 0 < c := by positivity
+  have hmul : 8 * γ / (ε ^ 2 * (1 - γ) ^ 2) * c = 1 / (1 - γ) := by
+    simp only [c]
+    field_simp
+  have : 1 / (1 - γ) < ((N + 1 : ℕ) : ℝ) * c := by
+    rw [← hmul]
+    exact mul_lt_mul_of_pos_right hlt hcpos
+  linarith [(hVrange 0).1, (hVrange (N + 1)).2]
+
+end Rlib.MDP

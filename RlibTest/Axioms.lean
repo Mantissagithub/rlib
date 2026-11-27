@@ -371,3 +371,5 @@ import Rlib
 #print axioms Rlib.MDP.sum_abs_weightedVisitation_mixPolicy_sub_le
 #print axioms Rlib.MDP.expect_policyValue_mixPolicy_sub_ge
 #print axioms Rlib.MDP.expect_policyValue_mixPolicy_sub_ge_sq
+#print axioms Rlib.MDP.visitationAdvantage_le
+#print axioms Rlib.MDP.cpi_local_optimality
