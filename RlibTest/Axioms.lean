@@ -409,3 +409,8 @@ import Rlib
 #print axioms Rlib.abs_inv_sqrt_sub_le
 #print axioms Rlib.abs_grpoMap_sub_le
 #print axioms Rlib.tendsto_successProb_grpoPolicy
+#print axioms Rlib.MDP.sum_sub_policyValue_eq_weightedVisitation
+#print axioms Rlib.MDP.three_point_softmax
+#print axioms Rlib.MDP.pmd_step
+#print axioms Rlib.MDP.pmd_linear_convergence
+#print axioms Rlib.MDP.pmd_linear_convergence'

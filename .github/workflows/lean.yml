@@ -132,3 +132,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/KLPenaltyPPO.lean
       - name: Check GRPO dynamics example
         run: lake env lean -DwarningAsError=true RlibTest/GRPODynamics.lean
+      - name: Check policy mirror descent example
+        run: lake env lean -DwarningAsError=true RlibTest/PolicyMirrorDescent.lean

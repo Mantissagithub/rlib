@@ -47,6 +47,7 @@ The learner reads successors from a table drawn in advance, which gives the same
 - Conservative policy iteration (Section 14.1): mixing in a greedy policy improves the value by at least `𝔸² (1 - γ) / (8 γ)` (Theorem 14.2), and CPI stops within `8 γ / (ε² (1 - γ)²)` steps at a locally optimal policy (Theorem 14.3) that is near-optimal when `μ` covers the optimal visitation (Theorem 14.4) ([ConservativePolicyIteration](Rlib/MDP/ConservativePolicyIteration.lean)).
 - Exact PPO with a KL penalty (Liu et al. 2019) takes the natural policy gradient step, so it converges at the same `1 / T` rate ([KLPenaltyPPO](Rlib/MDP/KLPenaltyPPO.lean)).
 - GRPO with 0/1 rewards (Mroueh, ICML 2026): each iteration has a closed-form solution, the success probability follows a fixed recursion, and it rises above the reference policy's. When `8 β ε √ε > 1` it converges geometrically to the unique fixed point ([GRPODynamics](Rlib/MDP/GRPODynamics.lean)).
+- Policy mirror descent with the KL divergence converges linearly when its step sizes grow geometrically (Xiao 2022, Theorem 10; [PolicyMirrorDescent](Rlib/MDP/PolicyMirrorDescent.lean)).
 - The trust-region improvement bound, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, and generalized advantage estimation ([TrustRegion](Rlib/MDP/TrustRegion.lean), [ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean), [GRPO](Rlib/MDP/GRPO.lean), [GAE](Rlib/MDP/GAE.lean)).
 
 ## Build and check
