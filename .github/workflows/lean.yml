@@ -130,3 +130,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/ConservativePolicyIteration.lean
       - name: Check KL-penalized PPO example
         run: lake env lean -DwarningAsError=true RlibTest/KLPenaltyPPO.lean
+      - name: Check GRPO dynamics example
+        run: lake env lean -DwarningAsError=true RlibTest/GRPODynamics.lean
