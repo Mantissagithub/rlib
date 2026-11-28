@@ -128,3 +128,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/EpisodicBasic.lean
       - name: Check conservative policy iteration example
         run: lake env lean -DwarningAsError=true RlibTest/ConservativePolicyIteration.lean
+      - name: Check KL-penalized PPO example
+        run: lake env lean -DwarningAsError=true RlibTest/KLPenaltyPPO.lean

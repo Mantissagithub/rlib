@@ -376,3 +376,16 @@ import Rlib
 #print axioms Rlib.MDP.maxAdvantage_nonneg
 #print axioms Rlib.MDP.expect_policyValue_sub_le_of_coverage
 #print axioms Rlib.MDP.cpi_global_optimality
+#print axioms Rlib.sub_le_mul_log_div
+#print axioms Rlib.eq_of_mul_log_div_eq_sub
+#print axioms Rlib.kl_nonneg_of_ne_zero
+#print axioms Rlib.eq_of_kl_eq_zero
+#print axioms Rlib.kl_self
+#print axioms Rlib.expect_sub_mul_kl_eq
+#print axioms Rlib.MDP.softmaxPolicy_ne_zero
+#print axioms Rlib.MDP.softmaxPolicy_add_div
+#print axioms Rlib.MDP.sum_softmaxPolicy_mul_exp_pos
+#print axioms Rlib.MDP.eq_softmaxPolicy_iff_isKLPenaltyStep
+#print axioms Rlib.MDP.surrogate_sub_kl_le
+#print axioms Rlib.MDP.klPenaltyPPO_eq_npg
+#print axioms Rlib.MDP.klPenaltyPPO_rate
