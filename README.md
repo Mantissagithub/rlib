@@ -48,6 +48,7 @@ The learner reads successors from a table drawn in advance, which gives the same
 - Exact PPO with a KL penalty (Liu et al. 2019) takes the natural policy gradient step, so it converges at the same `1 / T` rate ([KLPenaltyPPO](Rlib/MDP/KLPenaltyPPO.lean)).
 - GRPO with 0/1 rewards (Mroueh, ICML 2026): each iteration has a closed-form solution, the success probability follows a fixed recursion, and it rises above the reference policy's. When `8 β ε √ε > 1` it converges geometrically to the unique fixed point ([GRPODynamics](Rlib/MDP/GRPODynamics.lean)).
 - Policy mirror descent with the KL divergence converges linearly when its step sizes grow geometrically (Xiao 2022, Theorem 10; [PolicyMirrorDescent](Rlib/MDP/PolicyMirrorDescent.lean)).
+- Tabular PPO-Clip, with mirror-descent steps on the clipped objective over batches that visit every pair infinitely often, converges to optimal values (Huang et al., AAAI 2024, Theorem 1; [PPOClipConvergence](Rlib/MDP/PPOClipConvergence.lean)).
 - The trust-region improvement bound, the PPO clipped surrogate, GRPO's group-relative advantages and KL estimator, and generalized advantage estimation ([TrustRegion](Rlib/MDP/TrustRegion.lean), [ClippedSurrogate](Rlib/MDP/ClippedSurrogate.lean), [GRPO](Rlib/MDP/GRPO.lean), [GAE](Rlib/MDP/GAE.lean)).
 
 ## Build and check

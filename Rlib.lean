@@ -47,6 +47,7 @@ public import Rlib.MDP.ConservativePolicyIteration
 public import Rlib.MDP.KLPenaltyPPO
 public import Rlib.MDP.GRPODynamics
 public import Rlib.MDP.PolicyMirrorDescent
+public import Rlib.MDP.PPOClipConvergence
 public import Rlib.MDP.GRPO
 public import Rlib.MDP.Optimality
 public import Rlib.MDP.QLearning

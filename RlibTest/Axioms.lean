@@ -414,3 +414,16 @@ import Rlib
 #print axioms Rlib.MDP.pmd_step
 #print axioms Rlib.MDP.pmd_linear_convergence
 #print axioms Rlib.MDP.pmd_linear_convergence'
+#print axioms Rlib.MDP.softmaxPolicy_toReal_pos
+#print axioms Rlib.MDP.softmaxPolicy_toReal_le_one
+#print axioms Rlib.MDP.clipInner_spec
+#print axioms Rlib.MDP.expect_softmaxPolicy_nonneg_of_sign
+#print axioms Rlib.MDP.ppoClipScores_succ_spec
+#print axioms Rlib.MDP.policyValue_ppoClip_le_succ
+#print axioms Rlib.MDP.tendsto_policyValue_ppoClip
+#print axioms Rlib.MDP.tendsto_advantage_ppoClip
+#print axioms Rlib.MDP.mul_exp_div_ge
+#print axioms Rlib.MDP.softmaxPolicy_ge_chi
+#print axioms Rlib.MDP.ppoClip_limit_advantage_nonpos
+#print axioms Rlib.MDP.ppoClip_tendsto_optimal
+#print axioms Rlib.MDP.ppoClip_tendsto_optimal_ae

@@ -134,3 +134,5 @@ jobs:
         run: lake env lean -DwarningAsError=true RlibTest/GRPODynamics.lean
       - name: Check policy mirror descent example
         run: lake env lean -DwarningAsError=true RlibTest/PolicyMirrorDescent.lean
+      - name: Check PPO-Clip example
+        run: lake env lean -DwarningAsError=true RlibTest/PPOClipConvergence.lean
